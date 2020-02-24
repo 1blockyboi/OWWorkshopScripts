@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "제작:Block#12425, 버전 1.1.0 Brigs fight는 경기장에서 싸워 서로를 밀칩니다!  브리는 이를 위해 강화된 도리깨를 사용합니다. 자신을 공중으로 띄우거나 경기장에서  다른 플레이어를 바깥으로 날려보내기 위해 도리깨를 사용합니다! 각 플레이어는 1회용 방패를 가지고 있습니다.  또한 방패 밀치기는 더욱 먼 거리를 이동합니다."
+		Description: "제작:Block#12425, 버전 1.1.0 Brigs fight는 경기장에서 싸워 서로를 밀칩니다! 브리는 이를 위해 강화된 도리깨를 사용합니다. 자신을 공중으로 띄우거나 경기장에서 다른 플레이어를 바깥으로 날려보내기 위해 도리깨를 사용합니다! 각 플레이어는 1회용 방패를 가지고 있습니다. 또한 방패 밀치기는 더욱 먼 거리를 이동합니다."
 	}
 
 	lobby
@@ -18,9 +18,6 @@ settings
 	{
 		Deathmatch
 		{
-			Score To Win: 15
-			Self Initiated Respawn: Off
-
 			enabled maps
 			{
 				Black Forest
@@ -37,6 +34,8 @@ settings
 			Game Mode Start: Immediately
 			Hero Limit: Off
 			Respawn Time Scalar: 10%
+			Score To Win: 15
+			Self Initiated Respawn: Off
 			Spawn Health Packs: Disabled
 		}
 	}
@@ -111,7 +110,7 @@ subroutines
 	14: countdown
 }
 
-disabled rule("Brig's Boopfest. Created by Block#12425. Version 1.1.0. 한국어 번역을 도와주신 홀수돚거#3265님께 감사드립니다.")
+disabled rule("Brig's Boopfest! Created by Block#12425. Version 1.1.0. 한국어 번역을 도와주신 홀수돚거#3265님께 감사드립니다.")
 {
 	event
 	{
@@ -192,39 +191,44 @@ rule("Block#12425 - HUD Setup Subroutine")
 	{
 		"HUD message that appears when player is in the air after touching ground."
 		Create HUD Text(Filtered Array(All Players(All Teams), And(Compare(Is Using Ultimate(Current Array Element), ==, False), Compare(
-			Is In Air(Current Array Element), ==, True))), Custom String("치명타에 취약함", Null, Null, Null), Null, Null, Top, 1, Orange, White,
-			White, Visible To and String, Default Visibility);
+			Is In Air(Current Array Element), ==, True))), Custom String("치명타에 취약함", Null, Null, Null), Null, Null, Top,
+			1, Orange, White, White, Visible To and String, Default Visibility);
 		"This HUD element appears when the player is ulting."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Is Using Ultimate(Current Array Element), ==, True)), Custom String(
 			"무적", Null, Null, Null), Null, Null, Top, 2, Aqua, White, White, Visible To and String, Default Visibility);
-		"First part of the HUD guide on the top left corner of the player."
+		"HUD Guide."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
-			Null, Custom String("* 적들을 경기장 밖으로 밀쳐내버리세요!
-* 공중에서 바닥을 쳐 스스로 밀치세요.
-* 공중에 떠있는 적을 가격해 더욱 멀리 밀쳐내세요.", Null, Null, Null), Left,
-			2, White, White, White, Visible To and String, Default Visibility);
+			Null, Custom String("*적들을 경기장 밖으로 밀쳐내버리세요!", Null, Null, Null), Left, 2, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*공중에서 바닥을 쳐 스스로 밀치세요.", Null, Null, Null), Left, 2.100, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*공중에 떠있는 적을 가격해 더욱 멀리 밀쳐내세요.", Null, Null, Null), Left, 2.200, White, White, White,
+			Visible To and String, Default Visibility);
 		"Second part of the HUD guide."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
-			Null, Custom String("* 방패 밀치기는 더욱 먼 거리를 이동합니다.
-* 방패는 한 번의 타격만 막아낼 수 있습니다.
-* 궁극기는 당신을 무적으로 만듭니다.
-", Null, Null, Null), Left,
-			3, White, White, White, Visible To and String, Default Visibility);
+			Null, Custom String("*방패 밀치기는 더욱 먼 거리를 이동합니다.", Null, Null, Null), Left, 3, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*방패는 한 번의 타격만 막아낼 수 있습니다.", Null, Null, Null), Left, 3.100, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*궁극기는 당신을 무적으로 만듭니다.", Null, Null, Null), Left, 3.200, White, White, White,
+			Visible To and String, Default Visibility);
 		"This HUD guide element is always present and tells the player what button to press to enable/disable the guide."
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String(" 
-* 설명을 비활성화하려면 상호 작용을 누르세요.", Null, Null, Null), Left, 4,
-			White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String(" ", Null, Null, Null), Custom String(
+			"*설명을 비활성화하려면 상호 작용을 누르세요.", Null, Null, Null), Left, 4, White, White, White, Visible To and String,
+			Default Visibility);
 		"First element HUD of the game title information on the top right corner of the UI."
 		Create HUD Text(All Players(All Teams), Custom String("Brig's Boopfest", Null, Null, Null), Null, Null, Right, -4.000, Orange,
 			White, White, Visible To and String, Default Visibility);
 		"Second HUD element on the top right corner of the UI."
-		Create HUD Text(All Players(All Teams), Null, Custom String("제작: Block#12425, 버전 1.1.0
-", Null, Null, Null), Custom String(" ",
-			Null, Null, Null), Right, -3.000, White, White, Orange, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String("제작: Block#12425, 버전 1.1.0", Null, Null, Null),
+			Custom String(" ", Null, Null, Null), Right, -3.000, White, White, Orange, Visible To and String, Default Visibility);
 		"Discord Link HUD element in the top right corner of the UI."
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String("저희 디스코드에 들어오세요!: discord.gg/CSKSVDH (대문자)
-", Null, Null, Null),
-			Right, -2.000, White, White, Green, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("저희 디스코드에 들어오세요!: discord.gg/CSKSVDH (대문자)", Null, Null,
+			Null), Right, -2.000, White, White, Green, Visible To and String, Default Visibility);
 		"Project Link HUD element in the top right corner of the HUD."
 		Create HUD Text(All Players(All Teams), Null, Custom String(" ", Null, Null, Null), Custom String(
 			"좋아요를 눌러주세요: bit.ly/OWWBRIGB (대문자)", Null, Null, Null), Right, -1.000, Green, White, Green, Visible To and String,
@@ -1070,7 +1074,7 @@ rule("Block#12425 - Player Hit in Air")
 		"This rule applies an impulse to the victim if the victim is in the air. This is a critical hit. If the hit is blocked by the victim's shield, then the hit doesn't count as damage and the impulse isn't applied."
 		Play Effect(All Players(All Teams), Good Explosion, Orange, Position Of(Victim), 1);
 		Apply Impulse(Victim, Direction Towards(Event Player, Victim), 40, To World, Cancel Contrary Motion);
-		Small Message(Event Player, Custom String("치명타! ", Null, Null, Null));
+		Small Message(Event Player, Custom String("치명타!", Null, Null, Null));
 		Small Message(Victim, Custom String("치명타를 받았습니다!", Null, Null, Null));
 	}
 }

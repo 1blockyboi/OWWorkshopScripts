@@ -18,9 +18,6 @@ settings
 	{
 		Deathmatch
 		{
-			Score To Win: 15
-			Self Initiated Respawn: Off
-
 			enabled maps
 			{
 				Black Forest
@@ -37,6 +34,8 @@ settings
 			Game Mode Start: Immediately
 			Hero Limit: Off
 			Respawn Time Scalar: 10%
+			Score To Win: 15
+			Self Initiated Respawn: Off
 			Spawn Health Packs: Disabled
 		}
 	}
@@ -197,23 +196,30 @@ rule("Block#12425 - HUD Setup Subroutine")
 		"This HUD element appears when the player is ulting."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Is Using Ultimate(Current Array Element), ==, True)), Custom String(
 			"Invulnerable", Null, Null, Null), Null, Null, Top, 2, Aqua, White, White, Visible To and String, Default Visibility);
-		"First part of the HUD guide on the top left corner of the player."
+		"HUD Guide."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
-			Null, Custom String(
-			"*Boop enemies out of the arena!
-*Self boop by hitting a surface while in air.
-*Get critical hits by hitting airborne targets.",
-			Null, Null, Null), Left, 2, White, White, White, Visible To and String, Default Visibility);
+			Null, Custom String("*Boop enemies out of the arena!", Null, Null, Null), Left, 2, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*Self boop by hitting a surface while in air.", Null, Null, Null), Left, 2.100, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*Get critical hits by hitting airborne targets.", Null, Null, Null), Left, 2.200, White, White, White,
+			Visible To and String, Default Visibility);
 		"Second part of the HUD guide."
 		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
-			Null, Custom String("*Shield Bash goes much further.
-*Shield can only take one hit.
-*Ultimate makes you invulnerable.", Null,
-			Null, Null), Left, 3, White, White, White, Visible To and String, Default Visibility);
+			Null, Custom String("*Shield Bash goes much further.", Null, Null, Null), Left, 3, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*Shield can only take one hit.", Null, Null, Null), Left, 3.100, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, noHelp), ==, False)), Null,
+			Null, Custom String("*Ultimate makes you invulnerable.", Null, Null, Null), Left, 3.200, White, White, White,
+			Visible To and String, Default Visibility);
 		"This HUD guide element is always present and tells the player what button to press to enable/disable the guide."
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String(" 
-*Press Interact (Default: F) to toggle guide.", Null, Null,
-			Null), Left, 4, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String(" ", Null, Null, Null), Custom String(
+			"*Press Interact (Default: F) to toggle guide.", Null, Null, Null), Left, 4, White, White, White, Visible To and String,
+			Default Visibility);
 		"First element HUD of the game title information on the top right corner of the UI."
 		Create HUD Text(All Players(All Teams), Custom String("Brig's Boopfest", Null, Null, Null), Null, Null, Right, -4.000, Orange,
 			White, White, Visible To and String, Default Visibility);
