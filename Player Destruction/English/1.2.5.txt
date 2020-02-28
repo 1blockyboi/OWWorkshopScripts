@@ -1,0 +1,1741 @@
+settings
+{
+	main
+	{
+		Description: "Ver. 1.2.5. This mode is based on Player Destruction from Team Fortress 2. You must collect the enemy team's orbs by killing them. You must then deposit those orbs in the beam. The beam spawns periodically. Team leaders have the most resources out of the team and are visible everywhere. First team to reach the goal score wins."
+	}
+
+	lobby
+	{
+		Max Spectators: 6
+		Return To Lobby: Never
+		Team Balancing: After A Game
+	}
+
+	modes
+	{
+		Team Deathmatch
+		{
+			Mercy Resurrect Counteracts Kills: Off
+			Score To Win: 1
+
+			enabled maps
+			{
+				Lijiang Control Center
+				Lijiang Control Center Lunar New Year
+				Lijiang Garden
+				Lijiang Garden Lunar New Year
+				Lijiang Night Market
+				Lijiang Night Market Lunar New Year
+				Nepal Sanctum
+				Nepal Shrine
+				Nepal Village
+				Oasis City Center
+				Oasis Gardens
+				Oasis University
+			}
+		}
+
+		General
+		{
+			Spawn Health Packs: Enabled
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: beamPositionStart
+		1: goalScore
+		2: isBeamActive
+		3: orbRadius
+		4: ringPositionEnd
+		5: beamRadius
+		6: collectPhaseTime
+		7: roundsLeft
+		8: depositPhaseTime
+		9: phaseCheck
+		10: team1Leader
+		11: team2Leader
+		12: team1OrbsArray
+		13: team2OrbsArray
+		14: team1OrbPositions
+		15: team2OrbPositions
+		16: team1OrbValues
+		17: i
+		18: beamMovementRate
+		19: team2OrbValues
+		20: ringPositionStart
+		21: team2Spawn
+		22: team1Spawn
+		23: j
+		24: chasedVariable
+		25: beamPositionEnd
+		26: spawnProtectionTime
+		27: initialAssemblyTime
+		28: hiddenLocation
+
+	player:
+		0: spawnProtected
+		1: closestOrb
+		2: previousOrbValue
+		3: valueOfOrb
+		8: tempIndexValue
+		12: isBeingRevived
+		13: deathPosition
+		14: playerBeingRevived
+		15: hasSpawnedOnce
+}
+
+subroutines
+{
+	0: matchSetup
+	1: hudSetup
+	2: goalScoreSetup
+	3: orbSetup
+	4: spawnSetup1
+	5: spawnSetup2
+	6: depositOrb
+	7: mapSetupOasisUniversity
+	8: mapSetupOasisGarden
+	9: mapSetupOasisCityCenter
+	10: mapSetupNepalSanctum
+	11: mapSetupNepalShrine
+	12: mapSetupNepalVillage
+	13: mapSetupLijiangControlCenter
+	14: mapSetupLijiangGarden
+	15: mapSetupLijiangNightMarket
+}
+
+disabled rule("PLAYER DESTRUCTION. Version 1.2.5. Created by Block#12425. Additional credits found on project site below.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Project: bit.ly/OWWPD | Discord: discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("DEBUG HUD")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Create HUD Text(Host Player, Position Of(Host Player), Custom String("Host Player Position", Null, Null, Null), Null, Right, 5,
+			White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load, String("Server Load", Null, Null, Null), Null, Right, 8, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Peak, String("Server Load Peak", Null, Null, Null), Null, Right, 7, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average", Null, Null, Null), Null, Right, 6, White, White,
+			White, Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("DEBUG DUMMY BOTS")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1.000, Vector(0, 0, 0), Vector(0, 0, 0));
+	}
+}
+
+disabled rule("------ General Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Scoring;
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Completion;
+		Set Global Variable(spawnProtectionTime, 3);
+		Set Global Variable(orbRadius, 1.500);
+		Set Global Variable(beamRadius, 5);
+		Set Global Variable(collectPhaseTime, 40);
+		Set Global Variable(depositPhaseTime, 30);
+		Set Global Variable(roundsLeft, 15);
+		Set Global Variable(initialAssemblyTime, 30);
+		Create HUD Text(All Players(All Teams), Custom String("Player Destruction", Null, Null, Null), Null, Null, Right, -4.000,
+			Turquoise, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String("Created by Block#12425. Version: 1.2.5", Null, Null, Null),
+			Custom String(" ", Null, Null, Null), Right, -3.000, Turquoise, White, Turquoise, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Join the discord: discord.gg/CSKSVDH (ALL CAPS)", Null, Null,
+			Null), Right, -2.000, White, White, Turquoise, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Please LIKE on: bit.ly/OWWPD (All Caps)", Null, Null, Null),
+			Right, -1.000, White, White, Turquoise, Visible To and String, Default Visibility);
+		"For optimization reasons"
+		disabled Disable Inspector Recording;
+	}
+}
+
+rule("Block#12425 - Assembly heroes subroutines")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Call Subroutine(matchSetup);
+		Call Subroutine(hudSetup);
+		Call Subroutine(orbSetup);
+		Call Subroutine(goalScoreSetup);
+	}
+}
+
+rule("Block#12425 - Match Setup")
+{
+	event
+	{
+		Subroutine;
+		matchSetup;
+	}
+
+	actions
+	{
+		Set Match Time(Global Variable(initialAssemblyTime));
+		Set Global Variable At Index(team1OrbsArray, Slot Of(All Players(Team 1)), 0);
+		Set Global Variable At Index(team2OrbsArray, Slot Of(All Players(Team 2)), 0);
+		Set Global Variable(hiddenLocation, Vector(X Component Of(Global Variable(beamPositionStart)), Add(Y Component Of(Global Variable(
+			beamPositionStart)), -1000.000), Z Component Of(Global Variable(beamPositionStart))));
+		Set Global Variable(chasedVariable, Global Variable(hiddenLocation));
+		Set Global Variable(team1OrbPositions, Empty Array);
+		Set Global Variable(team2OrbPositions, Empty Array);
+		Set Global Variable(team1OrbValues, Empty Array);
+		Set Global Variable(team2OrbValues, Empty Array);
+		Set Global Variable(isBeamActive, False);
+		Set Global Variable(phaseCheck, False);
+		Create Effect(All Players(All Teams), Ring, Turquoise, Global Variable(ringPositionStart), Global Variable(beamRadius),
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Ring, Turquoise, Global Variable(ringPositionEnd), Global Variable(beamRadius),
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Light Shaft, Turquoise, Global Variable(chasedVariable), Global Variable(beamRadius),
+			Visible To Position and Radius);
+		Create Icon(Filtered Array(All Players(All Teams), Compare(Global Variable(isBeamActive), ==, True)), Vector(X Component Of(
+			Global Variable(chasedVariable)), Add(Y Component Of(Global Variable(chasedVariable)), 2), Z Component Of(Global Variable(
+			chasedVariable))), Spiral, Visible To and Position, White, True);
+		Create Icon(Filtered Array(All Players(All Teams), Compare(Global Variable(team1Leader), !=, Null)), Global Variable(team1Leader),
+			Warning, Visible To and Position, Team 1, False);
+		Create Icon(Filtered Array(All Players(All Teams), Compare(Global Variable(team2Leader), !=, Null)), Global Variable(team2Leader),
+			Warning, Visible To and Position, Team 2, False);
+		Create In-World Text(Filtered Array(All Players(All Teams), Compare(Global Variable(team1Leader), !=, Null)), String("{0} - {1}",
+			Value In Array(Global Variable(team1OrbsArray), Slot Of(Global Variable(team1Leader))), String("{0}%", Ultimate Charge Percent(
+			Global Variable(team1Leader)), Null, Null), Null), Global Variable(team1Leader), 1.500, Do Not Clip,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Compare(Global Variable(team2Leader), !=, Null)), String("{0} - {1}",
+			Value In Array(Global Variable(team2OrbsArray), Slot Of(Global Variable(team2Leader))), String("{0}%", Ultimate Charge Percent(
+			Global Variable(team2Leader)), Null, Null), Null), Global Variable(team2Leader), 1.500, Do Not Clip,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(All Players(All Teams), Custom String("Start", Null, Null, Null), Global Variable(ringPositionStart), 1,
+			Do Not Clip, Visible To Position and String, White, Default Visibility);
+		Create In-World Text(All Players(All Teams), Custom String("End", Null, Null, Null), Global Variable(ringPositionEnd), 1,
+			Do Not Clip, Visible To Position and String, White, Default Visibility);
+	}
+}
+
+rule("Block#12425 - HUD Setup")
+{
+	event
+	{
+		Subroutine;
+		hudSetup;
+	}
+
+	actions
+	{
+		Create HUD Text(Global Variable(team1Leader), String("{0}!", String("{0} {1} {2}", Icon String(Warning), String("Team", Null, Null,
+			Null), String("Leader", Null, Null, Null)), Null, Null), Null, Null, Top, 5, Team 1, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Global Variable(team2Leader), String("{0}!", String("{0} {1} {2}", Icon String(Warning), String("Team", Null, Null,
+			Null), String("Leader", Null, Null, Null)), Null, Null), Null, Null, Top, 5, Team 2, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(Team 1), Add(Add(Add(Value In Array(Global Variable(team1OrbsArray), 0), Value In Array(
+			Global Variable(team1OrbsArray), 1)), Add(Value In Array(Global Variable(team1OrbsArray), 2), Value In Array(Global Variable(
+			team1OrbsArray), 3))), Add(Value In Array(Global Variable(team1OrbsArray), 4), Value In Array(Global Variable(team1OrbsArray),
+			5))), Custom String("Your team's", Null, Null, Null), Custom String("Total Orbs", Null, Null, Null), Left, 0, Team 1, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(Team 1), Add(Add(Add(Value In Array(Global Variable(team2OrbsArray), 0), Value In Array(
+			Global Variable(team2OrbsArray), 1)), Add(Value In Array(Global Variable(team2OrbsArray), 2), Value In Array(Global Variable(
+			team2OrbsArray), 3))), Add(Value In Array(Global Variable(team2OrbsArray), 4), Value In Array(Global Variable(team2OrbsArray),
+			5))), Custom String("Enemy team's", Null, Null, Null), Custom String("Total Orbs", Null, Null, Null), Left, 1, Team 2, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(Team 2), Add(Add(Add(Value In Array(Global Variable(team2OrbsArray), 0), Value In Array(
+			Global Variable(team2OrbsArray), 1)), Add(Value In Array(Global Variable(team2OrbsArray), 2), Value In Array(Global Variable(
+			team2OrbsArray), 3))), Add(Value In Array(Global Variable(team2OrbsArray), 4), Value In Array(Global Variable(team2OrbsArray),
+			5))), Custom String("Your team's", Null, Null, Null), Custom String("Total Orbs", Null, Null, Null), Left, 0, Team 2, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(Team 2), Add(Add(Add(Value In Array(Global Variable(team1OrbsArray), 0), Value In Array(
+			Global Variable(team1OrbsArray), 1)), Add(Value In Array(Global Variable(team1OrbsArray), 2), Value In Array(Global Variable(
+			team1OrbsArray), 3))), Add(Value In Array(Global Variable(team1OrbsArray), 4), Value In Array(Global Variable(team1OrbsArray),
+			5))), Custom String("Enemy team's", Null, Null, Null), Custom String("Total Orbs", Null, Null, Null), Left, 1, Team 1, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Rounds Left: {0}            Goal: {1} Orbs", Global Variable(
+			roundsLeft), Global Variable(goalScore), Null), Top, -1.000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Value In Array(Global Variable(team1OrbsArray), 0), Custom String("{0}'s",
+			Players In Slot(0, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(1, Team 1), Value In Array(Global Variable(team1OrbsArray), 1), Custom String("{0}'s",
+			Players In Slot(1, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(2, Team 1), Value In Array(Global Variable(team1OrbsArray), 2), Custom String("{0}'s",
+			Players In Slot(2, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(3, Team 1), Value In Array(Global Variable(team1OrbsArray), 3), Custom String("{0}'s",
+			Players In Slot(3, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(4, Team 1), Value In Array(Global Variable(team1OrbsArray), 4), Custom String("{0}'s",
+			Players In Slot(4, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(5, Team 1), Value In Array(Global Variable(team1OrbsArray), 5), Custom String("{0}'s",
+			Players In Slot(5, Team 1), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 2), Value In Array(Global Variable(team2OrbsArray), 0), Custom String("{0}'s",
+			Players In Slot(0, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(1, Team 2), Value In Array(Global Variable(team2OrbsArray), 1), Custom String("{0}'s",
+			Players In Slot(1, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(2, Team 2), Value In Array(Global Variable(team2OrbsArray), 2), Custom String("{0}'s",
+			Players In Slot(2, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(3, Team 2), Value In Array(Global Variable(team2OrbsArray), 3), Custom String("{0}'s",
+			Players In Slot(3, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(4, Team 2), Value In Array(Global Variable(team2OrbsArray), 4), Custom String("{0}'s",
+			Players In Slot(4, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(5, Team 2), Value In Array(Global Variable(team2OrbsArray), 5), Custom String("{0}'s",
+			Players In Slot(5, Team 2), Null, Null), Custom String("Orbs", Null, Null, Null), Left, -1.000, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Goal Score Setup")
+{
+	event
+	{
+		Subroutine;
+		goalScoreSetup;
+	}
+
+	actions
+	{
+		Wait(Subtract(Global Variable(initialAssemblyTime), 1), Ignore Condition);
+		If(Compare(Count Of(All Players(All Teams)), <, 4));
+			Set Global Variable(goalScore, 8);
+		Else If(Compare(Count Of(All Players(All Teams)), <, 6));
+			Set Global Variable(goalScore, 16);
+		Else If(Compare(Count Of(All Players(All Teams)), <, 8));
+			Set Global Variable(goalScore, 24);
+		Else If(Compare(Count Of(All Players(All Teams)), <, 10));
+			Set Global Variable(goalScore, 32);
+		Else If(Compare(Count Of(All Players(All Teams)), <, 12));
+			Set Global Variable(goalScore, 40);
+		Else;
+			Set Global Variable(goalScore, 48);
+		End;
+		"DEBUG PURPOSES ONLY. Disable for normal play."
+		disabled Set Global Variable(goalScore, 1);
+	}
+}
+
+rule("Block#12425 - Orb Setup")
+{
+	event
+	{
+		Subroutine;
+		orbSetup;
+	}
+
+	actions
+	{
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 0), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 1), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 2), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 3), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 4), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Value In Array(Global Variable(team1OrbPositions), 5), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 0), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 1), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 2), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 3), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 4), 0.300,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Value In Array(Global Variable(team2OrbPositions), 5), 0.300,
+			Visible To Position and Radius);
+		Set Global Variable At Index(team1OrbPositions, 0, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team1OrbPositions, 1, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team1OrbPositions, 2, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team1OrbPositions, 3, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team1OrbPositions, 4, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team1OrbPositions, 5, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 0, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 1, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 2, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 3, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 4, Global Variable(hiddenLocation));
+		Set Global Variable At Index(team2OrbPositions, 5, Global Variable(hiddenLocation));
+	}
+}
+
+rule("Block#12425 - Final Round Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(roundsLeft) == 1;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Big Message(All Players(All Teams), String("Final Round", Null, Null, Null));
+		Wait(Add(Global Variable(collectPhaseTime), 1), Ignore Condition);
+		Enable Built-In Game Mode Music;
+		Enable Built-In Game Mode Announcer;
+	}
+}
+
+rule("Block#12425 - Match Complete Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Match Complete == True;
+	}
+
+	actions
+	{
+		Enable Built-In Game Mode Music;
+		Enable Built-In Game Mode Announcer;
+		Destroy All Effects;
+		Destroy All HUD Text;
+		Destroy All Icons;
+		Destroy All In-World Text;
+	}
+}
+
+disabled rule("------ Map Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Map Check")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		If(Compare(Current Map, ==, Map(Oasis University)));
+			Call Subroutine(mapSetupOasisUniversity);
+		Else If(Compare(Current Map, ==, Map(Oasis Gardens)));
+			Call Subroutine(mapSetupOasisGarden);
+		Else If(Compare(Current Map, ==, Map(Oasis City Center)));
+			Call Subroutine(mapSetupOasisCityCenter);
+		Else If(Compare(Current Map, ==, Map(Nepal Sanctum)));
+			Call Subroutine(mapSetupNepalSanctum);
+		Else If(Compare(Current Map, ==, Map(Nepal Shrine)));
+			Call Subroutine(mapSetupNepalShrine);
+		Else If(Compare(Current Map, ==, Map(Nepal Village)));
+			Call Subroutine(mapSetupNepalVillage);
+		Else If(Or(Compare(Current Map, ==, Map(Lijiang Control Center)), Compare(Current Map, ==, Map(
+				Lijiang Control Center Lunar New Year))));
+			Call Subroutine(mapSetupLijiangControlCenter);
+		Else If(Or(Compare(Current Map, ==, Map(Lijiang Garden)), Compare(Current Map, ==, Map(Lijiang Garden Lunar New Year))));
+			Call Subroutine(mapSetupLijiangGarden);
+		Else If(Or(Compare(Current Map, ==, Map(Lijiang Night Market)), Compare(Current Map, ==, Map(
+				Lijiang Night Market Lunar New Year))));
+			Call Subroutine(mapSetupLijiangNightMarket);
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis University) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisUniversity;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(-187.906, 14.900, 0));
+		Set Global Variable(ringPositionStart, Global Variable(beamPositionStart));
+		Set Global Variable(beamPositionEnd, Vector(-212.291, 14.900, 0));
+		Set Global Variable(ringPositionEnd, Vector(-212.291, 19, 0));
+		Set Global Variable(team2Spawn, Vector(-188.017, 18, 64.071));
+		Set Global Variable(team1Spawn, Vector(-188.017, 18, -64.071));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+		Set Global Variable(beamRadius, 6);
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis Gardens) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisGarden;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(141.130, 5.200, -247.360));
+		Set Global Variable(ringPositionStart, Vector(141.130, 7.380, -247.360));
+		Set Global Variable(beamPositionEnd, Vector(121.250, 5.200, -227.480));
+		Set Global Variable(ringPositionEnd, Global Variable(beamPositionEnd));
+		Set Global Variable(team2Spawn, Vector(103.200, 8, -285.510));
+		Set Global Variable(team1Spawn, Vector(179.280, 8, -209.430));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+		Set Global Variable(beamRadius, 6);
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis City Center) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisCityCenter;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(158.920, 0, 262.920));
+		Set Global Variable(ringPositionStart, Vector(158.920, 4, 262.920));
+		Set Global Variable(beamPositionEnd, Vector(128.610, 0, 232.610));
+		Set Global Variable(ringPositionEnd, Vector(128.610, 4, 232.610));
+		Set Global Variable(team2Spawn, Vector(191.540, 0.850, 192.570));
+		Set Global Variable(team1Spawn, Vector(93.570, 0.850, 295.540));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+		Set Global Variable(beamRadius, 6);
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Control Center) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangControlCenter;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(0, 267, 279.930));
+		Set Global Variable(ringPositionStart, Global Variable(beamPositionStart));
+		Set Global Variable(beamPositionEnd, Vector(0, 267, 317.993));
+		Set Global Variable(ringPositionEnd, Vector(0, 270, 317.993));
+		Set Global Variable(team2Spawn, Vector(-55.267, 267.786, 342.303));
+		Set Global Variable(team1Spawn, Vector(55.267, 267.786, 342.303));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Garden) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangGarden;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(0, 93.800, 130));
+		Set Global Variable(ringPositionStart, Vector(0, 94.500, 130));
+		Set Global Variable(beamPositionEnd, Vector(0, 93.800, 184.740));
+		Set Global Variable(ringPositionEnd, Global Variable(beamPositionEnd));
+		Set Global Variable(team2Spawn, Vector(75.646, 97.351, 147.940));
+		Set Global Variable(team1Spawn, Vector(-75.646, 97.351, 147.940));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Night Market) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangNightMarket;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(0.980, -1.200, -62.000));
+		Set Global Variable(ringPositionStart, Vector(0.980, -1.000, -62.000));
+		Set Global Variable(beamPositionEnd, Vector(0.980, -1.200, -28.050));
+		Set Global Variable(ringPositionEnd, Global Variable(beamPositionEnd));
+		Set Global Variable(team1Spawn, Vector(72.446, 4.926, -23.412));
+		Set Global Variable(team2Spawn, Vector(-70.486, 4.926, -23.412));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Sanctum) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalSanctum;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(83.236, 128, 0));
+		Set Global Variable(ringPositionStart, Global Variable(beamPositionStart));
+		Set Global Variable(beamPositionEnd, Vector(51.166, 128, 0));
+		Set Global Variable(ringPositionEnd, Vector(51.166, 130, 0));
+		Set Global Variable(team2Spawn, Vector(80.935, 132, 84));
+		Set Global Variable(team1Spawn, Vector(80.935, 132, -84.000));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Shrine) Subrountine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalShrine;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(-63.660, 11, 0));
+		Set Global Variable(ringPositionStart, Vector(-63.660, 13, 0));
+		Set Global Variable(beamPositionEnd, Vector(-21.598, 11, 0));
+		Set Global Variable(ringPositionEnd, Vector(-21.598, 13, 0));
+		Set Global Variable(team2Spawn, Vector(-43.199, 17.725, 88.243));
+		Set Global Variable(team1Spawn, Vector(-43.199, 17.725, -88.243));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+		Set Global Variable(beamRadius, 5.500);
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Village) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalVillage;
+	}
+
+	actions
+	{
+		Set Global Variable(beamPositionStart, Vector(-194.945, -95.000, 0));
+		Set Global Variable(ringPositionStart, Vector(-194.945, -93.500, 0));
+		Set Global Variable(beamPositionEnd, Vector(-160.672, -95.000, 0));
+		Set Global Variable(ringPositionEnd, Vector(-160.672, -89.000, 0));
+		Set Global Variable(team2Spawn, Vector(-157.543, -96.220, 80.814));
+		Set Global Variable(team1Spawn, Vector(-157.543, -96.220, -80.814));
+		Set Global Variable(beamMovementRate, Absolute Value(Divide(Subtract(Global Variable(beamPositionStart), Global Variable(
+			beamPositionEnd)), Global Variable(depositPhaseTime))));
+	}
+}
+
+disabled rule("------ Player Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Spawn Player (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Player Variable(Event Player, spawnProtected) == True;
+	}
+
+	actions
+	{
+		Teleport(Event Player, Global Variable(team1Spawn));
+		Wait(0.120, Ignore Condition);
+		Call Subroutine(spawnSetup1);
+		Wait(Global Variable(spawnProtectionTime), Abort When False);
+		Call Subroutine(spawnSetup2);
+	}
+}
+
+rule("Block#12425 - Spawn Player (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Player Variable(Event Player, spawnProtected) == True;
+	}
+
+	actions
+	{
+		Teleport(Event Player, Global Variable(team2Spawn));
+		Wait(0.120, Ignore Condition);
+		Call Subroutine(spawnSetup1);
+		Wait(Global Variable(spawnProtectionTime), Abort When False);
+		Call Subroutine(spawnSetup2);
+	}
+}
+
+rule("Block#12425 - Spawn Setup Part 1 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnSetup1;
+	}
+
+	actions
+	{
+		Set Facing(Event Player, Direction Towards(Position Of(Event Player), Global Variable(beamPositionStart)), To World);
+		Set Status(Event Player, Null, Invincible, 9999);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Set Invisible(Event Player, Enemies);
+	}
+}
+
+rule("Block#12425 - Spawn Setup Part 2 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnSetup2;
+	}
+
+	actions
+	{
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Small Message(Event Player, Custom String("Spawn Protection is off", Null, Null, Null));
+		Set Player Variable(Event Player, spawnProtected, False);
+	}
+}
+
+rule("Block#12425 - Player Joined Setup")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, isBeingRevived, False);
+		Set Player Variable(Event Player, spawnProtected, True);
+	}
+}
+
+rule("Block#12425 - Player Died Self-Intiated Respawn Setup")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == False;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, spawnProtected, True);
+		Disallow Button(Event Player, Jump);
+		Wait(5, Abort When False);
+		Allow Button(Event Player, Jump);
+	}
+}
+
+rule("Block#12425 - Jump Key Check")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+	}
+
+	actions
+	{
+		Allow Button(Event Player, Jump);
+	}
+}
+
+disabled rule("------ Game Cycles ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - First Round")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Global Variable(isBeamActive, False);
+		Set Match Time(Global Variable(collectPhaseTime));
+		Disable Built-In Game Mode Music;
+	}
+}
+
+rule("Block#12425 - Collect Orb Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global Variable(phaseCheck) == True;
+		Match Time <= 0;
+	}
+
+	actions
+	{
+		Set Global Variable(isBeamActive, False);
+		Skip If(Compare(Global Variable(roundsLeft), ==, 1), 1);
+		Set Match Time(Global Variable(collectPhaseTime));
+		Play Effect(All Players(All Teams), Debuff Impact Sound, White, Global Variable(ringPositionEnd), 200);
+		Play Effect(All Players(All Teams), Ring Explosion, Turquoise, Add(Global Variable(ringPositionEnd), Vector(0, 0.200, 0)),
+			Multiply(Global Variable(beamRadius), 3));
+		Stop Chasing Global Variable(chasedVariable);
+		Modify Global Variable(roundsLeft, Subtract, 1);
+		Set Global Variable(chasedVariable, Global Variable(hiddenLocation));
+		Big Message(All Players(All Teams), Custom String("Collect Orbs by killing enemy players", Null, Null, Null));
+		Wait(0.250, Ignore Condition);
+		Set Global Variable(phaseCheck, False);
+	}
+}
+
+rule("Block#12425 - Deposit Orb Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global Variable(phaseCheck) == False;
+		Match Time <= 0;
+	}
+
+	actions
+	{
+		Set Global Variable(isBeamActive, True);
+		Set Global Variable(chasedVariable, Global Variable(beamPositionStart));
+		Set Match Time(Global Variable(depositPhaseTime));
+		Chase Global Variable At Rate(chasedVariable, Global Variable(beamPositionEnd), Global Variable(beamMovementRate),
+			Destination and Rate);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global Variable(ringPositionStart), 200);
+		Play Effect(All Players(All Teams), Ring Explosion, Turquoise, Add(Global Variable(ringPositionStart), Vector(0, 0.200, 0)),
+			Multiply(Global Variable(beamRadius), 3));
+		Big Message(All Players(All Teams), Custom String("Deposit your Orbs into the beam", Null, Null, Null));
+		Wait(0.250, Ignore Condition);
+		Set Global Variable(phaseCheck, True);
+	}
+}
+
+disabled rule("------ Orb Creation / Destruction ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Orb Created (Team 1)")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, deathPosition, Position Of(Event Player));
+		Set Global Variable At Index(team1OrbPositions, Index Of Array Value(Global Variable(team1OrbPositions), Global Variable(
+			hiddenLocation)), Nearest Walkable Position(Player Variable(Event Player, deathPosition)));
+		Set Global Variable At Index(team1OrbValues, Index Of Array Value(Global Variable(team1OrbPositions), Nearest Walkable Position(
+			Player Variable(Event Player, deathPosition))), Add(Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)),
+			1));
+		Set Global Variable At Index(team1OrbsArray, Slot Of(Event Player), 0);
+	}
+}
+
+rule("Block#12425 - Orb Created (Team 2)")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, deathPosition, Position Of(Event Player));
+		Set Global Variable At Index(team2OrbPositions, Index Of Array Value(Global Variable(team2OrbPositions), Global Variable(
+			hiddenLocation)), Nearest Walkable Position(Player Variable(Event Player, deathPosition)));
+		Set Global Variable At Index(team2OrbValues, Index Of Array Value(Global Variable(team2OrbPositions), Nearest Walkable Position(
+			Player Variable(Event Player, deathPosition))), Add(Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)),
+			1));
+		Set Global Variable At Index(team2OrbsArray, Slot Of(Event Player), 0);
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 1) (Team 1 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global Variable(team1OrbPositions), Compare(Distance Between(Current Array Element, Position Of(Event Player)), <=,
+			Global Variable(orbRadius))) != Empty Array;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, previousOrbValue, Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)));
+		Set Player Variable(Event Player, closestOrb, Filtered Array(Global Variable(team1OrbPositions), Compare(Distance Between(
+			Current Array Element, Position Of(Event Player)), <=, Global Variable(orbRadius))));
+		Set Player Variable(Event Player, tempIndexValue, Index Of Array Value(Global Variable(team1OrbPositions), Player Variable(
+			Event Player, closestOrb)));
+		Modify Global Variable At Index(team1OrbsArray, Slot Of(Event Player), Add, Subtract(Value In Array(Global Variable(
+			team1OrbValues), Player Variable(Event Player, tempIndexValue)), 1));
+		Skip If(Compare(Player Variable(Event Player, previousOrbValue), <=, Value In Array(Global Variable(team1OrbsArray), Slot Of(
+			Event Player))), 3);
+		Set Global Variable At Index(team1OrbsArray, Slot Of(Event Player), Player Variable(Event Player, previousOrbValue));
+		Set Player Variable(Event Player, valueOfOrb, 0);
+		Skip(8);
+		Set Player Variable(Event Player, valueOfOrb, Subtract(Value In Array(Global Variable(team1OrbValues), Player Variable(
+			Event Player, tempIndexValue)), 1));
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team1OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 1, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 1, Event Player, 20);
+		Small Message(Event Player, Custom String("Collected {0} Orb(s)", Player Variable(Event Player, valueOfOrb), Null, Null));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 1) (Team 2 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global Variable(team2OrbPositions), Compare(Distance Between(Current Array Element, Position Of(Event Player)), <=,
+			Global Variable(orbRadius))) != Empty Array;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, closestOrb, Filtered Array(Global Variable(team2OrbPositions), Compare(Distance Between(
+			Current Array Element, Position Of(Event Player)), <=, Global Variable(orbRadius))));
+		Set Player Variable(Event Player, tempIndexValue, Index Of Array Value(Global Variable(team2OrbPositions), Player Variable(
+			Event Player, closestOrb)));
+		Modify Global Variable At Index(team1OrbsArray, Slot Of(Event Player), Add, Value In Array(Global Variable(team2OrbValues),
+			Player Variable(Event Player, tempIndexValue)));
+		Set Player Variable(Event Player, valueOfOrb, Value In Array(Global Variable(team2OrbValues), Player Variable(Event Player,
+			tempIndexValue)));
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team2OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 2, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 1, Event Player, 20);
+		Small Message(Event Player, Custom String("Collected {0} Orb(s)", Player Variable(Event Player, valueOfOrb), Null, Null));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 2) (Team 1 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global Variable(team1OrbPositions), Compare(Distance Between(Current Array Element, Position Of(Event Player)), <=,
+			Global Variable(orbRadius))) != Empty Array;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, closestOrb, Filtered Array(Global Variable(team1OrbPositions), Compare(Distance Between(
+			Current Array Element, Position Of(Event Player)), <=, Global Variable(orbRadius))));
+		Set Player Variable(Event Player, tempIndexValue, Index Of Array Value(Global Variable(team1OrbPositions), Player Variable(
+			Event Player, closestOrb)));
+		Modify Global Variable At Index(team2OrbsArray, Slot Of(Event Player), Add, Value In Array(Global Variable(team1OrbValues),
+			Player Variable(Event Player, tempIndexValue)));
+		Set Player Variable(Event Player, valueOfOrb, Value In Array(Global Variable(team1OrbValues), Player Variable(Event Player,
+			tempIndexValue)));
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team1OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 1, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 2, Event Player, 20);
+		Small Message(Event Player, Custom String("Collected {0} Orb(s)", Player Variable(Event Player, valueOfOrb), Null, Null));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 2) (Team 2 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global Variable(team2OrbPositions), Compare(Distance Between(Current Array Element, Position Of(Event Player)), <=,
+			Global Variable(orbRadius))) != Empty Array;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, previousOrbValue, Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)));
+		Set Player Variable(Event Player, closestOrb, Filtered Array(Global Variable(team2OrbPositions), Compare(Distance Between(
+			Current Array Element, Position Of(Event Player)), <=, Global Variable(orbRadius))));
+		Set Player Variable(Event Player, tempIndexValue, Index Of Array Value(Global Variable(team2OrbPositions), Player Variable(
+			Event Player, closestOrb)));
+		Modify Global Variable At Index(team2OrbsArray, Slot Of(Event Player), Add, Subtract(Value In Array(Global Variable(
+			team2OrbValues), Player Variable(Event Player, tempIndexValue)), 1));
+		Skip If(Compare(Player Variable(Event Player, previousOrbValue), <=, Value In Array(Global Variable(team2OrbsArray), Slot Of(
+			Event Player))), 3);
+		Set Global Variable At Index(team2OrbsArray, Slot Of(Event Player), Player Variable(Event Player, previousOrbValue));
+		Set Player Variable(Event Player, valueOfOrb, 0);
+		Skip(8);
+		Set Player Variable(Event Player, valueOfOrb, Subtract(Value In Array(Global Variable(team2OrbValues), Player Variable(
+			Event Player, tempIndexValue)), 1));
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, Player Variable(Event Player, tempIndexValue));
+		Modify Global Variable(team2OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 2, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 2, Event Player, 20);
+		Small Message(Event Player, Custom String("Collected {0} Orb(s)", Player Variable(Event Player, valueOfOrb), Null, Null));
+	}
+}
+
+rule("Block#12425 - Deposit Orb in Beam (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Global Variable(isBeamActive) == True;
+		Y Component Of(Position Of(Event Player)) >= Y Component Of(Global Variable(chasedVariable));
+		Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)) > 0;
+		Distance Between(Vector(X Component Of(Global Variable(chasedVariable)), Y Component Of(Position Of(Event Player)), Z Component Of(
+			Global Variable(chasedVariable))), Position Of(Event Player)) <= Global Variable(beamRadius);
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Modify Global Variable At Index(team1OrbsArray, Slot Of(Event Player), Subtract, 1);
+		Call Subroutine(depositOrb);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Deposit Orb in Beam (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Global Variable(isBeamActive) == True;
+		Y Component Of(Position Of(Event Player)) >= Y Component Of(Global Variable(chasedVariable));
+		Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)) > 0;
+		Distance Between(Vector(X Component Of(Global Variable(chasedVariable)), Y Component Of(Position Of(Event Player)), Z Component Of(
+			Global Variable(chasedVariable))), Position Of(Event Player)) <= Global Variable(beamRadius);
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Modify Global Variable At Index(team2OrbsArray, Slot Of(Event Player), Subtract, 1);
+		Call Subroutine(depositOrb);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Deposit Score Modify Subroutine")
+{
+	event
+	{
+		Subroutine;
+		depositOrb;
+	}
+
+	actions
+	{
+		Modify Team Score(Team Of(Event Player), 1);
+		Small Message(Event Player, Custom String("Deposited Orb", Null, Null, Null));
+	}
+}
+
+disabled rule("------ Team Leader ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team Leader Killer Heal")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Or(Compare(Event Player, ==, Global Variable(team1Leader)), Compare(Event Player, ==, Global Variable(team2Leader))) == True;
+	}
+
+	actions
+	{
+		Heal(Attacker, Null, 1000);
+		Small Message(Attacker, Custom String("Eliminated Team Leader", Null, Null, Null));
+		Small Message(Attacker, Custom String("You were healed", Null, Null, Null));
+	}
+}
+
+rule("Block#12425 - Team Leader Destruction (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Or(Is True For Any(Global Variable(team1OrbsArray), Compare(Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)),
+			<, Current Array Element)), Compare(1, >, Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)))) == True;
+	}
+
+	actions
+	{
+		Set Global Variable(team1Leader, Null);
+	}
+}
+
+rule("Block#12425 - Team Leader Destruction (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Or(Is True For Any(Global Variable(team2OrbsArray), Compare(Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)),
+			<, Current Array Element)), Compare(1, >, Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)))) == True;
+	}
+
+	actions
+	{
+		Set Global Variable(team2Leader, Null);
+	}
+}
+
+rule("Block#12425 - Team Leader Disconnection (Team 1)")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Entity Exists(Global Variable(team1Leader)) == False;
+	}
+
+	actions
+	{
+		Set Global Variable(team1Leader, Null);
+	}
+}
+
+rule("Block#12425 - Team Leader Disconnection (Team 2)")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Entity Exists(Global Variable(team2Leader)) == False;
+	}
+
+	actions
+	{
+		Set Global Variable(team2Leader, Null);
+	}
+}
+
+rule("Block#12425 - Team Leader Creation (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global Variable(team1Leader) == Null;
+		Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)) >= 1;
+		Is True For All(Global Variable(team1OrbsArray), Compare(Value In Array(Global Variable(team1OrbsArray), Slot Of(Event Player)),
+			>=, Current Array Element)) == True;
+	}
+
+	actions
+	{
+		Set Global Variable(team1Leader, Event Player);
+		Small Message(Event Player, Custom String("You are the Team Leader", Null, Null, Null));
+	}
+}
+
+rule("Block#12425 - Team Leader Creation (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global Variable(team2Leader) == Null;
+		Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)) >= 1;
+		Is True For All(Global Variable(team2OrbsArray), Compare(Value In Array(Global Variable(team2OrbsArray), Slot Of(Event Player)),
+			>=, Current Array Element)) == True;
+	}
+
+	actions
+	{
+		Set Global Variable(team2Leader, Event Player);
+		Small Message(Event Player, Custom String("You are the Team Leader", Null, Null, Null));
+	}
+}
+
+disabled rule("------ Orbs Checks ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Player Left Match Orb Check")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		For Global Variable(i, 0, Count Of(Global Variable(team1OrbsArray)), 1);
+			If(Compare(Entity Exists(Players In Slot(Global Variable(i), Team 1)), ==, False));
+				Set Global Variable At Index(team1OrbsArray, Global Variable(i), 0);
+			End;
+		End;
+		For Global Variable(i, 0, Count Of(Global Variable(team2OrbsArray)), 1);
+			If(Compare(Entity Exists(Players In Slot(Global Variable(i), Team 2)), ==, False));
+				Set Global Variable At Index(team2OrbsArray, Global Variable(i), 0);
+			End;
+		End;
+	}
+}
+
+rule("Block#12425 - Player Joined Match Orb Check")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		For Global Variable(j, 0, Count Of(Global Variable(team1OrbsArray)), 1);
+			If(Compare(Entity Exists(Players In Slot(Global Variable(j), Team 1)), ==, False));
+				Set Global Variable At Index(team1OrbsArray, Global Variable(j), 0);
+			End;
+		End;
+		For Global Variable(j, 0, Count Of(Global Variable(team2OrbsArray)), 1);
+			If(Compare(Entity Exists(Players In Slot(Global Variable(j), Team 2)), ==, False));
+				Set Global Variable At Index(team2OrbsArray, Global Variable(j), 0);
+			End;
+		End;
+	}
+}
+
+rule("Block#12425 - Orb Entity Overflow Check (Team 1 Orbs)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is True For All(Global Variable(team1OrbPositions), Compare(Current Array Element, !=, Global Variable(hiddenLocation))) == True;
+	}
+
+	actions
+	{
+		Modify Global Variable(team1OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, 0);
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, 0);
+	}
+}
+
+rule("Block#12425 - Orb Entity Overflow Check (Team 2 Orbs)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is True For All(Global Variable(team2OrbPositions), Compare(Current Array Element, !=, Global Variable(hiddenLocation))) == True;
+	}
+
+	actions
+	{
+		Modify Global Variable(team2OrbPositions, Append To Array, Global Variable(hiddenLocation));
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, 0);
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, 0);
+	}
+}
+
+disabled rule("------ Mercy Revive ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Mercy Started Reviving")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Player Variable(Event Player, playerBeingRevived, Filtered Array(All Dead Players(Team Of(Event Player)), Compare(
+			Player Closest To Reticle(Event Player, Team Of(Event Player)), ==, Current Array Element)));
+		Set Player Variable(Player Variable(Event Player, playerBeingRevived), isBeingRevived, True);
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == False;
+		Is Game In Progress == True;
+		Player Variable(Player Variable(Event Player, playerBeingRevived), isBeingRevived) == True;
+	}
+
+	actions
+	{
+		Wait(0.300, Abort When False);
+		Set Player Variable(Player Variable(Event Player, playerBeingRevived), isBeingRevived, False);
+	}
+}
+
+rule("Block#12424 - Mercy Revive Successful")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Player Variable(Event Player, isBeingRevived) == True;
+	}
+
+	actions
+	{
+		Wait(0.200, Abort When False);
+		Set Player Variable(Event Player, isBeingRevived, False);
+		Teleport(Event Player, Player Variable(Event Player, deathPosition));
+		Call Subroutine(spawnSetup2);
+		Allow Button(Event Player, Jump);
+	}
+}
+
+disabled rule("------ Objective Description Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Objective Description Set (Collect Orb Phase)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global Variable(isBeamActive) == False;
+	}
+
+	actions
+	{
+		Wait(0.100, Ignore Condition);
+		Set Objective Description(Event Player, Custom String("Collect Orbs from enemies", Null, Null, Null), Visible To and String);
+		Skip If(Compare(Player Variable(Event Player, hasSpawnedOnce), ==, True), 2);
+		Big Message(Event Player, Custom String("Collect Orbs by killing enemy players", Null, Null, Null));
+		Set Player Variable(Event Player, hasSpawnedOnce, True);
+	}
+}
+
+rule("Block#12425 - Objective Description Set (Deposit Orb Phase)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global Variable(isBeamActive) == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Wait(0.100, Ignore Condition);
+		Set Objective Description(Event Player, Custom String("Deposit Orbs into the beam", Null, Null, Null), Visible To and String);
+		Skip If(Compare(Player Variable(Event Player, hasSpawnedOnce), ==, True), 2);
+		Big Message(Event Player, Custom String("Deposit your Orbs into the beam", Null, Null, Null));
+		Set Player Variable(Event Player, hasSpawnedOnce, True);
+	}
+}
+
+disabled rule("------ Winning Team Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team Reaches the Goal Score")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Or(Compare(Team Score(Team 1), >=, Global Variable(goalScore)), Compare(Team Score(Team 2), >=, Global Variable(goalScore)))
+			== True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Enable Built-In Game Mode Completion;
+	}
+}
+
+rule("Block#12425 - All Rounds Completed")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(roundsLeft) == 0;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Enable Built-In Game Mode Completion;
+	}
+}
