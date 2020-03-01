@@ -580,12 +580,12 @@ rule("Block#12425 - Player Outside of Safe Zone")
 
 	conditions
 	{
-		"And this test if the player is outside all of the spawn zones."
-		Compare(Distance Between(Global Variable(spawn1Position), Position Of(Event Player)), >, Global Variable(spawn1Radius)) == True;
-		Compare(Distance Between(Global Variable(spawn2Position), Position Of(Event Player)), >, Global Variable(spawn2Radius)) == True;
-		Compare(Distance Between(Global Variable(spawn3Position), Position Of(Event Player)), >, Global Variable(spawn3Radius)) == True;
-		Compare(Distance Between(Global Variable(spawn4Position), Position Of(Event Player)), >, Global Variable(spawn4Radius)) == True;
 		Is Dummy Bot(Event Player) == False;
+		And(And(Compare(Distance Between(Global Variable(spawn1Position), Position Of(Event Player)), >, Global Variable(spawn1Radius)),
+			Compare(Distance Between(Global Variable(spawn2Position), Position Of(Event Player)), >, Global Variable(spawn2Radius))), And(
+			Compare(Distance Between(Global Variable(spawn3Position), Position Of(Event Player)), >, Global Variable(spawn3Radius)),
+			Compare(Distance Between(Global Variable(spawn4Position), Position Of(Event Player)), >, Global Variable(spawn4Radius))))
+			== True;
 	}
 
 	actions
