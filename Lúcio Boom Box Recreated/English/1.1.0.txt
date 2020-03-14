@@ -1,0 +1,672 @@
+settings
+{
+	main
+	{
+		Description: "Recreated the Lúcio Boom Box ability from Heroes of the Storm. Lúcio players: press interact to drop the boom box. It will grant the same effects that you currently give. It has a 20 sec. cd and 30 sec. lifespan. Enemy players can destroy it with melee while standing next to it. Created by Block#12425. Version: 1.1.0."
+	}
+
+	modes
+	{
+		Assault
+
+		Control
+
+		Escort
+
+		Hybrid
+
+		General
+		{
+			Limit Roles: 2 Of Each Role Per Team
+		}
+	}
+}
+
+variables
+{
+	player:
+		0: boomBoxActive
+		1: isHeal
+		3: boomBoxPosition
+		4: boomBoxCrossfade
+		5: holdingAbility1
+		6: boomBoxCD
+		7: boomBoxDespawn
+		25: hotID
+}
+
+subroutines
+{
+	0: cancelBoomBoxAffects
+	1: boxSetup
+	2: hudSetup
+}
+
+disabled rule("Lúcio Boom Box. Created by Block#12425. Version 1.1.0")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Project: workshop.elohell.gg/e5nF6hCuH/ | Discord: https://discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("================================================== Setup ==================================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - General Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"This will set up the boom box effects."
+		Call Subroutine(boxSetup);
+		"This will set up all the HUD elements used."
+		Call Subroutine(hudSetup);
+	}
+}
+
+rule("Block#12425 - Assemble Heroes Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		"This will restore all the variables back to there original states before the match starts."
+		Set Player Variable(All Players(All Teams), isHeal, False);
+		Set Player Variable(All Players(All Teams), boomBoxActive, False);
+		Set Player Variable(All Players(All Teams), boomBoxCrossfade, False);
+		Set Player Variable(All Players(All Teams), holdingAbility1, False);
+		Set Player Variable(All Players(All Teams), boomBoxDespawn, 0);
+		Set Player Variable(All Players(All Teams), boomBoxPosition, Null);
+		Set Player Variable(All Players(All Teams), hotID, Null);
+		Call Subroutine(cancelBoomBoxAffects);
+	}
+}
+
+rule("Block#12425 - Boom Box Effects Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		boxSetup;
+	}
+
+	actions
+	{
+		"Create all the boom box affects for Team 1 Lucio"
+		Create Effect(Filtered Array(All Players(Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive),
+			==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==, False))), Sphere, Green, Player Variable(
+			Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive),
+			==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==, True))), Sphere, Yellow, Player Variable(
+			Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==,
+			False), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive), ==, True))), Ring, Green,
+			Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==,
+			True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive), ==, True))), Ring, Yellow,
+			Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive), ==,
+			True)), Sphere, Red, Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 1,
+			Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive), ==,
+			True)), Ring, Red, Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Icon(Filtered Array(Players On Hero(Hero(Lúcio), Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1),
+			boomBoxActive), ==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==, False))),
+			Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), Bolt, Visible To and Position, Green, False);
+		Create Icon(Filtered Array(Players On Hero(Hero(Lúcio), Team 1), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1),
+			boomBoxActive), ==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), isHeal), ==, True))), Player Variable(
+			Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), Bolt, Visible To and Position, Yellow, False);
+		Create Effect(Filtered Array(All Players(All Teams), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxActive),
+			==, True)), Sphere, Purple, Player Variable(Players On Hero(Hero(Lúcio), Team 1), boomBoxPosition), 0.500,
+			Visible To Position and Radius);
+		"Create all Lucio Boom Box affects for Team 2"
+		Create Effect(Filtered Array(All Players(Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive),
+			==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==, False))), Sphere, Green, Player Variable(
+			Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive),
+			==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==, True))), Sphere, Yellow, Player Variable(
+			Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==,
+			False), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive), ==, True))), Ring, Green,
+			Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==,
+			True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive), ==, True))), Ring, Yellow,
+			Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 1), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive), ==,
+			True)), Sphere, Red, Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 1,
+			Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 1), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive), ==,
+			True)), Ring, Red, Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 12, Visible To Position and Radius);
+		Create Icon(Filtered Array(Players On Hero(Hero(Lúcio), Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2),
+			boomBoxActive), ==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==, False))),
+			Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), Bolt, Visible To and Position, Green, False);
+		Create Icon(Filtered Array(Players On Hero(Hero(Lúcio), Team 2), And(Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2),
+			boomBoxActive), ==, True), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), isHeal), ==, True))), Player Variable(
+			Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), Bolt, Visible To and Position, Yellow, False);
+		Create Effect(Filtered Array(All Players(All Teams), Compare(Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxActive),
+			==, True)), Sphere, Purple, Player Variable(Players On Hero(Hero(Lúcio), Team 2), boomBoxPosition), 0.500,
+			Visible To Position and Radius);
+	}
+}
+
+rule("Block#12425 - HUD Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		hudSetup;
+	}
+
+	actions
+	{
+		"These HUDs will create the UI for the Boom Box that only Lucio players can see."
+		Create HUD Text(Players On Hero(Hero(Lúcio), Team 1), Custom String("Boom Box", Null, Null, Null), Custom String(
+			"Press interact to spawn", Null, Null, Null), Custom String("Cooldown: {0}", Round To Integer(Player Variable(Players On Hero(
+			Hero(Lúcio), Team 1), boomBoxCD), Up), Null, Null), Left, 0, Lime Green, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Players On Hero(Hero(Lúcio), Team 2), Custom String("Boom Box", Null, Null, Null), Custom String(
+			"Press interact to spawn", Null, Null, Null), Custom String("Cooldown: {0}", Round To Integer(Player Variable(Players On Hero(
+			Hero(Lúcio), Team 2), boomBoxCD), Up), Null, Null), Left, 0, Lime Green, White, White, Visible To and String,
+			Default Visibility);
+		"These HUDs will give credit and a discord link for those interested."
+		Create HUD Text(All Players(All Teams), Null, Custom String("Created By Block#12425. Version 1.1.0", Null, Null, Null),
+			Custom String(" ", Null, Null, Null), Right, -2, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Join the discord: discord.gg/CSKSVDH (All Caps)", Null, Null,
+			Null), Right, -1.100, White, White, Green, Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Spawn Boom Box Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Interact) == True;
+		Is Alive(Event Player) == True;
+		Player Variable(Event Player, boomBoxCD) == 0;
+	}
+
+	actions
+	{
+		Skip If(Compare(Player Variable(Event Player, boomBoxActive), ==, False), 1);
+		Play Effect(All Players(All Teams), Good Explosion, Orange, Player Variable(Event Player, boomBoxPosition), 2);
+		Set Player Variable(Event Player, boomBoxPosition, Nearest Walkable Position(Eye Position(Event Player)));
+		Set Player Variable(Event Player, boomBoxActive, True);
+		Play Effect(All Players(All Teams), Buff Impact Sound, White, Player Variable(Event Player, boomBoxPosition), 100);
+		Set Player Variable(Event Player, boomBoxCD, 20);
+		Set Player Variable(Event Player, boomBoxDespawn, 30);
+		Chase Player Variable At Rate(Event Player, boomBoxCD, 0, 1, Destination and Rate);
+		Chase Player Variable At Rate(Event Player, boomBoxDespawn, 0, 1, Destination and Rate);
+	}
+}
+
+disabled rule("================================================== Crossfade ==================================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Set Boom Box -> Speed")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Button Held(Event Player, Ability 1) == True;
+		Player Variable(Event Player, isHeal) == False;
+		Player Variable(Event Player, boomBoxCrossfade) == False;
+		Player Variable(Event Player, holdingAbility1) == False;
+	}
+
+	actions
+	{
+		"When Lucio switches to speed aura, the speed boost will be applied to the boom box."
+		Set Player Variable(Event Player, isHeal, True);
+		Set Player Variable(Event Player, boomBoxCrossfade, True);
+		Set Player Variable(Event Player, holdingAbility1, True);
+		Wait(0.800, Ignore Condition);
+		Set Player Variable(Event Player, boomBoxCrossfade, False);
+	}
+}
+
+rule("Block#12425 - Set Boom Box -> Heal")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Button Held(Event Player, Ability 1) == True;
+		Player Variable(Event Player, isHeal) == True;
+		Player Variable(Event Player, boomBoxCrossfade) == False;
+		Player Variable(Event Player, holdingAbility1) == False;
+	}
+
+	actions
+	{
+		"When Lucio is on the heal aura, this will set the heal effect on the boom box."
+		Set Player Variable(Event Player, isHeal, False);
+		Set Player Variable(Event Player, boomBoxCrossfade, True);
+		Set Player Variable(Event Player, holdingAbility1, True);
+		Wait(0.800, Ignore Condition);
+		Set Player Variable(Event Player, boomBoxCrossfade, False);
+	}
+}
+
+rule("Block#12425 - Move Speed Set Boom Box (No Amp)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxActive) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), isHeal) == False;
+		Has Status(Players On Hero(Hero(Lúcio), Team Of(Event Player)), Hacked) == False;
+		Is Using Ability 2(Players On Hero(Hero(Lúcio), Team Of(Event Player))) == False;
+		Compare(Distance Between(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Position Of(Event Player)), >, 12)
+			== True;
+		Compare(Distance Between(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Position Of(
+			Event Player)), <=, 12) == True;
+		Is In Line of Sight(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Eye Position(Event Player),
+			Barriers Do Not Block LOS) == True;
+	}
+
+	actions
+	{
+		"This action will set the speed boost to anyone in the boom box range and not in lucio's range."
+		Stop All Heal Over Time(Event Player);
+		Set Move Speed(Event Player, 125);
+	}
+}
+
+rule("Block#12425 - Start Heal over Time Boom Box (No Amp)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxActive) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), isHeal) == True;
+		Has Status(Players On Hero(Hero(Lúcio), Team Of(Event Player)), Hacked) == False;
+		Is Using Ability 2(Players On Hero(Hero(Lúcio), Team Of(Event Player))) == False;
+		Compare(Distance Between(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Position Of(Event Player)), >, 12)
+			== True;
+		Compare(Distance Between(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Position Of(
+			Event Player)), <=, 12) == True;
+		Is In Line of Sight(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Eye Position(Event Player),
+			Barriers Do Not Block LOS) == True;
+	}
+
+	actions
+	{
+		"This will start the heal over time to anyone within the boom box range but not in lucio's range."
+		Stop Heal Over Time(Player Variable(Event Player, hotID));
+		Set Move Speed(Event Player, 100);
+		Start Heal Over Time(Event Player, Players On Hero(Hero(Lúcio), Team Of(Event Player)), 9999, 16.800);
+		Set Player Variable(Event Player, hotID, Last Heal Over Time ID);
+	}
+}
+
+rule("Block#12425 - Move Speed Set Boom Box (Amp)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxActive) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), isHeal) == False;
+		Has Status(Players On Hero(Hero(Lúcio), Team Of(Event Player)), Hacked) == False;
+		Is Using Ability 2(Players On Hero(Hero(Lúcio), Team Of(Event Player))) == True;
+		Compare(Distance Between(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Position Of(Event Player)), >, 12)
+			== True;
+		Compare(Distance Between(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Position Of(
+			Event Player)), <=, 12) == True;
+		Is In Line of Sight(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Eye Position(Event Player),
+			Barriers Do Not Block LOS) == True;
+	}
+
+	actions
+	{
+		"This will set the speed boost with amp to all players that are in range of the boom box but not in lucio's range."
+		Stop All Heal Over Time(Event Player);
+		Set Move Speed(Event Player, 160);
+	}
+}
+
+rule("Block#12425 - Start Heal over Time Boom Box (Amp)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxActive) == True;
+		Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), isHeal) == True;
+		Has Status(Players On Hero(Hero(Lúcio), Team Of(Event Player)), Hacked) == False;
+		Is Using Ability 2(Players On Hero(Hero(Lúcio), Team Of(Event Player))) == True;
+		Compare(Distance Between(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Position Of(
+			Event Player)), <=, 12) == True;
+		Compare(Distance Between(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))), Position Of(Event Player)), >, 12)
+			== True;
+		Is In Line of Sight(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Eye Position(
+			Event Player), Barriers Do Not Block LOS) == True;
+	}
+
+	actions
+	{
+		"This will start the heal over time to anyone within range of the boom box but not within range of Lucio."
+		Stop Heal Over Time(Player Variable(Event Player, hotID));
+		Set Move Speed(Event Player, 100);
+		Start Heal Over Time(Event Player, Players On Hero(Hero(Lúcio), Team Of(Event Player)), 9999, 50);
+		Set Player Variable(Event Player, hotID, Last Heal Over Time ID);
+	}
+}
+
+rule("Block#12425 - Lucio Death Boom Box Reset")
+{
+	event
+	{
+		Player Died;
+		All;
+		Lúcio;
+	}
+
+	actions
+	{
+		"When Lucio dies, the boom box is destroyed and certain variables are reset."
+		Set Player Variable(Event Player, isHeal, False);
+		Set Player Variable(Event Player, boomBoxCD, 0);
+		Set Player Variable(Event Player, boomBoxDespawn, 0);
+	}
+}
+
+rule("Block#12425 - Play Effects for Boom Box Amp")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ability 2(Event Player) == True;
+		Player Variable(Event Player, boomBoxActive) == True;
+	}
+
+	actions
+	{
+		"This simply plays the effects for both the allies and enemies when amp is used."
+		Play Effect(Filtered Array(All Players(Team Of(Event Player)), Compare(Player Variable(Event Player, isHeal), ==, False)),
+			Ring Explosion, Green, Player Variable(Event Player, boomBoxPosition), 24);
+		Play Effect(Filtered Array(All Players(Team Of(Event Player)), Compare(Player Variable(Event Player, isHeal), ==, True)),
+			Ring Explosion, Yellow, Player Variable(Event Player, boomBoxPosition), 24);
+		Play Effect(All Players(Opposite Team Of(Team Of(Event Player))), Ring Explosion, Red, Player Variable(Event Player,
+			boomBoxPosition), 24);
+	}
+}
+
+rule("Block#12425 - Player Let Go Ability 1")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Ability 1) != True;
+	}
+
+	actions
+	{
+		"This rule keeps track of when the player let's go of ability 1, since the ability is technically running constantly."
+		Set Player Variable(Event Player, holdingAbility1, False);
+	}
+}
+
+disabled rule("================================================== Cancel Affects ==================================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Cancel Affects of Boom Box (Player Out of Range)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == True;
+		Or(Compare(Distance Between(Player Variable(Players On Hero(Hero(Lúcio), Team Of(Event Player)), boomBoxPosition), Position Of(
+			Event Player)), >, 12), Or(Compare(Distance Between(Position Of(Players On Hero(Hero(Lúcio), Team Of(Event Player))),
+			Position Of(Event Player)), <=, 12), Compare(Is In Line of Sight(Player Variable(Players On Hero(Hero(Lúcio), Team Of(
+			Event Player)), boomBoxPosition), Eye Position(Event Player), Barriers Do Not Block LOS), ==, False))) == True;
+	}
+
+	actions
+	{
+		"When a player is out of range of the boom box, the effects it provided are cancelled."
+		Call Subroutine(cancelBoomBoxAffects);
+	}
+}
+
+rule("Block#12425 - Cancel Affects of Boom Box (Boom Box Despawns)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Or(Compare(Player Variable(Event Player, boomBoxActive), ==, False), Has Status(Event Player, Hacked)) == True;
+	}
+
+	actions
+	{
+		"If the boom box despawns, the effects the boom box provided are cancelled."
+		Call Subroutine(cancelBoomBoxAffects);
+	}
+}
+
+rule("Block#12425 - Disable Effects if Lucio is not played")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Hero Being Played(Hero(Lúcio), Team Of(Event Player)) == False;
+	}
+
+	actions
+	{
+		"This rule will reset all boom box affects if Lucio is not played anymore."
+		Call Subroutine(cancelBoomBoxAffects);
+		Set Player Variable(Event Player, isHeal, False);
+		If(Compare(Player Variable(Event Player, boomBoxActive), ==, True));
+			Set Player Variable(Event Player, boomBoxCrossfade, False);
+			Set Player Variable(Event Player, boomBoxCD, 0);
+			Set Player Variable(Event Player, boomBoxDespawn, 0);
+	}
+}
+
+rule("Block#12425 - Stop Lucio Boom Box Affects Subroutine")
+{
+	event
+	{
+		Subroutine;
+		cancelBoomBoxAffects;
+	}
+
+	actions
+	{
+		"This simple subroutine simply restores move speed and stops all healing over time."
+		Set Move Speed(All Players(Team Of(Event Player)), 100);
+		Stop All Heal Over Time(All Players(Team Of(Event Player)));
+	}
+}
+
+disabled rule("================================================== Box Gone ==================================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Enemy Destroys Boom Box")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Player Variable(Event Player, boomBoxActive) == True;
+		Is True For Any(All Players(Opposite Team Of(Team Of(Event Player))), And(Compare(Distance Between(Player Variable(Event Player,
+			boomBoxPosition), Position Of(Current Array Element)), <=, 1.500), And(Is Button Held(Current Array Element, Melee), True)))
+			== True;
+	}
+
+	actions
+	{
+		"The enemy can destroy a boom box if they melee within range."
+		Set Player Variable(Event Player, boomBoxDespawn, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Orange, Player Variable(Event Player, boomBoxPosition), 2);
+	}
+}
+
+rule("Block#12425 - Stop Chasing boomBoxCD")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Lúcio;
+	}
+
+	conditions
+	{
+		Player Variable(Event Player, boomBoxCD) == 0;
+	}
+
+	actions
+	{
+		"When the cooldown is back to 0, this cancells the chasing, in order to preserve server resources."
+		Stop Chasing Player Variable(Event Player, boomBoxCD);
+	}
+}
+
+rule("Block#12425 - Despawn Boom Box")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Player Variable(Event Player, boomBoxDespawn) == 0;
+	}
+
+	actions
+	{
+		"When the boom box's lifetime has ended, the boom box is destroyed as if it was destroyed by an enemy."
+		Skip If(Compare(Player Variable(Event Player, boomBoxActive), ==, False), 3);
+		Set Player Variable(Event Player, boomBoxActive, False);
+		Play Effect(All Players(All Teams), Debuff Impact Sound, White, Player Variable(Event Player, boomBoxPosition), 200);
+		Play Effect(All Players(All Teams), Good Explosion, Orange, Player Variable(Event Player, boomBoxPosition), 2);
+		Stop Chasing Player Variable(Event Player, boomBoxDespawn);
+	}
+}
