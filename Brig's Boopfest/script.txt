@@ -1,0 +1,1481 @@
+settings
+{
+	main
+	{
+		Description: "CODE (EN): ZYDQM. BRIG'S BOOPFEST. VERSION: 1.2.1. CREATOR: Block#12425"
+	}
+
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Match Voice Chat: Enabled
+		Max FFA Players: 10
+		Return To Lobby: Never
+	}
+
+	modes
+	{
+		Deathmatch
+		{
+			enabled maps
+			{
+				Black Forest
+				Black Forest Winter
+				Château Guillard
+				Château Guillard Halloween
+				Havana
+				Necropolis
+				Petra
+				Volskaya Industries
+				Workshop Expanse
+				Workshop Expanse Night
+			}
+		}
+
+		General
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 10%
+			Score To Win: 15
+			Self Initiated Respawn: Off
+			Spawn Health Packs: Disabled
+		}
+	}
+
+	heroes
+	{
+		General
+		{
+			Brigitte
+			{
+				Barrier Shield Cooldown Time: 300%
+				Barrier Shield Recharge Rate: 200%
+				Damage Dealt: 500%
+				Primary Fire: Off
+				Quick Melee: Off
+				Repair Pack: Off
+				Shield Bash Cooldown Time: 35%
+				Ultimate Generation - Combat Rally: 50%
+				Ultimate Generation - Passive Rally: 0%
+				Whip Shot Cooldown Time: 25%
+				Whip Shot Knockback Scalar: 130%
+			}
+
+			enabled heroes
+			{
+				Brigitte
+			}
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: lookPositionRandomArray
+		1: teleportPosition
+		2: xPositive
+		3: xNegative
+		4: yPositive
+		5: yNegative
+		6: zPositive
+		7: zNegative
+		8: stringVersion
+		9: stringDiscord
+		10: stringVulnerable
+		11: stringProject
+		12: stringCode
+		13: stringGuide1
+		14: stringGuide2
+		15: stringGuide3
+		16: stringGuide5
+		17: stringInvulnerable
+		18: stringLand
+		19: stringObjective
+		20: stringAim
+		21: stringCriticallyHit
+		22: stringCriticalHit
+		23: stringCrushed
+		24: stringCrushedEnemy
+		25: stringTranslation
+		26: stringCreator
+		27: stringVersionCreator
+		28: stringDiscordLink
+		29: stringProjectLink
+		30: time
+		31: stringGuide4
+
+	player:
+		0: touchedGround
+		1: lastAttacker
+		2: ultCharge
+		5: isDropping
+		7: noHelp
+		9: flailPosition
+		10: eyePosition
+}
+
+subroutines
+{
+	0: death
+	1: spawnLaunchPart1
+	2: spawnLaunchPart2
+	3: spawnLaunchPart3
+	4: arenaSetupEdge
+	5: arenaSetupFace
+	6: arenaSetupCorner
+	7: mapSetupNecro
+	8: mapSetupPetra
+	9: mapSetupExpan
+	10: hudSetup
+	11: otherSetup
+	12: mapSetupVolsk
+	13: mapSetupBlack
+	14: countdown
+	15: mapSetupHavan
+	16: mapSetupGuill
+	17: arenaSetup
+	18: mapCheck
+}
+
+disabled rule("Brig's Boopfest! Created by Block#12425. Version 1.2.1. Code: ZYDQM")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Project: workshop.codes/brigboop | Discord: discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("DEBUG")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"Turn rule on if you want to see DEBUG information for HOST PLAYER"
+		Create HUD Text(Host Player, Server Load, Null, String("Server Load"), Left, 5, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load Average, Null, String("Server Load Average"), Left, 5, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Peak, Null, String("Server Load Peak"), Left, 5, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("=============================================== SETUP ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringVersion = Custom String("1.2.1");
+		Global.stringCreator = Custom String("Block#12425");
+		Global.stringProjectLink = Custom String("workshop.codes/brigboop");
+		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
+		Global.time = 900;
+		"Setup all HUD elements"
+		Call Subroutine(hudSetup);
+		"Run the map setup Subroutines"
+		Call Subroutine(mapCheck);
+		"Other small stuff needed for setup"
+		Call Subroutine(otherSetup);
+		"Turn this off if you need to debug."
+		Disable Inspector Recording;
+	}
+}
+
+rule("Block#12425 - HUD Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		hudSetup;
+	}
+
+	actions
+	{
+		"HUD message that appears when player is in the air after touching ground."
+		Create HUD Text(Filtered Array(All Players(All Teams), Is Using Ultimate(Current Array Element) == False && Is In Air(
+			Current Array Element) == True), Global.stringVulnerable, Null, Null, Top, 1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		"This HUD element appears when the player is ulting."
+		Create HUD Text(Filtered Array(All Players(All Teams), Is Using Ultimate(Current Array Element) == True),
+			Global.stringInvulnerable, Null, Null, Top, 2, Aqua, White, White, Visible To and String, Default Visibility);
+		"HUD Guide."
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.noHelp == False), Null, Null, Global.stringGuide1,
+			Left, 2, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.noHelp == False), Null, Null, Global.stringGuide2,
+			Left, 2.100, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.noHelp == False), Null, Null, Global.stringGuide3,
+			Left, 2.200, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.noHelp == False), Null, Null, Global.stringGuide4,
+			Left, 2.300, White, White, White, Visible To and String, Default Visibility);
+		"This HUD guide element is always present and tells the player what button to press to enable/disable the guide."
+		Create HUD Text(All Players(All Teams), Null, Custom String(" "), Global.stringGuide5, Left, 4, White, White, White,
+			Visible To and String, Default Visibility);
+		"First element HUD of the game title information on the top right corner of the UI."
+		Create HUD Text(All Players(All Teams), Custom String("Brig's Boopfest"), Null, Null, Right, -4, Orange, White, White,
+			Visible To and String, Default Visibility);
+		"Second HUD element on the top right corner of the UI."
+		Create HUD Text(All Players(All Teams), Null, Global.stringVersionCreator, Null, Right, -3, White, White, Orange,
+			Visible To and String, Default Visibility);
+		"Translator Credits."
+		Create HUD Text(All Players(All Teams), Null, Global.stringTranslation, Custom String(" "), Right, -2.500, White, White, Orange,
+			Visible To and String, Default Visibility);
+		"Discord Link HUD element in the top right corner of the UI."
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDiscord, Right, -2, White, White, Green, Visible To and String,
+			Default Visibility);
+		"Project Link HUD element in the top right corner of the HUD."
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -1, Green, White, Green, Visible To and String,
+			Default Visibility);
+		"Code HUD Element on the top right corner."
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -0.500, Green, White, Aqua, Visible To and String,
+			Default Visibility);
+	}
+}
+
+rule("Block#12425 - Other Setup")
+{
+	event
+	{
+		Subroutine;
+		otherSetup;
+	}
+
+	actions
+	{
+		"This is the blue orb at the top of the arena. Players spawn at its location, with the orb only being visible to players touchedGround=True."
+		Create Effect(Filtered Array(All Players(All Teams), Current Array Element.touchedGround == True), Orb, Sky Blue,
+			Global.teleportPosition, 3, Visible To Position and Radius);
+		"This arrow element in created in the spot where the players are faced. This is to help guide new players on where to land."
+		Create Icon(Filtered Array(All Players(All Teams), Current Array Element.touchedGround == False),
+			Global.lookPositionRandomArray[0], Arrow: Down, Visible To and Position, Sky Blue, True);
+		"Along with the arrow, this in-world text is also meant to help encourage new players on where to land."
+		Create In-World Text(Filtered Array(All Players(All Teams), Current Array Element.touchedGround == False), Global.stringLand,
+			Global.lookPositionRandomArray[0], 1, Do Not Clip, Visible To Position and String, White, Default Visibility);
+		"This arrow element in created in the spot where the players are faced. This is to help guide new players on where to land."
+		Create Icon(Filtered Array(All Players(All Teams), Current Array Element.touchedGround == False),
+			Global.lookPositionRandomArray[1], Arrow: Down, Visible To and Position, Sky Blue, True);
+		"Along with the arrow, this in-world text is also meant to help encourage new players on where to land."
+		Create In-World Text(Filtered Array(All Players(All Teams), Current Array Element.touchedGround == False), Global.stringLand,
+			Global.lookPositionRandomArray[1], 1, Do Not Clip, Visible To Position and String, White, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Pre-match Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		"Assembling heroes setup. Makes sure all values are reset in case the lobby had waiting for players enabled."
+		Set Match Time(10);
+		Event Player.touchedGround = False;
+		Event Player.isDropping = False;
+		Event Player.ultCharge = 0;
+		Event Player.lastAttacker = Null;
+		Set Gravity(Event Player, 100);
+	}
+}
+
+rule("Block#12425 - Match Time Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"AKA the match time is 15 minutes."
+		Set Match Time(Global.time);
+	}
+}
+
+rule("Block#12425 - Player Death Setup")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	actions
+	{
+		Event Player.touchedGround = False;
+		Event Player.lastAttacker = Null;
+		"This preserves the ult charge after death. This is also set because the ultimate charge is reset on respawn."
+		Event Player.ultCharge = Ultimate Charge Percent(Event Player);
+		Set Ultimate Charge(Event Player, 0);
+	}
+}
+
+rule("Block#12425 - Objective Description Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+	}
+
+	actions
+	{
+		"This being run at each respawn just ensures that the player sees this proper description, as sometimes it doesn't load for new players."
+		Set Objective Description(Event Player, Global.stringObjective, Visible To and String);
+	}
+}
+
+disabled rule("=============================================== LANGUAGE ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - English (EN)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringGuide1 = Custom String(
+			"*Boop enemies out of the arena!\r\n*Self boop by hitting a surface while in air.\r\n*Get critical hits by hitting airborne targets.\r");
+		Global.stringGuide2 = Custom String("*Shield Bash goes much further.\r\n*Shield can only take one hit.");
+		Global.stringGuide3 = Custom String("*Shield bash opponents against walls to crush them.");
+		Global.stringGuide4 = Custom String("*Ultimate makes you invulnerable.");
+		Global.stringGuide5 = Custom String("*Press {0} (Default: F) to toggle guide.", Button(Interact));
+		Global.stringDiscord = Custom String("Join the discord: {0} (all caps)", Global.stringDiscordLink);
+		Global.stringVulnerable = Custom String("Vulnerable to critical hits");
+		Global.stringProject = Custom String("Project: {0} (lowercase)", Global.stringProjectLink);
+		Global.stringCode = Custom String("Code: ZYDQM");
+		Global.stringInvulnerable = Custom String("Invulnerable");
+		Global.stringLand = Custom String("Land here!");
+		Global.stringObjective = Custom String("Boop enemies out of the arena");
+		Global.stringAim = Custom String("Aim your launch!");
+		Global.stringCriticallyHit = Custom String("Critically hit!");
+		Global.stringCriticalHit = Custom String("Critical hit!");
+		Global.stringCrushed = Custom String("Crushed!");
+		Global.stringCrushedEnemy = Custom String("Crushed Enemy!");
+		Global.stringTranslation = Custom String("");
+		Global.stringVersionCreator = Custom String("Created by: {0} Version: {1}", Global.stringCreator, Global.stringVersion);
+	}
+}
+
+disabled rule("Block#12425 - 한국어 (KR) Thanks to 홀수돚거#3265 for KR Translation.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringGuide1 = Custom String("*적들을 경기장 밖으로 밀쳐내버리세요!\r\n*공중에서 바닥을 쳐 스스로 밀치세요.");
+		Global.stringGuide2 = Custom String("*공중에 떠있는 적을 가격해 더욱 멀리 밀쳐내세요.\r\n*방패 밀치기는 더욱 먼 거리를 이동합니다.");
+		Global.stringGuide3 = Custom String("*방패는 한 번의 타격만 막아낼 수 있습니다.\r\n*방패 강타로 적들을 벽으로 밀쳐 부숴버리세요.");
+		Global.stringGuide4 = Custom String("*궁극기는 당신을 무적으로 만듭니다.");
+		Global.stringGuide5 = Custom String("*설명을 비활성화하려면 {0} 누르세요.", Button(Interact));
+		Global.stringDiscord = Custom String("저희 디스코드에 들어오세요!: {0} (대문자)", Global.stringDiscordLink);
+		Global.stringVulnerable = Custom String("치명타에 취약함");
+		Global.stringProject = Custom String("좋아요를 눌러주세요: {0} (소문자)", Global.stringProjectLink);
+		Global.stringCode = Custom String("코드: Z57JE");
+		Global.stringInvulnerable = Custom String("무적");
+		Global.stringLand = Custom String("여기에 착륙하세요!");
+		Global.stringObjective = Custom String("경기장 바깥으로 상대를 밀쳐내버리세요");
+		Global.stringAim = Custom String("착륙 지점에 조준선을 두세요!");
+		Global.stringCriticallyHit = Custom String("치명타를 받았습니다!");
+		Global.stringCriticalHit = Custom String("치명타! ");
+		Global.stringCrushed = Custom String("납작해졌습니다!");
+		Global.stringCrushedEnemy = Custom String("적을 압사시켰습니다! ");
+		Global.stringTranslation = Custom String("한국어 번역을 도와주신 홀수돚거#3265님께 감사드립니다.");
+		Global.stringVersionCreator = Custom String("제작: {0}. 버전 {1}", Global.stringCreator, Global.stringVersion);
+	}
+}
+
+disabled rule("=============================================== MAP SETUP ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Map Check Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapCheck;
+	}
+
+	actions
+	{
+		"This giant if/else if/else logic statement helps optimize the load by testing for each map and then running the respective subroutine for the map."
+		If(Current Map == Map(Necropolis));
+			Call Subroutine(mapSetupNecro);
+		Else If(Current Map == Map(Petra));
+			Call Subroutine(mapSetupPetra);
+		Else If(Current Map == Map(Volskaya Industries));
+			Call Subroutine(mapSetupVolsk);
+		"OR statement is present because two maps (Black Forest and its Winter Variant) use the same layout."
+		Else If(Current Map == Map(Black Forest) || Current Map == Map(Black Forest Winter));
+			Call Subroutine(mapSetupBlack);
+		"OR statement is present because two maps (Black Forest and its Winter Variant) use the same layout."
+		Else If(Current Map == Map(Château Guillard) || Current Map == Map(Château Guillard Halloween));
+			Call Subroutine(mapSetupGuill);
+		Else If(Current Map == Map(Havana));
+			Call Subroutine(mapSetupHavan);
+		"This is in case the map is either Workshop Expanse or an unofficially selected map."
+		Else;
+			Call Subroutine(mapSetupExpan);
+		End;
+		Call Subroutine(arenaSetup);
+	}
+}
+
+rule("Block#12425 - Map Setup (Necropolis) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNecro;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(0.415, 11.605, -22.069));
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(0.415, 11.605, 22.069));
+		"Where respawning players teleport to. This is also where the blue orb is located."
+		Global.teleportPosition = Vector(-0.543, 41.515, 0);
+		"X-axis front side of arena."
+		Global.xPositive = 24;
+		"X-axis back side of arena."
+		Global.xNegative = -23;
+		"Y-axis front side of arena."
+		Global.yPositive = 32;
+		"Y-axis back side of arena."
+		Global.yNegative = 6;
+		"Z-axis front side of arena."
+		Global.zPositive = 39.451;
+		"Z-axis back side of arena."
+		Global.zNegative = -38;
+	}
+}
+
+rule("Block#12425 - Map Setup (Petra) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupPetra;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(6.230, -10.995, 46.414));
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(28.819, -9.683, 27.225));
+		Global.teleportPosition = Vector(40.487, 18.305, 72.646);
+		Global.xPositive = 47.063;
+		Global.xNegative = -3.306;
+		Global.yPositive = 12.745;
+		Global.yNegative = -14;
+		Global.zPositive = 72.308;
+		Global.zNegative = 19.729;
+	}
+}
+
+rule("Block#12425 - Map Setup (Workshop Expanse) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupExpan;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		"Check mapSetupNecro rule for information on variables."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(0, 0, 0));
+		"Check mapSetupNecro rule for information on variables."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(0, 0, 0));
+		Global.teleportPosition = Vector(20, 30, 0);
+		Global.xPositive = 25;
+		Global.xNegative = -25;
+		Global.yPositive = 20;
+		Global.yNegative = -5;
+		Global.zPositive = 25;
+		Global.zNegative = -25;
+	}
+}
+
+rule("Block#12425 - Map Setup (Volskaya Industries) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupVolsk;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		"Position where the respawning player faces before launch. Arrow and \"Land Here!\" message are located here."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(3.609, 2.375, 94.321));
+		"Position where the respawning player faces before launch. Arrow and \"Land Here!\" message are located here."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(-13.693, -3.239, 90.608));
+		Global.teleportPosition = Vector(-12.457, 19.004, 59.736);
+		Global.xPositive = 14.983;
+		Global.xNegative = -29.699;
+		Global.yPositive = 14;
+		Global.yNegative = -5.774;
+		Global.zPositive = 127.262;
+		Global.zNegative = 66;
+	}
+}
+
+rule("Block#12425 - Map Setup (Black Forest) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupBlack;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		"Position where the respawning player faces before launch. Arrow and \"Land Here!\" message are located here."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(-7.821, 19.681, -10.792));
+		"Position where the respawning player faces before launch. Arrow and \"Land Here!\" message are located here."
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(-7.820, 19.674, 20.548));
+		Global.teleportPosition = Vector(-46.898, 37.261, 4.124);
+		Global.xPositive = 8.954;
+		Global.xNegative = -45;
+		Global.yPositive = 30.398;
+		Global.yNegative = 8;
+		Global.zPositive = 31.510;
+		Global.zNegative = -21.510;
+	}
+}
+
+rule("Block#12425 - Map Setup (Chateau Guillard) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupGuill;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(205.093, 10.291, 56.081));
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(176.029, 7.455, 58.772));
+		Global.teleportPosition = Vector(191.309, 29.660, 41.124);
+		Global.xPositive = 240;
+		Global.xNegative = 156.614;
+		Global.yPositive = 26.868;
+		Global.yNegative = 4;
+		Global.zPositive = 79.229;
+		Global.zNegative = 35.772;
+	}
+}
+
+rule("Block#12425 - Map Setup (Havana) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupHavan;
+	}
+
+	actions
+	{
+		Global.lookPositionRandomArray = Empty Array;
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(94.324, 7.490, -47.556));
+		Modify Global Variable(lookPositionRandomArray, Append To Array, Vector(90.879, 4.396, -80.969));
+		Global.teleportPosition = Vector(115.981, 27.649, -72.724);
+		Global.xPositive = 116;
+		Global.xNegative = 75;
+		Global.yPositive = 29.068;
+		Global.yNegative = -4.092;
+		Global.zPositive = -36.484;
+		Global.zNegative = -97.080;
+	}
+}
+
+disabled rule("============================================ ARENA CONSTRUCTION ============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Arena Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		arenaSetup;
+	}
+
+	actions
+	{
+		"Setup all Arena Effects"
+		Call Subroutine(arenaSetupEdge);
+		Call Subroutine(arenaSetupFace);
+		Call Subroutine(arenaSetupCorner);
+	}
+}
+
+rule("Block#12425 - Boundary Box Edge Construction Subroutine")
+{
+	event
+	{
+		Subroutine;
+		arenaSetupEdge;
+	}
+
+	actions
+	{
+		"BOX EDGES: (x,y,z) -> (x,-y,z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xPositive, Global.yNegative, 0.001 + Global.zPositive), Red, Visible To);
+		"(x,y,-z) -> (x,-y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zNegative), Vector(
+			Global.xPositive, Global.yNegative, 0.001 + Global.zNegative), Red, Visible To);
+		"(-x,y,-z) -> (-x,-y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zNegative), Vector(
+			Global.xNegative, Global.yNegative, 0.001 + Global.zNegative), Red, Visible To);
+		"(-x,y,z) -> (-x,-y,z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, 0.001 + Global.zPositive), Red, Visible To);
+		"(x,y,z) -> (-x,y,z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yPositive, Global.zPositive), Red, Visible To);
+		"(x,-y,z) -> (-x,-y,z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yNegative, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(x,y,-z) -> (-x,y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zNegative), Vector(
+			Global.xNegative, Global.yPositive, Global.zNegative), Red, Visible To);
+		"(x,-y,-z) -> (-x,-y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yNegative, Global.zNegative), Vector(
+			Global.xNegative, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(x,y,z) -> (x,y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xPositive, Global.yPositive, Global.zNegative), Red, Visible To);
+		"(x,-y,z) -> (x,-y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yNegative, Global.zPositive), Vector(
+			Global.xPositive, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(-x,y,z) -> (-x,y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yPositive, Global.zNegative), Red, Visible To);
+		"(-x,-y,z) -> (-x,-y,-z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yNegative, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, Global.zNegative), Red, Visible To);
+	}
+}
+
+rule("Block#12425 - Boundary Box Face Construction Subroutine")
+{
+	event
+	{
+		Subroutine;
+		arenaSetupFace;
+	}
+
+	actions
+	{
+		"This subroutine creates the faces of the arena. (x,y,-z) -> (-x,y,z) (Face Y)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zNegative), Vector(
+			Global.xNegative, Global.yPositive, Global.zPositive), Red, Visible To);
+		"(x,y,z) -> (-x,y,-z) (Face Y)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yPositive, Global.zNegative), Red, Visible To);
+		"(x,y,-z) -> (x,-y,z) (Face X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zNegative), Vector(
+			Global.xPositive, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(x,y,z) -> (x,-y,-z) (Face X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xPositive, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(-x,y,-z) -> (-x,-y,z) (Face -X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zNegative), Vector(
+			Global.xNegative, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(-x,y,z) -> (-x,-y,-z) (Face -X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(x,y,z) -> (-x,-y,z) (Face Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(-x,y,z) -> (x,-y,z) (Face Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zPositive), Vector(
+			Global.xPositive, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(x,-y,z) -> (-x,-y,-z) (Face -Y)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yNegative, Global.zPositive), Vector(
+			Global.xNegative, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(x,-y,-z) -> (-x,-y,z) (Face -Y)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yNegative, Global.zNegative), Vector(
+			Global.xNegative, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(x,y,-z) -> (-x,-y,-z) (Face -Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, Global.zNegative), Vector(
+			Global.xNegative, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(-x,y,-z) -> (x,-y,-z) (Face -Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, Global.zNegative), Vector(
+			Global.xPositive, Global.yNegative, Global.zNegative), Red, Visible To);
+		"MIDPOINT FACE HORIZONTAL: (x,midpoint,-z) -> (-x,midpoint,-z) (Face -Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2,
+			Global.zNegative), Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2, Global.zNegative), Red, Visible To);
+		"(x,midpoint,z) -> (-x,midpoint,z) (Face Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2,
+			Global.zPositive), Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2, Global.zPositive), Red, Visible To);
+		"(x,midpoint,-z) -> (x,midpoint,z) (Face X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2,
+			Global.zNegative), Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2, Global.zPositive), Red, Visible To);
+		"(-x,midpoint,-z) -> (-x,midpoint,z) (Face -X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2,
+			Global.zNegative), Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2, Global.zPositive), Red, Visible To);
+		"MIDPOINT FACE VERTICAL: (midpoint,y,z) -> (midpoint,-y,z) (Face Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector((Global.xPositive + Global.xNegative) / 2 + 0.001, Global.yPositive,
+			Global.zPositive), Vector((Global.xPositive + Global.xNegative) / 2, Global.yNegative, Global.zPositive), Red, Visible To);
+		"(midpoint,y,-z) -> (midpoint,-y,-z) (Face -Z)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector((Global.xPositive + Global.xNegative) / 2 + 0.001, Global.yPositive,
+			Global.zNegative), Vector((Global.xPositive + Global.xNegative) / 2, Global.yNegative, Global.zNegative), Red, Visible To);
+		"(x,y,midpoint) -> (x,-y,midpoint) (Face X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xPositive, Global.yPositive, (
+			Global.zPositive + Global.zNegative) / 2 + 0.001), Vector(Global.xPositive, Global.yNegative, (
+			Global.zPositive + Global.zNegative) / 2), Red, Visible To);
+		"(-x,y,midpoint) -> (-x,-y,midpoint) (Face -X)"
+		Create Beam Effect(All Players(All Teams), Bad Beam, Vector(Global.xNegative, Global.yPositive, (
+			Global.zPositive + Global.zNegative) / 2 + 0.001), Vector(Global.xNegative, Global.yNegative, (
+			Global.zPositive + Global.zNegative) / 2), Red, Visible To);
+	}
+}
+
+rule("Block#12425 - Boundary Box Corner Construction Subroutine")
+{
+	event
+	{
+		Subroutine;
+		arenaSetupCorner;
+	}
+
+	actions
+	{
+		"CORNERS: (x,y,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yPositive, Global.zPositive), 5, Visible To);
+		"(-x,y,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yPositive, Global.zPositive), 1, Visible To);
+		"(x,-y,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yNegative, Global.zPositive), 1, Visible To);
+		"(x,y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yPositive, Global.zNegative), 1, Visible To);
+		"(-x,-y,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yNegative, Global.zPositive), 1, Visible To);
+		"(x,-y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yNegative, Global.zNegative), 1, Visible To);
+		"(-x,y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yPositive, Global.zNegative), 1, Visible To);
+		"(-x,-y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yNegative, Global.zNegative), 1, Visible To);
+		"MIDPOINT ORBS HORIZONTAL: (x, midpoint, z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2,
+			Global.zPositive), 5, Visible To);
+		"(-x,midpoint,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2,
+			Global.zPositive), 5, Visible To);
+		"(x,midpoint,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, (Global.yPositive + Global.yNegative) / 2,
+			Global.zNegative), 5, Visible To);
+		"(-x,midpoint,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, (Global.yPositive + Global.yNegative) / 2,
+			Global.zNegative), 5, Visible To);
+		"MIDPOINT ORBS VERTICAL: (midpoint, y, z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector((Global.xPositive + Global.xNegative) / 2, Global.yPositive,
+			Global.zPositive), 5, Visible To);
+		"(midpoint,-y,z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector((Global.xPositive + Global.xNegative) / 2, Global.yNegative,
+			Global.zPositive), 5, Visible To);
+		"(midpoint,y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector((Global.xPositive + Global.xNegative) / 2, Global.yPositive,
+			Global.zNegative), 5, Visible To);
+		"(midpoint,-y,-z)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector((Global.xPositive + Global.xNegative) / 2, Global.yNegative,
+			Global.zNegative), 5, Visible To);
+		"(x,y,midpoint)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yPositive, (Global.zPositive + Global.zNegative)
+			/ 2), 5, Visible To);
+		"(x,-y,midpoint)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xPositive, Global.yNegative, (Global.zPositive + Global.zNegative)
+			/ 2), 5, Visible To);
+		"(-x,y,midpoint)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yPositive, (Global.zPositive + Global.zNegative)
+			/ 2), 5, Visible To);
+		"(-x,-y,midpoint)"
+		Create Effect(All Players(All Teams), Orb, Red, Vector(Global.xNegative, Global.yNegative, (Global.zPositive + Global.zNegative)
+			/ 2), 5, Visible To);
+	}
+}
+
+disabled rule("=============================================== SPAWN SETUP ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Spawn Sequence")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		(Is Game In Progress == True || Is Waiting For Players == True) == True;
+	}
+
+	actions
+	{
+		"This first part sets up the launching by setting up the player's stats and position"
+		Call Subroutine(spawnLaunchPart1);
+		Wait(0.500, Abort When False);
+		"Ok, now the game can safely set up everything else, and start a countdown for the player alongside the wait time."
+		Call Subroutine(spawnLaunchPart2);
+		Start Rule(countdown, Do Nothing);
+		"This is how long the player can take to aim."
+		Wait(3, Ignore Condition);
+		"And this set's up the player for landing."
+		Call Subroutine(spawnLaunchPart3);
+	}
+}
+
+rule("Block#12425 - Spawn Launch Part 1 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnLaunchPart1;
+	}
+
+	actions
+	{
+		Set Status(Event Player, Null, Unkillable, 9999);
+		Event Player.isDropping = False;
+		Set Ability 1 Enabled(Event Player, False);
+		Set Secondary Fire Enabled(Event Player, False);
+		Set Gravity(Event Player, 0);
+		Big Message(Event Player, Global.stringAim);
+		Set Invisible(Event Player, Enemies);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Start Forcing Throttle(Event Player, 0, 0, 0, 0, 0, 0);
+		Teleport(Event Player, Global.teleportPosition);
+	}
+}
+
+rule("Block#12425 - Spawn Launch Part 2 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnLaunchPart2;
+	}
+
+	actions
+	{
+		If(Current Map == Map(Necropolis));
+			If(Count Of(Players Within Radius(Global.lookPositionRandomArray[0], 10, All Teams, Off)) <= Count Of(Players Within Radius(
+				Global.lookPositionRandomArray[1], 10, All Teams, Off)));
+				Set Facing(Event Player, Direction Towards(Event Player, Global.lookPositionRandomArray[0]), To World);
+			Else;
+				Set Facing(Event Player, Direction Towards(Event Player, Global.lookPositionRandomArray[1]), To World);
+			End;
+		Else;
+			"Orients the player into the proper direction in case they are afk."
+			Set Facing(Event Player, Direction Towards(Event Player, Random Value In Array(Global.lookPositionRandomArray)), To World);
+	}
+}
+
+rule("Block#12425 - Spawn Launch Part 3 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnLaunchPart3;
+	}
+
+	actions
+	{
+		"This is the actual launch. This also sets up the following rule for touching the ground."
+		Play Effect(All Players(All Teams), Good Explosion, Sky Blue, Global.teleportPosition, 5);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Event Player, 50);
+		Stop Forcing Throttle(Event Player);
+		Apply Impulse(Event Player, Facing Direction Of(Event Player), 70, To World, Incorporate Contrary Motion);
+		Apply Impulse(Event Player, Facing Direction Of(Event Player), 70, To World, Incorporate Contrary Motion);
+		Event Player.isDropping = True;
+		Set Invisible(Event Player, None);
+		Set Gravity(Event Player, 100);
+	}
+}
+
+rule("Block#12425 - Countdown Subroutine")
+{
+	event
+	{
+		Subroutine;
+		countdown;
+	}
+
+	actions
+	{
+		Small Message(Event Player, Custom String("3"));
+		Wait(1, Ignore Condition);
+		Small Message(Event Player, Custom String("2"));
+		Wait(1, Ignore Condition);
+		Small Message(Event Player, Custom String("1"));
+	}
+}
+
+rule("Block#12425 - Spawn Touched Ground")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Event Player.touchedGround == False;
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+		Event Player.isDropping == True;
+		Is On Ground(Event Player) == True;
+		(Is Game In Progress == True || Is Waiting For Players == True) == True;
+	}
+
+	actions
+	{
+		"Once the player has touched the ground after being set up in the spawn launch, this sets everything up, including being detected by the arena again."
+		Set Gravity(Event Player, 100);
+		Set Ability 1 Enabled(Event Player, True);
+		Set Secondary Fire Enabled(Event Player, True);
+		Apply Impulse(Event Player, Vector(0, -1, 0), 20, To Player, Cancel Contrary Motion);
+		Event Player.touchedGround = True;
+		Set Ultimate Charge(Event Player, Event Player.ultCharge);
+		Clear Status(Event Player, Phased Out);
+		Play Effect(All Players(All Teams), Ring Explosion, Orange, Position Of(Event Player), 5);
+	}
+}
+
+disabled rule("=============================================== ARENA DEATH ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Side X+ Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Is Game In Progress || Is Waiting For Players) == True;
+		X Component Of(Position Of(Event Player)) >= Global.xPositive;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		"Basically each of these rules detects for a different side of the arena, and if the player passes one of them, the subroutine death is called."
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Side X- Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Is Game In Progress || Is Waiting For Players) == True;
+		X Component Of(Position Of(Event Player)) <= Global.xNegative;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Side Y+ Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Y Component Of(Position Of(Event Player)) >= Global.yPositive;
+		(Is Game In Progress || Is Waiting For Players) == True;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Side Y- Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Y Component Of(Position Of(Event Player)) <= Global.yNegative;
+		(Is Game In Progress || Is Waiting For Players) == True;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Side Z+ Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Is Game In Progress || Is Waiting For Players) == True;
+		Z Component Of(Position Of(Event Player)) >= Global.zPositive;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Side Z- Death")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Is Game In Progress || Is Waiting For Players) == True;
+		Z Component Of(Position Of(Event Player)) <= Global.zNegative;
+		Event Player.touchedGround == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(death);
+	}
+}
+
+rule("Block#12425 - Kill Player Subroutine")
+{
+	event
+	{
+		Subroutine;
+		death;
+	}
+
+	actions
+	{
+		"This subroutine occurs whenever the player passes a side of the arena after touching the ground."
+		Clear Status(Event Player, Unkillable);
+		Wait(0.100, Ignore Condition);
+		Kill(Event Player, Event Player.lastAttacker);
+		Play Effect(All Players(All Teams), Good Explosion, Red, Position Of(Event Player), 5);
+	}
+}
+
+disabled rule("=============================================== BRIG MECHANICS ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Speed-Boosted Shield Bash")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Firing Primary(Event Player) == True;
+		Is Firing Secondary(Event Player) == True;
+	}
+
+	actions
+	{
+		"This shield bash is done by increasing the speed of the player temporarily so the player covers further distance. The wait time is approximated for how long a shield bash lasts."
+		Set Move Speed(Event Player, 200);
+		Wait(0.250, Ignore Condition);
+		Set Move Speed(Event Player, 100);
+	}
+}
+
+rule("Block#12425 - Shield Crush")
+{
+	event
+	{
+		Player Dealt Damage;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Status(Victim, Stunned) == True;
+		Is Alive(Victim) == True;
+		Is Using Ability 1(Event Player) == False;
+		Distance Between(Eye Position(Victim), Ray Cast Hit Position(Eye Position(Victim), Eye Position(Victim) + Vector(X Component Of(
+			Facing Direction Of(Event Player)), 0, Z Component Of(Facing Direction Of(Event Player))) * 5, Null, All Players(All Teams),
+			False)) <= 1.800;
+	}
+
+	actions
+	{
+		Wait(0.100, Abort When False);
+		Clear Status(Victim, Unkillable);
+		Wait(0.100, Ignore Condition);
+		Kill(Victim, Event Player);
+		Small Message(Victim, Global.stringCrushed);
+		Small Message(Event Player, Global.stringCrushedEnemy);
+	}
+}
+
+rule("Block#12425 - Flail Self-Boop")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == True;
+		Is On Ground(Event Player) == False;
+		Is Firing Secondary(Event Player) == False;
+		Event Player.touchedGround == True;
+	}
+
+	actions
+	{
+		"This self-boop is a little complicated. So, here, this sets up the flail position for where the game thinks the flail will land after a certain amount of time."
+		Event Player.flailPosition = Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(
+			Event Player) * 22, All Players(All Teams), Event Player, True);
+		"This eye position is set up as a reference point for later."
+		Event Player.eyePosition = Eye Position(Event Player);
+		"The wait time is determined by how long the game thinks it will take for the flail of the player to land. It determines this by measuring the distance between the player's eye position and the flailPosition divided by 80, the meters per second of the flail"
+		Wait(Distance Between(Eye Position(Event Player), Event Player.flailPosition) / 80, Abort When False);
+		"A new flail position is measured after being translated from the old position by how much the player has moved since then. If the new flail position does not connect to a surface, no impulse is applied. If it does go through a surface, impulse is applied."
+		Skip If(Distance Between(Event Player.eyePosition, Ray Cast Hit Position(Eye Position(Event Player), Event Player.flailPosition - (
+			Eye Position(Event Player) - Event Player.eyePosition), All Players(All Teams), Event Player, True)) > 20, 2);
+		"The impulse to self is applied in the direction of the new flail position (in reference to the old flail position) to the eye position."
+		Apply Impulse(Event Player, Direction Towards(Eye Position(Event Player), Event Player.flailPosition - (Eye Position(Event Player)
+			- Event Player.eyePosition)) * -1, 20, To World, Cancel Contrary Motion);
+	}
+}
+
+rule("Block#12425 - Damage Dealt to Player")
+{
+	event
+	{
+		Player Took Damage;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"This will track the last attacker of the player in case the player dies within a certain time period."
+		Event Player.lastAttacker = Attacker;
+		"This is to keep the players health topped off, as the damage is higher and self-healing may not fully work."
+		Heal(Event Player, Null, 5000);
+	}
+}
+
+rule("Block#12425 - Player Hit in Air")
+{
+	event
+	{
+		Player Dealt Damage;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == True;
+		Is In Air(Victim) == True;
+	}
+
+	actions
+	{
+		"This rule applies an impulse to the victim if the victim is in the air. This is a critical hit. If the hit is blocked by the victim's shield, then the hit doesn't count as damage and the impulse isn't applied."
+		Play Effect(All Players(All Teams), Good Explosion, Orange, Position Of(Victim), 1);
+		Apply Impulse(Victim, Direction Towards(Event Player, Victim), 40, To World, Cancel Contrary Motion);
+		Small Message(Event Player, Global.stringCriticalHit);
+		Small Message(Victim, Global.stringCriticallyHit);
+	}
+}
+
+rule("Block#12425 - Attacker Clear At Ground Touch")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is On Ground(Event Player) == True;
+	}
+
+	actions
+	{
+		"If the player stays on the ground for 1 second, then lastAttacker is cleared and any other death without any hits will count as a suicide."
+		Wait(1, Abort When False);
+		Event Player.lastAttacker = Null;
+	}
+}
+
+rule("Block#12425 - Player Started Ult")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ultimate(Event Player) == True;
+		Event Player.touchedGround == True;
+	}
+
+	actions
+	{
+		"The ult makes the player phased out, essentially making the player untouchable by anyone."
+		Set Status(Event Player, Null, Phased Out, 9999);
+	}
+}
+
+rule("Block#12425 - Player Ult Ended")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ultimate(Event Player) == False;
+		Event Player.touchedGround == True;
+	}
+
+	actions
+	{
+		Clear Status(Event Player, Phased Out);
+	}
+}
+
+disabled rule("=============================================== OTHER ===============================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Toggle Instructions")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Interact) == True;
+	}
+
+	actions
+	{
+		If(Event Player.noHelp == False);
+			"Turns off instructions that display on top left corner."
+			Event Player.noHelp = True;
+		Else;
+			"Turns on instructions in top left corner."
+			Event Player.noHelp = False;
+		End;
+		"So players cannot accidentally spam it."
+		Wait(0.500, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Timer Reset")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Count Of(All Players(All Teams)) == 0;
+	}
+
+	actions
+	{
+		Wait(0.150, Ignore Condition);
+		Pause Match Time;
+		Set Match Time(Global.time);
+	}
+}
+
+rule("Block#12425 - Timer Start")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Count Of(All Players(All Teams)) > 0;
+	}
+
+	actions
+	{
+		Unpause Match Time;
+	}
+}
