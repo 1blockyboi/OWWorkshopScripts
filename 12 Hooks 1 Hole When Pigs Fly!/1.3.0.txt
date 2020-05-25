@@ -1,0 +1,874 @@
+settings
+{
+	main
+	{
+		Description: "12 HOOKS 1 HOLE: WHEN PIGS FLY! CREATED BY: Block#12425. VERSION: 1.3.0. CODE(Normal, EN): DK0DP. Contains support for KR language and infinite mode."
+	}
+
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Match Voice Chat: Enabled
+		Return To Lobby: Never
+	}
+
+	modes
+	{
+		Deathmatch
+		{
+			Game Length In Minutes: 15
+			Score To Win: 40
+			Self Initiated Respawn: Off
+
+			enabled maps
+			{
+				Ilios Well
+			}
+		}
+
+		disabled Team Deathmatch
+		{
+			Game Length In Minutes: 15
+			Score To Win: 200
+		}
+
+		General
+		{
+			Allow Hero Switching: Off
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+			Spawn Health Packs: Disabled
+		}
+	}
+
+	heroes
+	{
+		General
+		{
+			Junkrat
+			{
+				Concussion Mine Cooldown Time: 10%
+				Damage Dealt: 10%
+				Damage Received: 10%
+				Healing Received: 10%
+				Infinite Ultimate Duration: On
+				Jump Vertical Speed: 200%
+				Movement Gravity: 130%
+				Movement Speed: 140%
+				Primary Fire: Off
+				Spawn With Ultimate Ready: On
+				Ultimate Generation - Combat RIP-Tire: 0%
+				Ultimate Generation - Passive RIP-Tire: 0%
+				Ultimate Generation RIP-Tire: 10%
+			}
+
+			Roadhog
+			{
+				Chain Hook Cooldown Time: 0%
+				Damage Dealt: 10%
+				Damage Received: 10%
+				Healing Dealt: 10%
+				Healing Received: 10%
+				Jump Vertical Speed: 200%
+				Movement Gravity: 130%
+				Movement Speed: 140%
+				Primary Fire: Off
+				Secondary Fire: Off
+				Take a Breather: Off
+				Ultimate Generation - Combat Whole Hog: 0%
+				Ultimate Generation - Passive Whole Hog: 0%
+				Ultimate Generation Whole Hog: 10%
+				Whole Hog Knockback Scalar: 0%
+			}
+
+			enabled heroes
+			{
+				Roadhog
+			}
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: wellPosition
+		1: facePosition
+		2: spawn1Position
+		3: spawn2Position
+		4: spawn3Position
+		5: spawn4Position
+		6: spawn1Radius
+		7: spawn2Radius
+		8: spawn3Radius
+		9: spawn4Radius
+		10: stringCreatorVersion
+		11: stringCreator
+		12: stringVersion
+		13: stringTranslation
+		14: stringDiscord
+		15: stringProject
+		16: stringDiscordLink
+		17: stringProjectLink
+		18: stringCode
+		19: stringInteract
+		20: stringCrouch
+		21: stringSafe
+		22: stringEaster
+		23: junkratID
+		24: stringInfinite
+
+	player:
+		0: randomSpawnInteger
+}
+
+subroutines
+{
+	0: variableSetup
+	1: effectSetup
+	2: hudSetup
+	3: setFacing
+	4: junkratSpawn
+	5: safeSpawn
+}
+
+disabled rule("12 Hooks 1 Hole: When Pigs Fly! by Block#12425. Version: 1.3.0")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Links to mode: https://workshop.codes/12h1hfly | https://workshop.codes/12h1hflyinf | Discord: https://discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("DEBUG")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create HUD Text(Host Player, Facing Direction Of(Host Player), Null, Null, Left, 0, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load, String("Server Load"), Null, Left, 0, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average"), Null, Left, 0, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Peak, String("Server Load Peak"), Null, Left, 0, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("DEBUG DUMMY BOT SPAWN")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Melee) == True;
+	}
+
+	actions
+	{
+		Create Dummy Bot(Hero(Roadhog), All Teams, -1, Event Player, Vector(0, 0, 0));
+		Event Player.Z = Last Created Entity;
+		Wait(5, Ignore Condition);
+		Teleport(Event Player.Z, Vector(-203.670, 1.623, -20.840));
+		Wait(0.500, Ignore Condition);
+	}
+}
+
+disabled rule("========================================= Setup =========================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Set Match Time(10);
+		Global.stringCreator = Custom String("Block#12425");
+		Global.stringVersion = Custom String("1.3.0");
+		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
+		Global.stringProjectLink = Custom String("workshop.codes/12h1hfly");
+		Global.stringInfinite = Custom String("");
+		"This subroutine initializes the variables."
+		Call Subroutine(variableSetup);
+		"This subroutine creates all the effects in the game."
+		Call Subroutine(effectSetup);
+		"This subroutine creates all the HUD text in the game."
+		Call Subroutine(hudSetup);
+		"Turn this off to see the inspector."
+		Disable Inspector Recording;
+	}
+}
+
+rule("Block#12425 - Variable Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		variableSetup;
+	}
+
+	actions
+	{
+		"Well Position is used the for the top-down camera."
+		Global.wellPosition = Vector(-208.410, 8.159, -16.380);
+		"These four actions set the position for each spawn point."
+		Global.spawn1Position = Vector(-192.910, 2.665, -0.990);
+		Global.spawn2Position = Vector(-225.753, 0.604, -34.020);
+		Global.spawn3Position = Vector(-222.717, 2.576, 1.581);
+		Global.spawn4Position = Vector(-190.352, 2.537, -30.310);
+		"These four actions set the radius of each spawn point."
+		Global.spawn1Radius = 5;
+		Global.spawn2Radius = 6;
+		Global.spawn3Radius = 5;
+		Global.spawn4Radius = 5;
+		"This variable is the position that the camera looks at."
+		Global.facePosition = Vector(X Component Of(Global.wellPosition), Y Component Of(Global.wellPosition) - 5, Z Component Of(
+			Global.wellPosition));
+	}
+}
+
+rule("Block#12425 - Effect Creation Subroutine")
+{
+	event
+	{
+		Subroutine;
+		effectSetup;
+	}
+
+	actions
+	{
+		"These four effects are for the spawn points."
+		Create Effect(All Players(All Teams), Sphere, Blue, Global.spawn1Position, Global.spawn1Radius, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Sphere, Orange, Global.spawn2Position, Global.spawn2Radius, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Sphere, Green, Global.spawn3Position, Global.spawn3Radius, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Sphere, Red, Global.spawn4Position, Global.spawn4Radius, Visible To Position and Radius);
+		"These four in world texts are used for the spawn points when the player is outside of them."
+		Create In-World Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn1Position, Position Of(
+			Current Array Element)) > Global.spawn1Radius), Global.stringSafe, Global.spawn1Position, 1.500, Clip Against Surfaces,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn2Position, Position Of(
+			Current Array Element)) > Global.spawn2Radius), Global.stringSafe, Global.spawn2Position, 1.500, Clip Against Surfaces,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn3Position, Position Of(
+			Current Array Element)) > Global.spawn3Radius), Global.stringSafe, Global.spawn3Position, 1.500, Clip Against Surfaces,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn4Position, Position Of(
+			Current Array Element)) > Global.spawn4Radius), Global.stringSafe, Global.spawn4Position, 1.500, Clip Against Surfaces,
+			Visible To Position and String, White, Default Visibility);
+	}
+}
+
+rule("Block#12425 - HUD Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		hudSetup;
+	}
+
+	actions
+	{
+		"These four HUD texts tell the player that they can use INTERACT to teleport between the zones. Each one is for a different spawn zone."
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn1Position, Position Of(Current Array Element))
+			<= Global.spawn1Radius), Global.stringInteract, Null, Null, Top, 1, Blue, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn2Position, Position Of(Current Array Element))
+			<= Global.spawn2Radius), Global.stringInteract, Null, Null, Top, 1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn3Position, Position Of(Current Array Element))
+			<= Global.spawn3Radius), Global.stringInteract, Null, Null, Top, 1, Green, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn4Position, Position Of(Current Array Element))
+			<= Global.spawn4Radius), Global.stringInteract, Null, Null, Top, 1, Red, White, White, Visible To and String,
+			Default Visibility);
+		"These four actions tell the player to use crouch to enable the top-down camera. Each one is for a different spawn zone."
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn1Position, Position Of(Current Array Element))
+			<= Global.spawn1Radius), Global.stringCrouch, Null, Null, Top, 2, Blue, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn2Position, Position Of(Current Array Element))
+			<= Global.spawn2Radius), Global.stringCrouch, Null, Null, Top, 2, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn3Position, Position Of(Current Array Element))
+			<= Global.spawn3Radius), Global.stringCrouch, Null, Null, Top, 2, Green, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Distance Between(Global.spawn4Position, Position Of(Current Array Element))
+			<= Global.spawn4Radius), Global.stringCrouch, Null, Null, Top, 2, Red, White, White, Visible To and String,
+			Default Visibility);
+		"These last four HUD texts are for the top right to let the player know what it is, who made it, and links to external web sites."
+		Create HUD Text(All Players(All Teams), Custom String("12 Hooks 1 Hole: When Pigs Fly!{0}", Global.stringInfinite), Null, Null,
+			Right, -5, Orange, White, Orange, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringCreatorVersion, Null, Right, -4, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringTranslation, Custom String(" "), Right, -3.500, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDiscord, Right, -3, White, White, Green, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -2, White, White, Green, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -0.500, Aqua, White, Aqua, Visible To and String,
+			Default Visibility);
+	}
+}
+
+rule("Block#12425 - Initial Player Setup")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"When a player joins, this variable is set so that the player spawns in a random spawn zone."
+		Event Player.randomSpawnInteger = Random Integer(0, 3);
+	}
+}
+
+rule("Block#12425 - Player Death Setup")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"Just like when a player joins, this is also reset when a player dies."
+		Event Player.randomSpawnInteger = Random Integer(0, 3);
+		Set Ultimate Charge(Event Player, 0);
+	}
+}
+
+disabled rule("========================================= Languages =========================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - English (EN)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringInteract = Custom String("{0}: Teleport to another spawn", Button(Interact));
+		Global.stringCrouch = Custom String("{0}: Top-Down View of Well", Button(Crouch));
+		Global.stringCreatorVersion = Custom String("Created By: {0}. Version: {1}", Global.stringCreator, Global.stringVersion);
+		Global.stringCode = Custom String("Code: DK0DP");
+		Global.stringDiscord = Custom String("Join the Discord: {0} (ALL CAPS)", Global.stringDiscordLink);
+		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
+		Global.stringTranslation = Custom String(" ");
+		Global.stringSafe = Custom String("Safe Zone");
+		Global.stringEaster = Custom String("Easter Egg found!");
+	}
+}
+
+disabled rule("Block#12425 - 한국어 (KR) Thanks to 홀수돚거#3265 for KR Translation.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringInteract = Custom String("{0}: 다른 스폰 위치로 텔레포트 ", Button(Interact));
+		Global.stringCrouch = Custom String("{0}: 우물 중심 탑-다운 뷰로 전환 ", Button(Crouch));
+		Global.stringCreatorVersion = Custom String("제작: {0}. 버전 {1}", Global.stringCreator, Global.stringVersion);
+		Global.stringCode = Custom String("코드: QK70F");
+		Global.stringDiscord = Custom String("저희 디스코드에 들어오세요!: {0} (대문자)", Global.stringDiscordLink);
+		Global.stringProject = Custom String("프로젝트: {0} (모두 소문자로) ", Global.stringProjectLink);
+		Global.stringTranslation = Custom String("한국어 번역을 도와주신 홀수돚거#3265님께 감사드립니다.");
+		Global.stringSafe = Custom String("안전 구역");
+		Global.stringEaster = Custom String("이스터에그를 찾으셨습니다!");
+	}
+}
+
+disabled rule("========================================= Roadhog Ult =========================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Roadhog Ult Start")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Roadhog);
+		Is Using Ultimate(Event Player) == True;
+	}
+
+	actions
+	{
+		"In 1.2.8, this ult became more merciful by providing an impulse at ult start. This impulse helps the player immediately start going upward."
+		Apply Impulse(Event Player, Vector(0, 1, 0), 5, To Player, Cancel Contrary Motion);
+		"This causes the player to go faster the longer they use the ult."
+		Start Accelerating(Event Player, Up, 70, 10, To Player, Direction Rate and Max Speed);
+		"The player is forced to look downward when using the ult. The actions are simply too buggy for a dynamic camera during the ult."
+		Start Facing(Event Player, Vector(X Component Of(Facing Direction Of(Event Player)) * 0.010, -1, Z Component Of(
+			Facing Direction Of(Event Player)) * 0.010), 400, To World, Direction and Turn Rate);
+		"This wait action basically sets how long the ult will last."
+		Wait(1.700, Abort When False);
+		"This quick stun makes no sound effect, but ends the ult."
+		Set Status(Event Player, Null, Stunned, 0.015);
+	}
+}
+
+rule("Block#12425 - Roadhog Ult End")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Using Ultimate(Event Player) != True;
+	}
+
+	actions
+	{
+		"When the ult ends, the player is restored back to normal."
+		Stop Accelerating(Event Player);
+		Stop Facing(Event Player);
+	}
+}
+
+rule("Block#12425 - Roadhog Kill (Ult -> 100%)")
+{
+	event
+	{
+		Player Dealt Final Blow;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"There is no ult charge, but when a player kills another, it is a guaranteed ult charge given to them."
+		Set Ultimate Charge(Event Player, 100);
+	}
+}
+
+disabled rule("========================================= Safe Zone =========================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Player Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+		Is Dummy Bot(Event Player) == False;
+	}
+
+	actions
+	{
+		Call Subroutine(safeSpawn);
+	}
+}
+
+rule("Block#12425 - Safe Zone Setup")
+{
+	event
+	{
+		Subroutine;
+		safeSpawn;
+	}
+
+	actions
+	{
+		"This if/else if logic statement tests the randomSpawnInteger to see which location the game should teleport them to."
+		If(Event Player.randomSpawnInteger == 0);
+			Teleport(Event Player, Global.spawn1Position);
+		Else If(Event Player.randomSpawnInteger == 1);
+			Teleport(Event Player, Global.spawn2Position);
+		Else If(Event Player.randomSpawnInteger == 2);
+			Teleport(Event Player, Global.spawn3Position);
+		Else;
+			Teleport(Event Player, Global.spawn4Position);
+		End;
+		"This subroutine is called to set the player appropriately in the right direction."
+		Call Subroutine(setFacing);
+	}
+}
+
+rule("Block#12425 - Player In Safe Zone")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == False;
+		"This giant OR test basically is testing if the player is in any of the spawns."
+		(Distance Between(Global.spawn1Position, Position Of(Event Player)) <= Global.spawn1Radius || Distance Between(
+			Global.spawn2Position, Position Of(Event Player)) <= Global.spawn2Radius || Distance Between(Global.spawn3Position,
+			Position Of(Event Player)) <= Global.spawn3Radius || Distance Between(Global.spawn4Position, Position Of(Event Player))
+			<= Global.spawn4Radius) == True;
+	}
+
+	actions
+	{
+		"If so, the player is both invincible, invisible and cannot interact much with the outside world."
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Set Invisible(Event Player, Enemies);
+		Set Ability 1 Enabled(Event Player, False);
+	}
+}
+
+rule("Block#12425 - Player Outside of Safe Zone")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Distance Between(Global.spawn1Position, Position Of(Event Player)) > Global.spawn1Radius && Distance Between(
+			Global.spawn2Position, Position Of(Event Player)) > Global.spawn2Radius && Distance Between(Global.spawn3Position, Position Of(
+			Event Player)) > Global.spawn3Radius && Distance Between(Global.spawn4Position, Position Of(Event Player))
+			> Global.spawn4Radius) == True;
+	}
+
+	actions
+	{
+		"If so, the invincibility, invisibily are disabled, player can use hook again, and any camera going is stopped."
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Set Ability 1 Enabled(Event Player, True);
+		Stop Camera(Event Player);
+	}
+}
+
+rule("Block#12425 - Teleport Player to another zone")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Interact) == True;
+		(Distance Between(Global.spawn1Position, Position Of(Event Player)) <= Global.spawn1Radius || Distance Between(
+			Global.spawn2Position, Position Of(Event Player)) <= Global.spawn2Radius || Distance Between(Global.spawn3Position,
+			Position Of(Event Player)) <= Global.spawn3Radius || Distance Between(Global.spawn4Position, Position Of(Event Player))
+			<= Global.spawn4Radius) == True;
+	}
+
+	actions
+	{
+		"This if/else if logic statement will teleport the player to another spawn location depending on which zone they are in."
+		If(Distance Between(Global.spawn1Position, Position Of(Event Player)) <= Global.spawn1Radius);
+			Teleport(Event Player, Global.spawn4Position);
+		Else If(Distance Between(Global.spawn4Position, Position Of(Event Player)) <= Global.spawn4Radius);
+			Teleport(Event Player, Global.spawn2Position);
+		Else If(Distance Between(Global.spawn2Position, Position Of(Event Player)) <= Global.spawn2Radius);
+			Teleport(Event Player, Global.spawn3Position);
+		Else If(Distance Between(Global.spawn3Position, Position Of(Event Player)) <= Global.spawn3Radius);
+			Teleport(Event Player, Global.spawn1Position);
+		End;
+		"After that, the player is set facing the well."
+		Call Subroutine(setFacing);
+		"This wait is here to prevent the player from spamming the teleport action."
+		Wait(0.500, Ignore Condition);
+	}
+}
+
+rule("Block#12425 - Start Camera")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Crouch) == True;
+		(Distance Between(Global.spawn1Position, Position Of(Event Player)) <= Global.spawn1Radius || Distance Between(
+			Global.spawn2Position, Position Of(Event Player)) <= Global.spawn2Radius || Distance Between(Global.spawn3Position,
+			Position Of(Event Player)) <= Global.spawn3Radius || Distance Between(Global.spawn4Position, Position Of(Event Player))
+			<= Global.spawn4Radius) == True;
+	}
+
+	actions
+	{
+		"If the player crouches while in a zone, a top down camera is started."
+		Start Camera(Event Player, Vector(-208.319, 20, -16.289), Global.wellPosition, 0);
+	}
+}
+
+rule("Block#12425 - Stop Camera (No Crouch)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Crouch) == False;
+	}
+
+	actions
+	{
+		"If the camera isn't stopped from the player leaving the zone, then the player must have let go the crouch key in order to stop it."
+		Stop Camera(Event Player);
+	}
+}
+
+rule("Block#12425 - Set Facing Subroutine")
+{
+	event
+	{
+		Subroutine;
+		setFacing;
+	}
+
+	actions
+	{
+		"This subroutine sets the player facing towards the well. This wait action gives the player some time to teleport before running the set facing action."
+		Wait(0.010, Ignore Condition);
+		Set Facing(Event Player, Direction Towards(Position Of(Event Player), Global.facePosition), To World);
+	}
+}
+
+disabled rule("========================================= INFINITE MODE =========================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Junkrat Spawn Subroutine")
+{
+	event
+	{
+		Subroutine;
+		junkratSpawn;
+	}
+
+	actions
+	{
+		"This creates the Junkrat dummy bot."
+		Create Dummy Bot(Hero(Junkrat), All Teams, -1, Vector(-227.043, 6.768, -26.992), Vector(0, 0, 0));
+		"This ID will be referred to later."
+		Global.junkratID = Last Created Entity;
+		Wait(1.200, Ignore Condition);
+		"This teleports him to the bench."
+		Teleport(Global.junkratID, Vector(-227.043, 6.768, -26.992));
+		Wait(0.100, Ignore Condition);
+		"This orients him the right way for him to be sleeping."
+		Set Facing(Global.junkratID, Direction Towards(Global.junkratID, Vector(-224.089, 10.063, -15.746)), To World);
+		Set Status(Global.junkratID, Null, Asleep, 9999);
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Junkrat Easter Egg Creation")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Count Of(Filtered Array(All Players(All Teams), Is Dummy Bot(Current Array Element) == True)) < 1;
+		Count Of(All Players(All Teams)) < 12;
+	}
+
+	actions
+	{
+		Call Subroutine(junkratSpawn);
+		Loop If Condition Is True;
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Junkrat Easter Egg Activation")
+{
+	event
+	{
+		Player Earned Elimination;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Hero Of(Victim) == Hero(Junkrat);
+		Is Dummy Bot(Victim) == True;
+	}
+
+	actions
+	{
+		"If a player kills the Junkrat bot, then the player becomes Junkrat."
+		Start Forcing Player To Be Hero(Event Player, Hero(Junkrat));
+		Wait(0.100, Ignore Condition);
+		Destroy Dummy Bot(All Teams, Slot Of(Global.junkratID));
+		"This counteracts the score addition that the player recieves from killing him."
+		Modify Player Score(Event Player, -1);
+		Small Message(Event Player, Global.stringEaster);
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Player Death Setup Junkrat")
+{
+	event
+	{
+		Player Died;
+		All;
+		Junkrat;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == False;
+	}
+
+	actions
+	{
+		"When the player dies, he is forced back onto Roadhog."
+		Wait(0.500, Ignore Condition);
+		Call Subroutine(safeSpawn);
+		Start Forcing Player To Be Hero(Event Player, Hero(Roadhog));
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Prevent Gamemode Completion")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Completion;
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Music;
+	}
+}
+
+disabled rule("Block#12425 - Infinite - Pause Match Time")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Pause Match Time;
+		Set Match Time(721);
+	}
+}
+
+disabled rule("Block#12425 - Infinite - String Variable Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringInfinite = Custom String(" ∞");
+		Global.stringProjectLink = Custom String("workshop.codes/12h1hflyinf");
+		If(Global.stringTranslation == Custom String("한국어 번역을 도와주신 홀수돚거#3265님께 감사드립니다."));
+			Global.stringCode = Custom String("코드: 10QXR");
+		Else;
+			Global.stringCode = Custom String("Code: WQHER");
+	}
+}
