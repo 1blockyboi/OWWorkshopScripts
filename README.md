@@ -7,6 +7,5 @@ Current Project Scripts stored:
 Brig's Boopfest
 Player Destruction
 12 Hooks 1 Hole: When Pigs Fly!
-12 Hooks 1 Hole: When Pigs Fly! ∞
 Lúcio Boom Box Recreated
 Captain Conflict

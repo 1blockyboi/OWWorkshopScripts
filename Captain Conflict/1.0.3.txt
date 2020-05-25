@@ -1,0 +1,893 @@
+settings
+{
+	main
+	{
+		Description: "CAPTAIN CONFLICT. CODE: 922NQ. CREATOR: Block#12425. VERSION: 1.0.3"
+	}
+
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Max Team 1 Players: 3
+		Max Team 2 Players: 3
+	}
+
+	modes
+	{
+		Team Deathmatch
+		{
+			enabled maps
+			{
+				Black Forest
+				Black Forest Winter
+				Castillo
+				Ecopoint: Antarctica
+				Necropolis
+			}
+		}
+
+		General
+		{
+			Score To Win: 1
+			Spawn Health Packs: Enabled
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: isTeam1CaptainChosen
+		1: isTeam2CaptainChosen
+		2: isTeam1CaptainSpawned
+		3: isTeam2CaptainSpawned
+		4: lives
+		6: team1Captain
+		7: team2Captain
+		8: stringCreator
+		9: stringVersion
+		10: stringSubtitle
+		11: stringYouCaptain
+		12: stringKillEnemies
+		13: stringProtect
+		14: stringKill
+		15: stringDiscordLink
+		16: stringDiscord
+		17: stringProjectLink
+		18: stringProject
+		19: stringHealth
+		20: stringCode
+		21: stringDescription
+
+	player:
+		12: isBeingRevived
+		14: playerBeingRevived
+}
+
+subroutines
+{
+	0: team1Victory
+	1: team2Victory
+	2: mercyRevive
+	3: mercyFailed
+}
+
+disabled rule("CAPTAIN CONFLICT. Version 1.0.3. Created by Block#12425. Code: 922NQ")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Project Link: workshop.codes/captconf | Discord: discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("======================================= Setup =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Completion;
+		Disable Built-In Game Mode Scoring;
+		Global.lives = 20;
+		Global.stringCreator = Custom String("Block#12425");
+		Global.stringVersion = Custom String("1.0.3");
+		Create Effect(Filtered Array(All Players(All Teams), Global.isTeam1CaptainSpawned == True), Good Aura, Team 1, Global.team1Captain,
+			1.500, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Global.isTeam2CaptainSpawned == True), Good Aura, Team 2, Global.team2Captain,
+			1.500, Visible To Position and Radius);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.isTeam1CaptainSpawned == True), Round To Integer(Health(
+			Global.team1Captain), Up), Custom String("{0}'s", Global.team1Captain), Custom String("Health"), Left, -1 * Normalized Health(
+			Global.team1Captain), Team 1, White, White, Visible To Sort Order and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.isTeam2CaptainSpawned == True), Round To Integer(Health(
+			Global.team2Captain), Up), Custom String("{0}'s", Global.team2Captain), Custom String("Health"), Left, -1 * Normalized Health(
+			Global.team2Captain), Team 2, White, White, Visible To Sort Order and String, Default Visibility);
+		disabled Create HUD Text(Filtered Array(All Players(All Teams), Global.isTeam2CaptainSpawned == True), Health(Global.team2Captain),
+			Global.team2Captain, Custom String("Health"), Left, -1 * Normalized Health(Global.team2Captain), Team 2, White, White,
+			Visible To Sort Order and String, Default Visibility);
+		Create HUD Text(Global.team1Captain, Global.stringYouCaptain, Null, Null, Top, 1, Team 1, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Global.team2Captain, Global.stringYouCaptain, Null, Null, Top, 1, Team 2, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Custom String("Captain Conflict"), Null, Null, Right, -3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringSubtitle, Custom String(" "), Right, -2, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -1, White, White, Green, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDiscord, Right, -0.900, White, White, Green,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -0.800, White, White, Aqua, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDescription, Left, -3, White, White, Lime Green,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Team Score Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Team Score(Team 1, Global.lives);
+		Set Team Score(Team 2, Global.lives);
+	}
+}
+
+disabled rule("======================================= Language =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - English Strings")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringCreator = Custom String("Block#12425");
+		Global.stringVersion = Custom String("1.0.3");
+		Global.stringSubtitle = Custom String("Created by: {0}. Version: {1}", Global.stringCreator, Global.stringVersion);
+		Global.stringYouCaptain = Custom String("You are the captain!");
+		Global.stringKillEnemies = Custom String("Kill enemies");
+		Global.stringProtect = Custom String("Protect");
+		Global.stringKill = Custom String("Kill");
+		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
+		Global.stringDiscord = Custom String("Discord: {0} (All caps)", Global.stringDiscordLink);
+		Global.stringProjectLink = Custom String("workshop.codes/captconf");
+		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
+		Global.stringHealth = Custom String("Health");
+		Global.stringCode = Custom String("Code: 922NQ");
+		Global.stringDescription = Custom String(
+			"Kill enough enemies to reduce their lives to 0.\r\nOnce done, kill the captain that spawns before they kill your's.");
+	}
+}
+
+disabled rule("======================================= Team Kills =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team 1 Killed an Enemy")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Global.isTeam2CaptainChosen == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Modify Team Score(Team 2, -1);
+	}
+}
+
+rule("Block#12425 - Team 2 Killed an Enemy")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Global.isTeam1CaptainChosen == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Modify Team Score(Team 1, -1);
+	}
+}
+
+disabled rule("======================================= Team Captain =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team 2 Captain Spawns")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Team Score(Team 2) <= 1;
+		Global.isTeam2CaptainChosen == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Global.isTeam2CaptainChosen = True;
+		Global.team2Captain = Event Player;
+		Set Max Health(Global.team2Captain, 300);
+		Set Healing Received(Global.team2Captain, 50);
+	}
+}
+
+rule("Block#12425 - Team 1 Captain Spawns")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Team Score(Team 1) <= 1;
+		Global.isTeam1CaptainChosen == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Global.isTeam1CaptainChosen = True;
+		Global.team1Captain = Event Player;
+		Set Max Health(Global.team1Captain, 300);
+		Set Healing Received(Global.team1Captain, 50);
+	}
+}
+
+rule("Block#12425 - Phase 2 for Team 1 Begins")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Has Spawned(Global.team1Captain) == True;
+		Is Alive(Global.team1Captain) == True;
+		Global.isTeam1CaptainChosen == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Global.isTeam1CaptainSpawned = True;
+		Set Max Health(Global.team1Captain, 300);
+		Wait(2, Ignore Condition);
+		Heal(Global.team1Captain, Null, 10000);
+		Big Message(Global.team1Captain, Global.stringYouCaptain);
+		Big Message(Filtered Array(All Players(Team 1), Current Array Element != Global.team1Captain), String("{0} {1}",
+			Global.stringProtect, Global.team1Captain));
+		Big Message(All Players(Team 2), String("{0} {1}", Global.stringKill, Global.team1Captain));
+	}
+}
+
+rule("Block#12425 - Phase 2 for Team 2 Begins")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Has Spawned(Global.team2Captain) == True;
+		Is Alive(Global.team2Captain) == True;
+		Global.isTeam2CaptainChosen == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Global.isTeam2CaptainSpawned = True;
+		Set Max Health(Global.team2Captain, 300);
+		Wait(2, Ignore Condition);
+		Heal(Global.team2Captain, Null, 10000);
+		Big Message(Global.team2Captain, Global.stringYouCaptain);
+		Big Message(Filtered Array(All Players(Team 2), Current Array Element != Global.team2Captain), String("{0} {1}",
+			Global.stringProtect, Global.team2Captain));
+		Big Message(All Players(Team 1), String("{0} {1}", Global.stringKill, Global.team2Captain));
+	}
+}
+
+rule("Block#12425 - Team 1 Captain Dies. Team 2 Wins")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		(Event Player == Global.team1Captain) == True;
+		Global.isTeam1CaptainSpawned == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Call Subroutine(team2Victory);
+	}
+}
+
+rule("Block#12425 - Team 2 Captain Dies. Team 1 Wins")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		(Event Player == Global.team2Captain) == True;
+		Global.isTeam2CaptainSpawned == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Call Subroutine(team1Victory);
+	}
+}
+
+rule("Block#12425 - Team 1 Captain Disconnects. Team 2 Wins")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.isTeam1CaptainSpawned == True;
+		Entity Exists(Global.team1Captain) == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Call Subroutine(team2Victory);
+	}
+}
+
+rule("Block#12425 - Team 2 Leader Disconnects. Team 1 Wins")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.isTeam2CaptainSpawned == True;
+		Entity Exists(Global.team2Captain) == False;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Call Subroutine(team1Victory);
+	}
+}
+
+disabled rule("======================================= Objective Description =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 1 for both teams")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned != True;
+		Global.isTeam2CaptainSpawned != True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, Global.stringKillEnemies, Visible To and String);
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 1 for Enemy and Phase 2 for Ally (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned == True;
+		Global.isTeam2CaptainSpawned != True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} and {1}", Global.stringKillEnemies, String("{0} {1}", Global.stringProtect,
+			Global.team1Captain)), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 2 for both teams (Both)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned == True;
+		Global.isTeam2CaptainSpawned == True;
+	}
+
+	actions
+	{
+		If(Team Of(Event Player) == Team 1);
+			Set Objective Description(Event Player, String("{0} and {1}", String("{0} {1}", Global.stringKill, Global.team2Captain), String(
+				"{0} {1}", Global.stringProtect, Global.team1Captain)), Visible To and String);
+		Else;
+			Set Objective Description(Event Player, String("{0} and {1}", String("{0} {1}", Global.stringKill, Global.team1Captain), String(
+				"{0} {1}", Global.stringProtect, Global.team2Captain)), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 1 for Ally and Phase 2 for Enemy (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned != True;
+		Global.isTeam2CaptainSpawned == True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} {1}", Global.stringKill, Global.team2Captain), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 1 for Enemy and Phase 2 for Ally (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned != True;
+		Global.isTeam2CaptainSpawned == True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} and {1}", Global.stringKillEnemies, String("{0} {1}", Global.stringProtect,
+			Global.team2Captain)), Visible To and String);
+	}
+}
+
+disabled rule("Block#12425 - Objective Description Set Phase 2 for both teams (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned == True;
+		Global.isTeam2CaptainSpawned == True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} and {1}", String("{0} {1}", Global.stringKill, Global.team1Captain), String(
+			"{0} {1}", Global.stringProtect, Global.team2Captain)), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Objective Description Set Phase 1 for Ally and Phase 2 for Enemy (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Global.isTeam1CaptainSpawned == True;
+		Global.isTeam2CaptainSpawned != True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} {1}", Global.stringKill, Global.team1Captain), Visible To and String);
+	}
+}
+
+disabled rule("======================================= Mercy Revive =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Mercy Started Revive (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == True;
+		Is Game In Progress == True;
+		Global.isTeam1CaptainChosen != True;
+	}
+
+	actions
+	{
+		Event Player.playerBeingRevived = Filtered Array(All Dead Players(Team Of(Event Player)), Player Closest To Reticle(Event Player,
+			Team Of(Event Player)) == Current Array Element);
+		Event Player.playerBeingRevived.isBeingRevived = True;
+	}
+}
+
+rule("Block#12424 - Mercy Revive Successful (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Event Player.isBeingRevived == True;
+		Global.isTeam1CaptainChosen != True;
+	}
+
+	actions
+	{
+		Call Subroutine(mercyRevive);
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == False;
+		Is Game In Progress == True;
+		Event Player.playerBeingRevived.isBeingRevived == True;
+		Global.isTeam1CaptainChosen != True;
+	}
+
+	actions
+	{
+		Call Subroutine(mercyFailed);
+	}
+}
+
+rule("Block#12425 - Mercy Started Revive (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == True;
+		Is Game In Progress == True;
+		Global.isTeam2CaptainChosen != True;
+	}
+
+	actions
+	{
+		Event Player.playerBeingRevived = Filtered Array(All Dead Players(Team Of(Event Player)), Player Closest To Reticle(Event Player,
+			Team Of(Event Player)) == Current Array Element);
+		Event Player.playerBeingRevived.isBeingRevived = True;
+	}
+}
+
+rule("Block#12424 - Mercy Revive Successful (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Event Player.isBeingRevived == True;
+		Global.isTeam2CaptainChosen != True;
+	}
+
+	actions
+	{
+		Call Subroutine(mercyRevive);
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == False;
+		Is Game In Progress == True;
+		Event Player.playerBeingRevived.isBeingRevived == True;
+		Global.isTeam2CaptainChosen != True;
+	}
+
+	actions
+	{
+		Call Subroutine(mercyFailed);
+	}
+}
+
+rule("Block#12425 - Mercy Successful Revive Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mercyRevive;
+	}
+
+	actions
+	{
+		Wait(0.200, Ignore Condition);
+		Event Player.isBeingRevived = False;
+		Modify Team Score(Team Of(Event Player), 1);
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mercyFailed;
+	}
+
+	actions
+	{
+		Wait(0.100, Ignore Condition);
+		Event Player.playerBeingRevived.isBeingRevived = False;
+	}
+}
+
+disabled rule("======================================= Victory =======================================")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Prevent Draw (Team 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Match Time <= 0;
+		Team Score(Team 1) > Team Score(Team 2);
+	}
+
+	actions
+	{
+		Call Subroutine(team1Victory);
+	}
+}
+
+rule("Block#12425 - Prevent Draw (Team 2)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Match Time <= 0;
+		Team Score(Team 2) > Team Score(Team 1);
+	}
+
+	actions
+	{
+		Call Subroutine(team2Victory);
+	}
+}
+
+rule("Block#12425 - Declare Team 1 Victory Subroutine")
+{
+	event
+	{
+		Subroutine;
+		team1Victory;
+	}
+
+	actions
+	{
+		Declare Team Victory(Team 1);
+	}
+}
+
+rule("Block#12425 - Declare Team 2 Victory Subroutine")
+{
+	event
+	{
+		Subroutine;
+		team2Victory;
+	}
+
+	actions
+	{
+		Declare Team Victory(Team 2);
+	}
+}
