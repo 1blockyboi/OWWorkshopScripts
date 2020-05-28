@@ -1,0 +1,2663 @@
+settings
+{
+	main
+	{
+		Description: "Ver. 1.3.0. Boss Summoners is a hybrid gamemode involving the control and boss fight. In the first phase, each team is competing to capture a control point in the center of the map. When one team succeeds, one player of that team will spawn as the boss. The kills that the boss makes will count to the team's score. Eventually, the boss will die, and the cycle will repeat. Also, if the boss's teammates kill enemies, they will be frozen instead! Save these people for the boss to kill."
+	}
+
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Max Spectators: 6
+		Return To Lobby: Never
+		Team Balancing: After A Game
+	}
+
+	modes
+	{
+		Team Deathmatch
+		{
+			Mercy Resurrect Counteracts Kills: Off
+			Score To Win: 20
+			Self Initiated Respawn: Off
+
+			enabled maps
+			{
+				Lijiang Control Center
+				Lijiang Control Center Lunar New Year
+				Lijiang Garden
+				Lijiang Garden Lunar New Year
+				Lijiang Night Market
+				Lijiang Night Market Lunar New Year
+				Nepal Sanctum
+				Nepal Shrine
+				Nepal Village
+				Oasis City Center
+				Oasis Gardens
+				Oasis University
+			}
+		}
+
+		General
+		{
+			Respawn Time Scalar: 55%
+		}
+	}
+
+	heroes
+	{
+		General
+		{
+			disabled heroes
+			{
+				Echo
+			}
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: controlPointPosition
+		1: hasGameStarted
+		2: team1CapturePercentage
+		3: unlockTime
+		4: bossArray
+		5: isTeam1OnPoint
+		6: isTeam2OnPoint
+		7: team2CapturePercentage
+		8: bossHero
+		9: roundTime
+		10: isPointUnlocked
+		11: kitPhase
+		12: timePickingKit
+		13: kitCD
+		14: bossPhase
+		15: bossSpawned
+		16: controlPointIconPosition
+		17: bossTeam
+		18: bossPlayer
+		19: unlockTimeConstant
+		21: team2SpawnPosition
+		22: team1SpawnPosition
+		24: controlPointRadius
+		25: bossTransitionComplete
+
+	player:
+		0: kit
+		1: bossVariable
+		2: spawnProtected
+		5: isPlayerCursed
+		8: damageModID
+		11: playerBeingRevived
+		12: isPlayerBeingRevived
+		13: deathPosition
+}
+
+disabled rule("BOSS SUMMONERS. Created by Block#12425. Version 1.3.0.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Discord: discord.gg/CSKSVDH | Project: bit.ly/OWWBOSSSUM")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("DEBUG HUD")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create HUD Text(Host Player, Position Of(Host Player), Null, Null, Right, 0, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load, String("Server Load"), Null, Right, 0, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load Peak, String("Server Load Peak"), Null, Right, 0, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average"), Null, Right, 0, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("DEBUG DUMMY BOT SPAWN (TEAM 2)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+	}
+}
+
+disabled rule("---------------------------------- Game Setup ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Scoring;
+		Global.bossArray = Empty Array;
+		Modify Global Variable(bossArray, Append To Array, Hero(Roadhog));
+		Modify Global Variable(bossArray, Append To Array, Hero(Winston));
+		Modify Global Variable(bossArray, Append To Array, Hero(Reinhardt));
+		Modify Global Variable(bossArray, Append To Array, Hero(Orisa));
+		Modify Global Variable(bossArray, Append To Array, Hero(Sigma));
+		Create In-World Text(Filtered Array(All Players(All Teams), Global.bossPhase == True), String("Boss"), Global.bossPlayer, 1,
+			Clip Against Surfaces, Visible To Position and String, Orange, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Global.kitPhase == True), Custom String("Boss is Picking kit..."),
+			Global.bossPlayer, 1, Clip Against Surfaces, Visible To Position and String, Orange, Default Visibility);
+		Global.unlockTime = 1001;
+		Global.roundTime = 1800;
+		Global.bossPhase = False;
+		Global.timePickingKit = 7;
+		Global.kitPhase = False;
+		Global.kitCD = False;
+		Global.bossHero = Random Value In Array(Global.bossArray);
+		Global.unlockTimeConstant = 25;
+		Wait(0.250, Ignore Condition);
+		Global.bossArray = Null;
+	}
+}
+
+rule("Block#12425 - General HUD Creation")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(Team 1), Global.bossSpawned == False && Global.unlockTime == 0), Null, Null,
+			Custom String("{0}%                {1}%", Global.team1CapturePercentage, Global.team2CapturePercentage), Top, 1, White, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Global.bossSpawned == False && Global.unlockTime == 0), Null, Null,
+			Custom String("{1}%                {0}%", Global.team1CapturePercentage, Global.team2CapturePercentage), Top, 1, White, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("● - {0} - ●", Icon String(Spiral), Icon String(No)), Null, Null, Top, 0.500, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("● - {0} - ●", Icon String(Spiral), Icon String(Asterisk)), Null, Null, Top, 0.500, Purple, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 1),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("{0} - ● - ●", Icon String(Spiral), Icon String(Asterisk)), Null, Null, Top, 0.500, Team 1, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 1),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("● - ● - {0}", Icon String(Spiral), Icon String(Asterisk)), Null, Null, Top, 0.500, Team 2, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("{0} - ● - ●", Icon String(Spiral), Icon String(Asterisk)), Null, Null, Top, 0.500, Team 2, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Custom String("● - ● - {0}", Icon String(Spiral), Icon String(Asterisk)), Null, Null, Top, 0.500, Team 1, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossTransitionComplete == True && Global.bossTeam == Team 1), String(
+			"{0}: {1}", Custom String("Boss HP"), Round To Integer(Health(Global.bossPlayer), Up)), String("{0}:", String("Player")),
+			Global.bossPlayer, Top, 1, Team 1, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossTransitionComplete == True && Global.bossTeam == Team 2), String(
+			"{0}: {1}", Custom String("Boss HP"), Round To Integer(Health(Global.bossPlayer), Up)), String("{0}:", String("Player")),
+			Global.bossPlayer, Top, 1, Team 2, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Custom String("Boss Summoners"), Null, Null, Right, -3, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String("Created by Block#12425. Version 1.3.0"), Custom String(" "), Right,
+			-2, Purple, White, Purple, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("bit.ly/OWWBOSSSUM (All caps)"), Right, -1, Purple, White, Green,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("discord.gg/CSKSVDH (All caps)"), Right, 0, Purple, White, Green,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossTransitionComplete == True), Null, Null, Custom String(
+			" \r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"), Top, 2, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.kitPhase == True), Custom String(
+			"Use Interact (Default: F) to switch your kit!"), Null, Null, Top, 2.500, Orange, White, White, Visible To and String,
+			Default Visibility);
+	}
+}
+
+rule("Block#12425 - Control Point Creation")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == False && Global.unlockTime == 0 && Global.bossSpawned == False),
+			Ring, White, Global.controlPointPosition, Global.controlPointRadius, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False && Global.unlockTime == 0 && Global.bossSpawned == False),
+			Ring, Team 1, Global.controlPointPosition, Global.controlPointRadius, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True && Global.unlockTime == 0 && Global.bossSpawned == False),
+			Ring, Team 2, Global.controlPointPosition, Global.controlPointRadius, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == True && Global.unlockTime == 0 && Global.bossSpawned == False), Ring,
+			Purple, Global.controlPointPosition, Global.controlPointRadius, Visible To Position and Radius);
+		Create Icon(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Global.controlPointIconPosition, Spiral, Visible To and Position, Team 1, True);
+		Create Icon(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Global.controlPointIconPosition, Spiral, Visible To and Position, White, True);
+		Create Icon(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Global.controlPointIconPosition, Spiral, Visible To and Position, Team 2, True);
+		Create Icon(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Global.controlPointIconPosition, Spiral, Visible To and Position, Purple, True);
+		Create In-World Text(Filtered Array(All Players(All Teams), Global.hasGameStarted == True && Global.unlockTime > 0),
+			Round To Integer(Global.unlockTime, Up), Global.controlPointIconPosition, 2.500, Do Not Clip, Visible To Position and String,
+			Orange, Default Visibility);
+		Create Beam Effect(Filtered Array(All Players(All Teams),
+			Global.bossSpawned == False && Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False), Bad Beam, First Of(
+			Sorted Array(Filtered Array(All Living Players(Team 1), Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition)), Distance Between(Position Of(Current Array Element), Global.controlPointPosition))),
+			Global.controlPointIconPosition, Team 1, Visible To Position and Radius);
+		Create Beam Effect(Filtered Array(All Players(All Teams),
+			Global.bossSpawned == False && Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True), Bad Beam, First Of(
+			Sorted Array(Filtered Array(All Living Players(Team 2), Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition)), Distance Between(Position Of(Current Array Element), Global.controlPointPosition))),
+			Global.controlPointIconPosition, Team 2, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Global.hasGameStarted == True && Global.unlockTime > 0), Ring, Orange,
+			Global.controlPointPosition, Global.controlPointRadius, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == True && Global.isTeam2OnPoint == False && Global.bossSpawned == False && Global.unlockTime == 0),
+			Bad Aura, Team 1, Global.controlPointIconPosition, 2.500, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams),
+			Global.isTeam1OnPoint == False && Global.isTeam2OnPoint == True && Global.bossSpawned == False && Global.unlockTime == 0),
+			Bad Aura, Team 2, Global.controlPointIconPosition, 2.500, Visible To Position and Radius);
+	}
+}
+
+rule("Block#12425 - Non-Boss Team Effects Setup (Cursed Sparkles, Boss Prey Eye)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(0, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(0, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(1, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(1, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(2, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(2, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(3, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(3, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(4, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(4, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(All Teams), Players In Slot(5, Opposite Team Of(Global.bossTeam)).isPlayerCursed == True),
+			Sparkles, Orange, Position Of(Players In Slot(5, Opposite Team Of(Global.bossTeam))), 1, Visible To Position and Radius);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(0, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			0, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(1, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			1, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(2, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			2, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(3, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			3, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(4, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			4, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+		Create Icon(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Entity Exists(Players In Slot(5, Opposite Team Of(
+			Team Of(Global.bossPlayer)))) == True && Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer)), Players In Slot(
+			5, Opposite Team Of(Team Of(Global.bossPlayer))), Eye, Visible To and Position, Orange, False);
+	}
+}
+
+disabled rule("---------------------------------- Map Setup ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis University)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Oasis University);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(-188, 14.900, 0);
+		Global.team2SpawnPosition = Vector(-188.017, 18, 62.071);
+		Global.team1SpawnPosition = Vector(-188.017, 18, -62.071);
+		Global.controlPointRadius = 9;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis Garden)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Oasis Gardens);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(121.250, 5.250, -227.480);
+		Global.team1SpawnPosition = Vector(179.280, 8, -209.430);
+		Global.team2SpawnPosition = Vector(103.200, 8, -285.510);
+		Global.controlPointRadius = 11;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis City Center)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Oasis City Center);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(143.490, 1.900, 247.490);
+		Global.team1SpawnPosition = Vector(93.570, 0.850, 295.540);
+		Global.team2SpawnPosition = Vector(191.540, 0.850, 197.570);
+		Global.controlPointRadius = 12;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Control Center)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		(Current Map == Map(Lijiang Control Center) || Current Map == Map(Lijiang Control Center Lunar New Year)) == True;
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(0, 267, 279.930);
+		Global.team2SpawnPosition = Vector(-55.267, 267.786, 342.303);
+		Global.team1SpawnPosition = Vector(55.267, 267.786, 342.303);
+		Global.controlPointRadius = 8.200;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Garden)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		(Current Map == Map(Lijiang Garden) || Current Map == Map(Lijiang Garden Lunar New Year)) == True;
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(0, 93, 150);
+		Global.team2SpawnPosition = Vector(75.646, 97.351, 147.940);
+		Global.team1SpawnPosition = Vector(-75.646, 97.351, 147.940);
+		Global.controlPointRadius = 10;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Night Market)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		(Current Map == Map(Lijiang Night Market) || Current Map == Map(Lijiang Night Market Lunar New Year)) == True;
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(0.980, -1.200, -61);
+		Global.team1SpawnPosition = Vector(72.446, 4.926, -23.412);
+		Global.team2SpawnPosition = Vector(-70.486, 4.926, -23.412);
+		Global.controlPointRadius = 9;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Sanctum)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Nepal Sanctum);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(83.236, 127.800, 0);
+		Global.team2SpawnPosition = Vector(80.935, 132, 84);
+		Global.team1SpawnPosition = Vector(80.935, 132, -84);
+		Global.controlPointRadius = 9;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Shrine)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Nepal Shrine);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(-50, 12.500, 0);
+		Global.team2SpawnPosition = Vector(-43.199, 17.725, 88.243);
+		Global.team1SpawnPosition = Vector(-43.199, 17.725, -88.243);
+		Global.controlPointRadius = 8.500;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Village)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Current Map == Map(Nepal Village);
+	}
+
+	actions
+	{
+		Global.controlPointPosition = Vector(-194.945, -94, 0);
+		Global.team2SpawnPosition = Vector(-157.543, -96.220, 80.814);
+		Global.team1SpawnPosition = Vector(-157.543, -96.220, -80.814);
+		Global.controlPointRadius = 7;
+		Global.controlPointIconPosition = Vector(X Component Of(Global.controlPointPosition), Y Component Of(Global.controlPointPosition)
+			+ 3, Z Component Of(Global.controlPointPosition));
+	}
+}
+
+disabled rule("---------------------------------- Boss Kit HUD Setup ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Boss Kit HUD Setup (Reinhardt)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Reinhardt);
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == False), Hero Icon String(Global.bossHero), String(
+			"{0}:", String("Boss")), Custom String("The Knight"), Left, -1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 0), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Beserking Knight"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 1), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Fortified Knight"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 0), Null, Custom String(
+			"The Beserking Knight | Easy, Front Runner"), Custom String(
+			"Charge into the enemy to get that ult up!\r\nYou are devasting up close!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 1), Null, Custom String(
+			"The Fortified Knight | Medium, Team Reliant"), Custom String(
+			"Strong and protected with shield, but\r\nlacks in speed compared to his counterpart."), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Boss Kit HUD Setup (Roadhog)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Roadhog);
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == False), Hero Icon String(Global.bossHero), String(
+			"{0}:", String("Boss")), Custom String("The Butcher"), Left, -1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 0), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Blood-Thirsty Butcher"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 1), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Ghastly Butcher"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 0), Null, Custom String(
+			"The Blood-Thirsty Butcher | Easy, Front Runner"), Custom String(
+			"A fast and deadly beast! Use your ult\r\nto break those defenses for your hook!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 1), Null, Custom String(
+			"The Ghastly Butcher | Easy, Team Reliant"), Custom String(
+			"You can teleport to cursed (frozen) enemies \r\nusing Interact (Default: F)!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Boss Kit HUD Setup (Winston)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Winston);
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == False), Hero Icon String(Global.bossHero), String(
+			"{0}:", String("Boss")), Custom String("The Ape"), Left, -1, Orange, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 0), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Technological Ape"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 1), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Brutal Ape"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 0), Null, Custom String(
+			"The Technological Ape | Easy, Front Runner"), Custom String(
+			"Your leaps hack opponents! Use that hack\r\nto melt your opponents with your electric gun."), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 1), Null, Custom String(
+			"The Brutal Ape | Easy, Front Runner"), Custom String(
+			"Stronger damage from tesla cannon and a stunning leap!\r\nBuild up damage for your ultimate!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Boss Kit HUD Setup (Orisa)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Orisa);
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == False), Hero Icon String(Global.bossHero), String(
+			"{0}:", String("Boss")), Custom String("The Queen"), Left, -1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 0), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Supporting Queen"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 1), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Spawning Queen"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 0), Null, Custom String(
+			"The Supporting Queen | Medium, Team Reliant"), Custom String(
+			"Use your ult to help teammates freeze enemies,\r\nand then kill thenm from a distance!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 1), Null, Custom String(
+			"The Spawning Queen | Medium, Team Reliant"), Custom String(
+			"You do not have an ult, but teammates spawn at your location\r\ninstead of at the base!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Boss Kit HUD Setup (Sigma)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Sigma);
+	}
+
+	actions
+	{
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == False), Hero Icon String(Global.bossHero), String(
+			"{0}:", String("Boss")), Custom String("The Gravity Bender"), Left, -1, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 0), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Airborne Gravity Bender"), Left, -1, Orange, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Global.bossSpawned == True && Global.bossPlayer.kit == 1), Hero Icon String(
+			Global.bossHero), String("{0}:", String("Boss")), Custom String("The Singularity Gravity Bender"), Left, -1, Orange, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 0), Null, Custom String(
+			"The Airborne Gravity Bender | Medium, Front Runner"), Custom String(
+			"Turn off gravity by holding jump! Your attacks have a longer range\r\nas well."), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Global.bossPlayer, Global.bossSpawned == True && Global.bossPlayer.kit == 1), Null, Custom String(
+			"The Singularity Gravity Bender | Hard, Team Reliant"), Custom String(
+			"Use your kinetic grasp to pull players in, and send \r\nthem off in a direction!"), Top, 3, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("---------------------------------- Other Setup ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Player Joined Match Setup")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	actions
+	{
+		Preload Hero(Event Player, Global.bossHero);
+		Event Player.isPlayerBeingRevived = False;
+		Event Player.kit = 0;
+		Event Player.spawnProtected = True;
+	}
+}
+
+rule("Block#12425 - Assembling Heroes Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Set Objective Description(All Players(All Teams), Custom String("Assembling Heroes"), Visible To and String);
+		Global.team1CapturePercentage = 0;
+		Global.team2CapturePercentage = 0;
+		Global.unlockTime = Global.unlockTimeConstant;
+		Global.isPointUnlocked = False;
+		All Players(All Teams).spawnProtected = True;
+	}
+}
+
+rule("Block#12425 - Game Round Start (Match Time Change)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Match Time(Global.roundTime);
+		Chase Global Variable At Rate(unlockTime, 0, 1, Destination and Rate);
+		Wait(1, Ignore Condition);
+		Big Message(All Players(All Teams), Custom String("Summoning Point Unlocking..."));
+		Set Objective Description(All Players(All Teams), Custom String("Summoning Point Unlocks in {0} Sec", Round To Integer(
+			Global.unlockTime, Up)), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Set Match Time for first Assemble Heroes Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+		Global.hasGameStarted != True;
+	}
+
+	actions
+	{
+		Set Match Time(35);
+	}
+}
+
+rule("Block#12425 - Disable music at game start.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.hasGameStarted != True;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Music;
+		Global.hasGameStarted = True;
+	}
+}
+
+rule("Block#12425 - Music Enabled for 1 minute remaining.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Match Time <= 60;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Enable Built-In Game Mode Music;
+	}
+}
+
+rule("Block#12425 - Match Completed Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Match Complete == True;
+	}
+
+	actions
+	{
+		Enable Built-In Game Mode Music;
+		Destroy All Effects;
+		Destroy All HUD Text;
+		Destroy All In-World Text;
+	}
+}
+
+disabled rule("---------------------------------- Control Point ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Control Point Unlocked")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.unlockTime <= 0;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Stop Chasing Global Variable(unlockTime);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global.controlPointPosition, 500);
+		Play Effect(All Players(All Teams), Ring Explosion, Orange, Global.controlPointIconPosition - Vector(0, 2, 0), 20);
+		Set Objective Description(All Players(All Teams), Custom String("Capture the summoning point"), Visible To and String);
+		Big Message(All Players(All Teams), Custom String("Capture the Summoning Point!"));
+		Global.isPointUnlocked = True;
+	}
+}
+
+rule("Block#12425 - Capture Percentage Loop (Team 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Global.isTeam1OnPoint == True;
+		Global.isTeam2OnPoint == False;
+	}
+
+	actions
+	{
+		Wait(0.400, Abort When False);
+		Global.team1CapturePercentage += 1;
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Capture Percentage Loop (Team 2)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Global.isTeam1OnPoint == False;
+		Global.isTeam2OnPoint == True;
+	}
+
+	actions
+	{
+		Wait(0.400, Abort When False);
+		Global.team2CapturePercentage += 1;
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Capturing Point (Team 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.unlockTime <= 0;
+		Global.bossSpawned == False;
+		Count Of(Filtered Array(All Living Players(Team 1), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 1), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			> 0;
+		Count Of(Filtered Array(All Living Players(Team 2), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 2), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			<= 0;
+	}
+
+	actions
+	{
+		Global.isTeam1OnPoint = True;
+		Global.isTeam2OnPoint = False;
+		Play Effect(All Players(Team 1), Buff Explosion Sound, White, Global.controlPointPosition, 200);
+		Play Effect(All Players(Team 2), Debuff Impact Sound, White, Global.controlPointPosition, 200);
+	}
+}
+
+rule("Block#12425 - Capturing Point (Team 2)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.unlockTime <= 0;
+		Global.bossSpawned == False;
+		Count Of(Filtered Array(All Living Players(Team 1), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 1), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			<= 0;
+		Count Of(Filtered Array(All Living Players(Team 2), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 2), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			> 0;
+	}
+
+	actions
+	{
+		Global.isTeam1OnPoint = False;
+		Global.isTeam2OnPoint = True;
+		Play Effect(All Players(Team 2), Buff Explosion Sound, White, Global.controlPointPosition, 200);
+		Play Effect(All Players(Team 1), Debuff Impact Sound, White, Global.controlPointPosition, 200);
+	}
+}
+
+rule("Block#12425 - Contesting Point (Both Teams)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.unlockTime <= 0;
+		Global.bossSpawned == False;
+		Count Of(Filtered Array(All Living Players(Team 1), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 1), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			> 0;
+		Count Of(Filtered Array(All Living Players(Team 2), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 2), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			> 0;
+	}
+
+	actions
+	{
+		Global.isTeam1OnPoint = True;
+		Global.isTeam2OnPoint = True;
+	}
+}
+
+rule("Block#12425 - Neutral Point (No Teams)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Count Of(Filtered Array(All Living Players(Team 1), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 1), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			<= 0;
+		Count Of(Filtered Array(All Living Players(Team 2), Distance Between(Global.controlPointPosition, Position Of(
+			Current Array Element)) <= Global.controlPointRadius && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(
+			Global.controlPointPosition))) - Count Of(Filtered Array(Players On Hero(Hero(Sombra), Team 2), Distance Between(
+			Global.controlPointPosition, Position Of(Current Array Element)) <= Global.controlPointRadius && Is Using Ability 1(
+			Current Array Element) && Y Component Of(Position Of(Current Array Element)) >= Y Component Of(Global.controlPointPosition)))
+			<= 0;
+	}
+
+	actions
+	{
+		Global.isTeam1OnPoint = False;
+		Global.isTeam2OnPoint = False;
+	}
+}
+
+disabled rule("---------------------------------- Spawning ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Player Death Setup")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	actions
+	{
+		Event Player.deathPosition = Nearest Walkable Position(Position Of(Event Player));
+		Event Player.spawnProtected = True;
+	}
+}
+
+rule("Block#12425 - Player Spawn (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.bossTeam != Team 2;
+		(Is Waiting For Players == True || Is Game In Progress == True) == True;
+		Event Player.spawnProtected == True;
+	}
+
+	actions
+	{
+		Teleport(Event Player, Global.team1SpawnPosition);
+		Wait(0.120, Ignore Condition);
+		Set Facing(Event Player, Direction Towards(Position Of(Event Player), Global.controlPointPosition), To World);
+		Set Status(Event Player, Null, Invincible, 9999);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Set Invisible(Event Player, Enemies);
+		Wait(3, Abort When False);
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Small Message(Event Player, Custom String("Spawn Protection is off"));
+		Event Player.spawnProtected = False;
+	}
+}
+
+rule("Block#12425 - Player Spawn (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.bossTeam != Team 1;
+		(Is Waiting For Players == True || Is Game In Progress == True) == True;
+		Event Player.spawnProtected == True;
+	}
+
+	actions
+	{
+		Teleport(Event Player, Global.team2SpawnPosition);
+		Wait(0.120, Ignore Condition);
+		Set Facing(Event Player, Direction Towards(Position Of(Event Player), Global.controlPointPosition), To World);
+		Set Status(Event Player, Null, Invincible, 9999);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Set Invisible(Event Player, Enemies);
+		Wait(3, Abort When False);
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Small Message(Event Player, Custom String("Spawn Protection is off"));
+		Event Player.spawnProtected = False;
+	}
+}
+
+rule("Block#12425 - Boss Spawn (Team 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Global.team1CapturePercentage >= 100;
+	}
+
+	actions
+	{
+		Modify Team Score(Team 1, 1);
+		Global.bossTeam = Team 1;
+		Global.bossPlayer = First Of(Sorted Array(Filtered Array(All Living Players(Team 1), Y Component Of(Position Of(
+			Current Array Element)) >= Y Component Of(Global.controlPointPosition)), Distance Between(Position Of(Current Array Element),
+			Global.controlPointPosition)));
+		Start Forcing Player To Be Hero(Global.bossPlayer, Global.bossHero);
+		Set Max Health(Global.bossPlayer, 1000);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, Team 1, Global.controlPointIconPosition, 500);
+		Play Effect(All Players(All Teams), Ring Explosion, Team 1, Global.controlPointIconPosition, 20);
+		Play Effect(All Players(All Teams), Good Explosion, Team 1, Global.bossPlayer, 3);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Global.bossSpawned = True;
+		Set Status(Global.bossPlayer, Null, Phased Out, 9999);
+	}
+}
+
+rule("Block#12425 - Boss Spawn (Team 2)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Global.team2CapturePercentage >= 100;
+	}
+
+	actions
+	{
+		Modify Team Score(Team 2, 1);
+		Global.bossTeam = Team 2;
+		Global.bossPlayer = First Of(Sorted Array(Filtered Array(All Living Players(Team 2), Y Component Of(Position Of(
+			Current Array Element)) >= Y Component Of(Global.controlPointPosition)), Distance Between(Position Of(Current Array Element),
+			Global.controlPointPosition)));
+		Start Forcing Player To Be Hero(Global.bossPlayer, Global.bossHero);
+		Set Max Health(Global.bossPlayer, 1000);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, Team 2, Global.controlPointIconPosition, 500);
+		Play Effect(All Players(All Teams), Ring Explosion, Team 2, Global.controlPointIconPosition, 20);
+		Play Effect(All Players(All Teams), Good Explosion, Team 2, Global.bossPlayer, 3);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Global.bossSpawned = True;
+		Set Status(Global.bossPlayer, Null, Phased Out, 9999);
+	}
+}
+
+rule("Block#12425 - Boss Phase Transition")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+	}
+
+	actions
+	{
+		Clear Status(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Invincible);
+		Clear Status(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Phased Out);
+		Set Invisible(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), None);
+		All Players(Opposite Team Of(Team Of(Global.bossPlayer))).spawnProtected = False;
+		Set Objective Description(All Players(All Teams), String("{0} {1}", String("Boss"), String("Phase")), Visible To and String);
+		Wait(0.100, Ignore Condition);
+		Big Message(Global.bossPlayer, Custom String("You are the boss!"));
+		Big Message(Filtered Array(All Players(Team Of(Global.bossPlayer)), Current Array Element != Global.bossPlayer), Custom String(
+			"Your Team has summoned the boss!"));
+		Big Message(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Custom String("The Enemy Team has summoned the boss!"));
+		Set Slow Motion(10);
+		Wait(0.600, Ignore Condition);
+		Set Slow Motion(100);
+		Global.bossTransitionComplete = True;
+		Global.team1CapturePercentage = 0;
+		Global.team2CapturePercentage = 0;
+	}
+}
+
+rule("Block#12425 - Big Message After Transition")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Entity Exists(Global.bossPlayer) == True;
+	}
+
+	actions
+	{
+		Big Message(Filtered Array(All Players(All Teams), Current Array Element != Global.bossPlayer), Custom String(
+			"Boss is picking a kit!"));
+	}
+}
+
+rule("Block#12425 - Big Message After Kit Selection")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossPhase == True;
+		Entity Exists(Global.bossPlayer) == True;
+	}
+
+	actions
+	{
+		Big Message(Filtered Array(All Players(Team Of(Global.bossPlayer)), Current Array Element != Global.bossPlayer), String("{0} {1}",
+			String("Help"), String("{0}!", Global.bossPlayer)));
+		Big Message(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Custom String("Attack or run from the boss!"));
+		Set Objective Description(Global.bossPlayer, Custom String("Kill Enemy Players"), Visible To and String);
+	}
+}
+
+disabled rule("---------------------------------- Boss Kit Selection ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Boss Kit Phase Start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+	}
+
+	actions
+	{
+		Set Status(Global.bossPlayer, Null, Phased Out, 9999);
+		Set Status(Global.bossPlayer, Null, Knocked Down, 9999);
+		Set Status(Global.bossPlayer, Null, Invincible, 9999);
+		Chase Global Variable At Rate(timePickingKit, 0, 1, Destination and Rate);
+		Global.kitPhase = True;
+		Set Objective Description(Filtered Array(All Players(All Teams), Current Array Element != Global.bossPlayer), Custom String(
+			"boss is picking a kit"), Visible To and String);
+		Set Objective Description(Global.bossPlayer, Custom String("Pick a kit in {0} Sec", Round To Integer(Global.timePickingKit, Up)),
+			Visible To and String);
+	}
+}
+
+rule("Block#12425 - Boss Kit Change (to 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.kitPhase == True;
+		Is Button Held(Global.bossPlayer, Interact) == True;
+		Global.bossPlayer.kit == 0;
+		Global.kitCD == False;
+	}
+
+	actions
+	{
+		Global.bossPlayer.kit = 1;
+		Global.kitCD = True;
+		Wait(0.250, Ignore Condition);
+		Global.kitCD = False;
+		Small Message(Global.bossPlayer, Custom String("Changed Kit!"));
+	}
+}
+
+rule("Block#12425 - Boss Kit Change (to 0)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.kitPhase == True;
+		Is Button Held(Global.bossPlayer, Interact) == True;
+		Global.bossPlayer.kit == 1;
+		Global.kitCD == False;
+	}
+
+	actions
+	{
+		Global.bossPlayer.kit = 0;
+		Global.kitCD = True;
+		Wait(0.250, Ignore Condition);
+		Global.kitCD = False;
+		Small Message(Global.bossPlayer, Custom String("Changed Kit!"));
+	}
+}
+
+rule("Block#12425 - Boss Kit Chosen")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.timePickingKit == 0;
+		Global.kitPhase == True;
+	}
+
+	actions
+	{
+		Stop Chasing Global Variable(timePickingKit);
+		Global.timePickingKit = 7;
+		Global.bossPhase = True;
+		Global.kitPhase = False;
+		Big Message(Global.bossPlayer, Custom String("Your kit has been chosen!"));
+		Big Message(Global.bossPlayer, Custom String("Kill the enemy players!"));
+		Clear Status(Global.bossPlayer, Knocked Down);
+		Clear Status(Global.bossPlayer, Invincible);
+		Clear Status(Global.bossPlayer, Phased Out);
+		Stop Forcing Throttle(Global.bossPlayer);
+	}
+}
+
+disabled rule("---------------------------------- Initial Boss Setup ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Boss Setup (Roadhog) (Kit 0 - The Blood-thirsty Butcher)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Roadhog);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Move Speed(Global.bossPlayer, 120);
+		Set Damage Dealt(Global.bossPlayer, 120);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Roadhog) (Kit 1 - The Ghastly Butcher)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Roadhog);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+	}
+
+	actions
+	{
+		Set Ultimate Ability Enabled(Global.bossPlayer, False);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Move Speed(Global.bossPlayer, 120);
+		Set Damage Dealt(Global.bossPlayer, 120);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Winston) (Kit 0 - The Technological Ape)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Winston);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Ultimate Ability Enabled(Global.bossPlayer, False);
+		Set Damage Dealt(Global.bossPlayer, 130);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Winston) (Kit 1 - The Brutal Ape)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Winston);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 0);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Damage Dealt(Global.bossPlayer, 140);
+		Set Ability 2 Enabled(Global.bossPlayer, False);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Reinhardt) (Kit 0 - The Beserking Knight)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Reinhardt);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Move Speed(Global.bossPlayer, 140);
+		Set Damage Dealt(Global.bossPlayer, 130);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Reinhardt) (Kit 1 - The Fortified Knight)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Reinhardt);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Move Speed(Global.bossPlayer, 125);
+		Set Damage Dealt(Global.bossPlayer, 130);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Orisa) (Kit 0 - The Supporting Queen)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Orisa);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Ability 1 Enabled(Global.bossPlayer, False);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+		Set Damage Dealt(Global.bossPlayer, 110);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Orisa) (Kit 1 - The Spawning Queen)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Orisa);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+	}
+
+	actions
+	{
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Ability 1 Enabled(Global.bossPlayer, False);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+		Set Ultimate Ability Enabled(Global.bossPlayer, False);
+		Set Damage Dealt(Global.bossPlayer, 110);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Sigma) (Kit 0 - The Airborne Gravity Bender)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 100);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Secondary Fire Enabled(Global.bossPlayer, False);
+		Set Move Speed(Global.bossPlayer, 120);
+		Set Projectile Speed(Global.bossPlayer, 120);
+	}
+}
+
+rule("Block#12425 - Boss Setup (Sigma) (Kit 1 - The Singularity Gravity Bender)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+	}
+
+	actions
+	{
+		Set Ultimate Charge(Global.bossPlayer, 0);
+		Wait(0.250, Ignore Condition);
+		Heal(Global.bossPlayer, Null, 10000);
+		Set Healing Received(Global.bossPlayer, 0);
+		Set Status(Global.bossPlayer, Null, Burning, 9999);
+		Set Damage Dealt(Global.bossPlayer, 120);
+		Set Projectile Speed(Global.bossPlayer, 80);
+		Set Move Speed(Global.bossPlayer, 120);
+		Set Ability 2 Enabled(Global.bossPlayer, False);
+	}
+}
+
+disabled rule("---------------------------------- General Boss Rules ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Sigma Weak Ult 0 (Non-boss)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Sigma;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossPhase == True;
+		Is Using Ultimate(Event Player) == True;
+		Event Player != Global.bossPlayer;
+	}
+
+	actions
+	{
+		Set Damage Dealt(Global.bossPlayer, 50);
+	}
+}
+
+rule("Block#12425 - Sigma Weak Ult 1 (Non-boss)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Sigma;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossPhase == True;
+		Is Using Ultimate(Event Player) == True;
+		Event Player != Global.bossPlayer;
+	}
+
+	actions
+	{
+		Set Damage Dealt(Global.bossPlayer, 100);
+	}
+}
+
+rule("Block#12425 - Boss Fire Damage Start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Is Alive(Global.bossPlayer) == True;
+		Global.bossPhase == True;
+	}
+
+	actions
+	{
+		Start Damage Over Time(Global.bossPlayer, Null, 9999, 50);
+	}
+}
+
+rule("Block#12425 - Boss Kill (+1 Team Point)")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Attacker == Global.bossPlayer;
+		Event Player != Global.bossPlayer;
+	}
+
+	actions
+	{
+		Modify Team Score(Opposite Team Of(Team Of(Event Player)), 1);
+	}
+}
+
+rule("Block#12425 - Boss Prey Visibilty")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Health(Global.bossPlayer) <= 0.500 * Max Health(Global.bossPlayer);
+		Entity Exists(Global.bossPlayer) == True;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Big Message(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Custom String("The boss can now see you!"));
+	}
+}
+
+rule("Block#12425 - Boss Death / Setup for Control Phase")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Event Player == Global.bossPlayer;
+		Global.bossSpawned == True;
+	}
+
+	actions
+	{
+		Global.bossPlayer.bossVariable = False;
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global.controlPointPosition, 500);
+		Set Damage Dealt(All Players(All Teams), 100);
+		Set Gravity(All Players(All Teams), 100);
+		Set Ability 1 Enabled(Global.bossPlayer, True);
+		Set Ability 2 Enabled(Global.bossPlayer, True);
+		Set Ultimate Ability Enabled(Global.bossPlayer, True);
+		Set Primary Fire Enabled(Global.bossPlayer, True);
+		Set Secondary Fire Enabled(Global.bossPlayer, True);
+		Set Projectile Gravity(Global.bossPlayer, 100);
+		Set Projectile Speed(Global.bossPlayer, 100);
+		Clear Status(All Players(All Teams), Frozen);
+		Clear Status(Event Player, Burning);
+		Stop Accelerating(All Players(All Teams));
+		All Players(All Teams).isPlayerCursed = False;
+		Global.bossTransitionComplete = False;
+		Set Max Health(Event Player, 100);
+		Set Healing Received(Event Player, 100);
+		Set Move Speed(Global.bossPlayer, 100);
+		Stop Forcing Player To Be Hero(Event Player);
+		Big Message(All Players(All Teams), Custom String("Boss Eliminated. Next Round starting..."));
+		Set Slow Motion(10);
+		Wait(0.600, Ignore Condition);
+		Set Slow Motion(100);
+		Global.roundTime = Match Time;
+		Go To Assemble Heroes;
+		Global.bossTeam = Null;
+		Global.bossSpawned = False;
+		Set Match Time(15);
+		Global.bossPlayer = Null;
+		Stop All Damage Modifications;
+		Global.bossPhase = False;
+		Stop Damage Over Time(Last Damage Over Time ID);
+	}
+}
+
+rule("Block#12425 - Boss Disconnected (Boss Phase) / Setup for Control Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Is True For All(All Players(All Teams), Current Array Element != Global.bossPlayer) == True;
+		Global.bossSpawned == True;
+		Global.kitPhase == False;
+	}
+
+	actions
+	{
+		Big Message(All Players(All Teams), Custom String("Boss Disconnected. Next Round Starting..."));
+		Set Gravity(All Players(All Teams), 100);
+		Stop Accelerating(All Players(All Teams));
+		Wait(1, Ignore Condition);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global.controlPointPosition, 500);
+		Set Damage Dealt(All Players(All Teams), 100);
+		Clear Status(All Players(All Teams), Frozen);
+		All Players(All Teams).isPlayerCursed = False;
+		Global.bossTransitionComplete = False;
+		Set Slow Motion(10);
+		Wait(0.600, Ignore Condition);
+		Set Slow Motion(100);
+		Global.roundTime = Match Time;
+		Go To Assemble Heroes;
+		Global.bossTeam = Null;
+		Global.bossSpawned = False;
+		Set Match Time(15);
+		Global.bossPlayer = Null;
+		Stop All Damage Modifications;
+		Global.bossPhase = False;
+	}
+}
+
+rule("Block#12425 - Boss Disconnected (Kit Phase)/ Setup for Control Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Is True For All(All Players(All Teams), Current Array Element != Global.bossPlayer) == True;
+		Global.bossSpawned == True;
+		Global.kitPhase == True;
+	}
+
+	actions
+	{
+		Big Message(All Players(All Teams), Custom String("Boss Disconnected. Next Round Starting..."));
+		Set Gravity(All Players(All Teams), 100);
+		Stop Accelerating(All Players(All Teams));
+		Stop Chasing Global Variable(timePickingKit);
+		Global.timePickingKit = 5;
+		Wait(1, Ignore Condition);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global.controlPointPosition, 500);
+		Set Damage Dealt(All Players(All Teams), 100);
+		Clear Status(All Players(All Teams), Frozen);
+		All Players(All Teams).isPlayerCursed = False;
+		Global.bossPhase = False;
+		Global.kitPhase = False;
+		Global.bossTransitionComplete = False;
+		Set Slow Motion(10);
+		Wait(0.600, Ignore Condition);
+		Set Slow Motion(100);
+		Global.roundTime = Match Time;
+		Go To Assemble Heroes;
+		Global.bossTeam = Null;
+		Global.bossSpawned = False;
+		Set Match Time(15);
+		Global.bossPlayer = Null;
+		Stop All Damage Modifications;
+	}
+}
+
+disabled rule("---------------------------------- Unique Boss Rules ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Boss Leap Stun 1 (Winston Kit 0/1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Winston);
+		Is Using Ability 1(Global.bossPlayer) == True;
+		Is In Air(Global.bossPlayer) == True;
+	}
+
+	actions
+	{
+		Global.bossPlayer.bossVariable = True;
+	}
+}
+
+rule("Block#12425 - Boss Leap Stun 2 (Winston Kit 0)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossPlayer.kit == 0;
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Winston);
+		Is On Ground(Global.bossPlayer) == True;
+		Global.bossPlayer.bossVariable == True;
+	}
+
+	actions
+	{
+		Global.bossPlayer.bossVariable = False;
+		Set Status(Filtered Array(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), ((Is Using Ability 1(Current Array Element)
+			== True && Hero Of(Current Array Element) == Hero(Orisa)) || (Is Using Ability 1(Current Array Element) == True && Hero Of(
+			Current Array Element) == Hero(Reaper)) || (Is Using Ability 2(Current Array Element) == True && Hero Of(Current Array Element)
+			== Hero(Tracer)) || (Is Using Ultimate(Current Array Element) == True && Hero Of(Current Array Element) == Hero(Zenyatta)) || (
+			Is Using Ability 1(Current Array Element) == True && Hero Of(Current Array Element) == Hero(Moira)) || (Is Using Ability 2(
+			Current Array Element) == True && Hero Of(Current Array Element) == Hero(Mei))) != True && Is In Line of Sight(
+			Global.bossPlayer, Current Array Element, Enemy Barriers Block LOS) == True && Distance Between(Global.bossPlayer,
+			Current Array Element) <= 6), Global.bossPlayer, Hacked, 1.500);
+	}
+}
+
+rule("Block#12425 - Boss Leap Stun 2 (Winston Kit 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossPlayer.kit == 1;
+		Global.bossPhase == True;
+		Global.bossHero == Hero(Winston);
+		Is On Ground(Global.bossPlayer) == True;
+		Global.bossPlayer.bossVariable == True;
+	}
+
+	actions
+	{
+		Global.bossPlayer.bossVariable = False;
+		Set Status(Filtered Array(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), ((Is Using Ability 1(Current Array Element)
+			== True && Hero Of(Current Array Element) == Hero(Orisa)) || (Is Using Ability 1(Current Array Element) == True && Hero Of(
+			Current Array Element) == Hero(Reaper)) || (Is Using Ability 2(Current Array Element) == True && Hero Of(Current Array Element)
+			== Hero(Tracer)) || (Is Using Ultimate(Current Array Element) == True && Hero Of(Current Array Element) == Hero(Zenyatta)) || (
+			Is Using Ability 1(Current Array Element) == True && Hero Of(Current Array Element) == Hero(Moira)) || (Is Using Ability 2(
+			Current Array Element) == True && Hero Of(Current Array Element) == Hero(Mei))) != True && Is In Line of Sight(
+			Global.bossPlayer, Current Array Element, Enemy Barriers Block LOS) == True && Distance Between(Global.bossPlayer,
+			Current Array Element) <= 6), Global.bossPlayer, Stunned, 2);
+	}
+}
+
+rule("Block#12425 - Boss Spawner (Orisa Kit 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		(Is Waiting For Players == True || Is Game In Progress == True) == True;
+		Team Of(Event Player) == Team Of(Global.bossPlayer);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+		Global.bossHero == Hero(Orisa);
+		Event Player.spawnProtected == True;
+	}
+
+	actions
+	{
+		Wait(1.200, Abort When False);
+		Teleport(Event Player, Nearest Walkable Position(Position Of(Global.bossPlayer)));
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Event Player.spawnProtected = False;
+	}
+}
+
+rule("Block#12425 - Boss Teleport (Roadhog Kit 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Roadhog);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+		Is Button Held(Global.bossPlayer, Interact) == True;
+		Global.bossPlayer.bossVariable == False;
+		Count Of(Filtered Array(All Players(Opposite Team Of(Team Of(Global.bossPlayer))), Current Array Element.isPlayerCursed == True))
+			>= 1;
+	}
+
+	actions
+	{
+		Teleport(Global.bossPlayer, Nearest Walkable Position(First Of(Sorted Array(Filtered Array(All Players(Opposite Team Of(Team Of(
+			Global.bossPlayer))), Current Array Element.isPlayerCursed == True), Distance Between(Position Of(Current Array Element),
+			Position Of(Global.bossPlayer))))));
+		Set Facing(Global.bossPlayer, Direction Towards(Global.bossPlayer, First Of(Sorted Array(Filtered Array(All Players(
+			Opposite Team Of(Team Of(Global.bossPlayer))), Current Array Element.isPlayerCursed == True), Distance Between(
+			Current Array Element, Global.bossPlayer)))), To World);
+		Global.bossPlayer.bossVariable = True;
+		Wait(0.250, Ignore Condition);
+		Global.bossPlayer.bossVariable = False;
+	}
+}
+
+rule("Block#12425 - Boss Fly 1 (Sigma Kit 0)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+		Is Button Held(Global.bossPlayer, Jump) == True;
+	}
+
+	actions
+	{
+		Set Gravity(Global.bossPlayer, 0);
+	}
+}
+
+rule("Block#12425 - Boss Fly 2 (Sigma Kit 0)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossSpawned == True;
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 0;
+		Is Button Held(Global.bossPlayer, Jump) == False;
+	}
+
+	actions
+	{
+		Set Gravity(Global.bossPlayer, 100);
+	}
+}
+
+rule("Block#12425 - Boss Pull 0 (Sigma - Kit 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+		Team Of(Event Player) == Opposite Team Of(Team Of(Global.bossPlayer));
+		Is Using Ability 1(Global.bossPlayer) == True;
+		Distance Between(Global.bossPlayer, Event Player) <= 20;
+		Is In Line of Sight(Global.bossPlayer, Event Player, Enemy Barriers Block LOS) == True;
+		Is Game In Progress == True;
+		((Is Using Ability 1(Event Player) == True && Hero Of(Event Player) == Hero(Orisa)) || (Is Using Ability 1(Event Player)
+			== True && Hero Of(Event Player) == Hero(Reaper)) || (Is Using Ability 2(Event Player) == True && Hero Of(Event Player)
+			== Hero(Tracer)) || (Is Using Ultimate(Event Player) == True && Hero Of(Event Player) == Hero(Zenyatta)) || (
+			Is Using Ability 1(Event Player) == True && Hero Of(Event Player) == Hero(Moira)) || (Is Using Ability 2(Event Player)
+			== True && Hero Of(Event Player) == Hero(Mei))) != True;
+	}
+
+	actions
+	{
+		Apply Impulse(Event Player, Direction Towards(Event Player, Eye Position(Global.bossPlayer)), 30, To World,
+			Cancel Contrary Motion);
+		Start Accelerating(Event Player, Direction Towards(Event Player, Eye Position(Global.bossPlayer)), 1000, 50, To World,
+			Direction Rate and Max Speed);
+		Set Gravity(Event Player, 0);
+	}
+}
+
+rule("Block#12425 - Boss Pull 1 (Sigma - Kit 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+		Team Of(Event Player) == Opposite Team Of(Team Of(Global.bossPlayer));
+		Is Using Ability 1(Global.bossPlayer) == False;
+		Global.bossPlayer.bossVariable == True;
+		Distance Between(Global.bossPlayer, Event Player) <= 20;
+		Is In Line of Sight(Global.bossPlayer, Event Player, Enemy Barriers Block LOS) == True;
+		((Is Using Ability 1(Event Player) == True && Hero Of(Event Player) == Hero(Orisa)) || (Is Using Ability 1(Event Player)
+			== True && Hero Of(Event Player) == Hero(Reaper)) || (Is Using Ability 2(Event Player) == True && Hero Of(Event Player)
+			== Hero(Tracer)) || (Is Using Ultimate(Event Player) == True && Hero Of(Event Player) == Hero(Zenyatta)) || (
+			Is Using Ability 1(Event Player) == True && Hero Of(Event Player) == Hero(Moira)) || (Is Using Ability 2(Event Player)
+			== True && Hero Of(Event Player) == Hero(Mei))) != True;
+	}
+
+	actions
+	{
+		Apply Impulse(Event Player, Facing Direction Of(Global.bossPlayer), 20, To World, Cancel Contrary Motion);
+		Damage(Event Player, Global.bossPlayer, 50);
+	}
+}
+
+rule("Block#12425 - Boss Pull 2 (Sigma - Kit 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Sigma);
+		Global.bossPhase == True;
+		Global.bossPlayer.kit == 1;
+		Team Of(Event Player) == Opposite Team Of(Team Of(Global.bossPlayer));
+		Is Using Ability 1(Global.bossPlayer) == False;
+	}
+
+	actions
+	{
+		Set Gravity(Event Player, 100);
+		Stop Accelerating(Event Player);
+		Wait(0.250, Ignore Condition);
+		Global.bossPlayer.bossVariable = False;
+	}
+}
+
+rule("Block#12425 - Boss Pull 3 (Sigma - Kit 1)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.bossHero == Hero(Sigma);
+		Global.bossPlayer.kit == 1;
+		Global.bossPhase == True;
+		Is Using Ability 1(Global.bossPlayer) == True;
+	}
+
+	actions
+	{
+		Global.bossPlayer.bossVariable = True;
+	}
+}
+
+disabled rule("---------------------------------- Mercy Resurrection ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Mercy Revive Start")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == True;
+	}
+
+	actions
+	{
+		Event Player.playerBeingRevived = Filtered Array(All Dead Players(Team Of(Event Player)), Player Closest To Reticle(Event Player,
+			Team Of(Event Player)) == Current Array Element);
+		Event Player.playerBeingRevived.isPlayerBeingRevived = True;
+	}
+}
+
+rule("Block#12424 - Mercy Revive Successful")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Event Player.isPlayerBeingRevived == True;
+	}
+
+	actions
+	{
+		Wait(0.200, Ignore Condition);
+		Teleport(Event Player, Event Player.deathPosition);
+		Event Player.isPlayerBeingRevived = False;
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Event Player.spawnProtected = False;
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == False;
+		Event Player.playerBeingRevived.isPlayerBeingRevived == True;
+	}
+
+	actions
+	{
+		Wait(0.100, Ignore Condition);
+		Event Player.playerBeingRevived.isPlayerBeingRevived = False;
+	}
+}
+
+disabled rule("---------------------------------- Curse ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Enemy Cursed (Attacker == Victim) (Frozen Setup)")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Attacker == Victim;
+		Team Of(Event Player) == Opposite Team Of(Team Of(Global.bossPlayer));
+	}
+
+	actions
+	{
+		Stop Damage Modification(Event Player.damageModID);
+		Teleport(Event Player, Nearest Walkable Position(Event Player.deathPosition));
+		Resurrect(Event Player);
+		Wait(0.250, Ignore Condition);
+		Set Status(Event Player, Null, Frozen, 3);
+		Event Player.isPlayerCursed = True;
+		Start Damage Modification(Event Player, Filtered Array(All Players(All Teams), Current Array Element != Global.bossPlayer), 0,
+			Receivers Damagers and Damage Percent);
+		Event Player.damageModID = Last Damage Modification ID;
+		Small Message(Global.bossPlayer, Custom String("Enemy Cursed (Frozen)!"));
+		Wait(0.150, Ignore Condition);
+		Damage(Event Player, Global.bossPlayer, Max Health(Event Player) * 0.500);
+	}
+}
+
+rule("Block#12425 - Enemy Cursed by Boss Teammate (Frozen Setup)")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global.bossTransitionComplete == True;
+		Attacker != Global.bossPlayer;
+		Attacker != Victim;
+		Event Player.isPlayerCursed == False;
+		Team Of(Event Player) == Opposite Team Of(Team Of(Global.bossPlayer));
+	}
+
+	actions
+	{
+		Stop Damage Modification(Event Player.damageModID);
+		Teleport(Event Player, Nearest Walkable Position(Event Player.deathPosition));
+		Resurrect(Event Player);
+		Wait(0.250, Ignore Condition);
+		Teleport(Event Player, Event Player.deathPosition);
+		Set Status(Event Player, Null, Frozen, 3);
+		Communicate(Attacker, Group Up);
+		Event Player.isPlayerCursed = True;
+		Small Message(Global.bossPlayer, Custom String("Enemy Cursed (Frozen)!"));
+		Start Damage Modification(Event Player, Filtered Array(All Players(All Teams), Current Array Element != Global.bossPlayer), 0,
+			Receivers Damagers and Damage Percent);
+		Event Player.damageModID = Last Damage Modification ID;
+		Wait(0.150, Ignore Condition);
+		Damage(Event Player, Global.bossPlayer, Max Health(Event Player) * 0.500);
+	}
+}
+
+rule("Block#12425 - Curse Removed from Player after time.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Event Player.isPlayerCursed == True;
+	}
+
+	actions
+	{
+		Wait(3, Abort When False);
+		Stop Damage Modification(Event Player.damageModID);
+		Event Player.isPlayerCursed = False;
+	}
+}
+
+rule("Block#12425 - Curse Removed from Player after Boss Kill.")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Event Player.isPlayerCursed == True;
+		Attacker == Global.bossPlayer;
+	}
+
+	actions
+	{
+		Clear Status(Event Player, Frozen);
+		Event Player.isPlayerCursed = False;
+		Stop Damage Modification(Event Player.damageModID);
+	}
+}
+
+disabled rule("---------------------------------- Objective Descriptions ----------------------------------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Set Objective Description (Point Unlocking)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Assembling Heroes == False;
+		Global.isPointUnlocked == False;
+	}
+
+	actions
+	{
+		Set Objective Description(All Players(All Teams), Custom String("Summoning Point Unlocks in {0} Sec", Round To Integer(
+			Global.unlockTime, Up)), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Set Objective Description (Capture the Point)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.bossSpawned == False;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Assembling Heroes == False;
+		Global.isPointUnlocked == True;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, Custom String("Capture the summoning point"), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Set Objective Description (Help Boss)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Global.bossSpawned == True;
+		Is Alive(Event Player) == True;
+		Team Of(Global.bossPlayer) == Team Of(Event Player);
+		Is Assembling Heroes == False;
+		Event Player != Global.bossPlayer;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, String("{0} {1}", String("Help"), Global.bossPlayer), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Set Objective Description (Picking a kit)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.kitPhase == True;
+		Is Assembling Heroes == False;
+	}
+
+	actions
+	{
+		Set Objective Description(All Players(All Teams), Custom String("boss is picking a kit"), Visible To and String);
+	}
+}
+
+rule("Block#12425 - Set Objective Description (Run from Boss)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.bossPhase == True;
+		Team Of(Global.bossPlayer) == Opposite Team Of(Team Of(Event Player));
+		Is Assembling Heroes == False;
+	}
+
+	actions
+	{
+		Set Objective Description(Event Player, Custom String("Attack or run from the boss"), Visible To and String);
+	}
+}
