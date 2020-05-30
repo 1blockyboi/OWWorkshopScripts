@@ -1,0 +1,1862 @@
+settings
+{
+	main
+	{
+		Description: "This mode is based on Player Destruction from Team Fortress 2. You must collect the enemy team's orbs by killing them. You must then deposit those orbs in the beam. The beam spawns periodically. Team leaders have the most resources out of the team and are visible everywhere. First team to reach the goal score wins. Created by Block#12425. Version 1.2.6. Code: ZKBQY"
+	}
+
+	lobby
+	{
+		Return To Lobby: Never
+		Team Balancing: After A Game
+	}
+
+	modes
+	{
+		Team Deathmatch
+		{
+			enabled maps
+			{
+				Lijiang Control Center
+				Lijiang Control Center Lunar New Year
+				Lijiang Garden
+				Lijiang Garden Lunar New Year
+				Lijiang Night Market
+				Lijiang Night Market Lunar New Year
+				Nepal Sanctum
+				Nepal Shrine
+				Nepal Village
+				Oasis City Center
+				Oasis Gardens
+				Oasis University
+			}
+		}
+
+		General
+		{
+			Mercy Resurrect Counteracts Kills: Off
+			Score To Win: 1
+			Spawn Health Packs: Enabled
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: beamPositionStart
+		1: goalScore
+		2: isBeamActive
+		3: orbRadius
+		4: ringPositionEnd
+		5: beamRadius
+		6: collectPhaseTime
+		7: roundsLeft
+		8: depositPhaseTime
+		9: phaseCheck
+		10: team1Leader
+		11: team2Leader
+		12: team1OrbsArray
+		13: team2OrbsArray
+		14: team1OrbPositions
+		15: team2OrbPositions
+		16: team1OrbValues
+		17: i
+		18: beamMovementRate
+		19: team2OrbValues
+		20: ringPositionStart
+		21: team2Spawn
+		22: team1Spawn
+		23: j
+		24: chasedVariable
+		25: beamPositionEnd
+		26: spawnProtectionTime
+		27: initialAssemblyTime
+		28: hiddenLocation
+		29: stringSubtitle
+		30: stringDiscord
+		31: stringProject
+		32: stringDiscordLink
+		33: stringProjectLink
+		34: stringCode
+		35: stringCreator
+		36: stringVersion
+		37: stringDepositOrbs
+		38: stringCollectOrbs
+		39: stringYouAreTeamLeader
+		40: stringTeamLeader
+		41: stringTeam1Possesive
+		42: stringTeam2Possesive
+		43: stringTotalOrbs
+		44: stringCollected
+		45: stringOrbs
+		46: stringDepositedOrb
+		47: stringYouWereHealed
+		48: stringKilledTeamLeader
+		49: stringRoundsLeft
+		50: stringGoalScore
+		51: stringCurrentTeam
+		52: stringFinalRound
+		53: stringSpawnProtectionOff
+		54: stringBeamStart
+		55: stringBeamEnd
+
+	player:
+		0: spawnProtected
+		1: closestOrb
+		2: previousOrbValue
+		3: valueOfOrb
+		8: tempIndexValue
+		12: isBeingRevived
+		13: deathPosition
+		14: playerBeingRevived
+		15: hasSpawnedOnce
+}
+
+subroutines
+{
+	0: matchSetup
+	1: hudSetup
+	2: goalScoreSetup
+	3: orbSetup
+	4: spawnSetup1
+	5: spawnSetup2
+	6: depositOrb
+	7: mapSetupOasisUniversity
+	8: mapSetupOasisGarden
+	9: mapSetupOasisCityCenter
+	10: mapSetupNepalSanctum
+	11: mapSetupNepalShrine
+	12: mapSetupNepalVillage
+	13: mapSetupLijiangControlCenter
+	14: mapSetupLijiangGarden
+	15: mapSetupLijiangNightMarket
+}
+
+disabled rule("PLAYER DESTRUCTION. Version 1.2.6. Created by Block#12425. Additional credits found on project site below.")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("Project: https://workshop.codes/playdest | Discord: discord.gg/CSKSVDH")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+disabled rule("DEBUG HUD")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Create HUD Text(Host Player, Position Of(Host Player), Custom String("Host Player Position"), Null, Right, 5, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load, String("Server Load"), Null, Right, 8, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Host Player, Server Load Peak, String("Server Load Peak"), Null, Right, 7, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average"), Null, Right, 6, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+disabled rule("DEBUG DUMMY BOTS")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 1, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+		Wait(0.250, Ignore Condition);
+		Create Dummy Bot(Hero(Ana), Team 2, -1, Vector(0, 0, 0), Vector(0, 0, 0));
+	}
+}
+
+disabled rule("------ General Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Scoring;
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Completion;
+		"Time that the player is invincible after respawning."
+		Global.spawnProtectionTime = 3;
+		"Orb pickup radius. Does not affect visuals."
+		Global.orbRadius = 1.500;
+		"Value affected by map."
+		Global.beamRadius = 5;
+		"Time in seconds on how long the \"Collect Orb\" phase lasts."
+		Global.collectPhaseTime = 40;
+		"How long in seconds the \"Deposit Orb\" phase is."
+		Global.depositPhaseTime = 30;
+		"Total rounds in the match."
+		Global.roundsLeft = 15;
+		"Assemble heroes phase time."
+		Global.initialAssemblyTime = 30;
+		"Setting some constant custom strings (independent of language)"
+		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
+		Global.stringProjectLink = Custom String("workshop.codes/playdest");
+		Global.stringCreator = Custom String("Block#12425");
+		Global.stringVersion = Custom String("1.2.6");
+		"Everpresent HUD setup on the top right corner."
+		Create HUD Text(All Players(All Teams), Custom String("Player Destruction"), Null, Null, Right, -4, Turquoise, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringSubtitle, Custom String(" "), Right, -3, Turquoise, White, Turquoise,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDiscord, Right, -2, White, White, Green, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -1, White, White, Green, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -0.900, White, White, Aqua, Visible To and String,
+			Default Visibility);
+		"For optimization reasons"
+		Disable Inspector Recording;
+	}
+}
+
+rule("Block#12425 - Assembly heroes subroutines")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		"This sets up general stuff for the match."
+		Call Subroutine(matchSetup);
+		"This sets up the HUD elements besides the ones created in Intial Setup rule."
+		Call Subroutine(hudSetup);
+		"This creates the orb effects and sets up their positions in an array."
+		Call Subroutine(orbSetup);
+		"This sets the goal score for the match."
+		Call Subroutine(goalScoreSetup);
+	}
+}
+
+rule("Block#12425 - Match Setup")
+{
+	event
+	{
+		Subroutine;
+		matchSetup;
+	}
+
+	actions
+	{
+		"Sets the assemble match time."
+		Set Match Time(Global.initialAssemblyTime);
+		"Next several actions initialize the variables."
+		Global.team1OrbsArray[Slot Of(All Players(Team 1))] = 0;
+		Global.team2OrbsArray[Slot Of(All Players(Team 2))] = 0;
+		Global.hiddenLocation = Vector(X Component Of(Global.beamPositionStart), Y Component Of(Global.beamPositionStart) + -1000,
+			Z Component Of(Global.beamPositionStart));
+		Global.chasedVariable = Global.hiddenLocation;
+		Global.team1OrbPositions = Empty Array;
+		Global.team2OrbPositions = Empty Array;
+		Global.team1OrbValues = Empty Array;
+		Global.team2OrbValues = Empty Array;
+		Global.isBeamActive = False;
+		Global.phaseCheck = False;
+		"These three rules set up the effects for the beam."
+		Create Effect(All Players(All Teams), Ring, Turquoise, Global.ringPositionStart, Global.beamRadius,
+			Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Ring, Turquoise, Global.ringPositionEnd, Global.beamRadius, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Light Shaft, Turquoise, Global.chasedVariable, Global.beamRadius,
+			Visible To Position and Radius);
+		"These three rules sets up the icons in the match."
+		Create Icon(Filtered Array(All Players(All Teams), Global.isBeamActive == True), Vector(X Component Of(Global.chasedVariable),
+			Y Component Of(Global.chasedVariable) + 2, Z Component Of(Global.chasedVariable)), Spiral, Visible To and Position, White,
+			True);
+		Create Icon(Filtered Array(All Players(All Teams), Global.team1Leader != Null), Global.team1Leader, Warning,
+			Visible To and Position, Team 1, False);
+		Create Icon(Filtered Array(All Players(All Teams), Global.team2Leader != Null), Global.team2Leader, Warning,
+			Visible To and Position, Team 2, False);
+		"Last four actions set up the in world texts objects."
+		Create In-World Text(Filtered Array(All Players(All Teams), Global.team1Leader != Null), String("{0} - {1}",
+			Global.team1OrbsArray[Slot Of(Global.team1Leader)], String("{0}%", Ultimate Charge Percent(Global.team1Leader))),
+			Global.team1Leader, 1.500, Do Not Clip, Visible To Position and String, White, Default Visibility);
+		Create In-World Text(Filtered Array(All Players(All Teams), Global.team2Leader != Null), String("{0} - {1}",
+			Global.team2OrbsArray[Slot Of(Global.team2Leader)], String("{0}%", Ultimate Charge Percent(Global.team2Leader))),
+			Global.team2Leader, 1.500, Do Not Clip, Visible To Position and String, White, Default Visibility);
+		Create In-World Text(All Players(All Teams), Global.stringBeamStart, Global.ringPositionStart, 1, Do Not Clip,
+			Visible To Position and String, White, Default Visibility);
+		Create In-World Text(All Players(All Teams), Global.stringBeamEnd, Global.ringPositionEnd, 1, Do Not Clip,
+			Visible To Position and String, White, Default Visibility);
+	}
+}
+
+rule("Block#12425 - HUD Setup")
+{
+	event
+	{
+		Subroutine;
+		hudSetup;
+	}
+
+	actions
+	{
+		"Team Leader HUD text"
+		Create HUD Text(Global.team1Leader, String("{0}!", String("{0} {1}", Icon String(Warning), Global.stringTeamLeader)), Null, Null,
+			Top, 5, Team 1, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Global.team2Leader, String("{0}!", String("{0} {1}", Icon String(Warning), Global.stringTeamLeader)), Null, Null,
+			Top, 5, Team 2, White, White, Visible To and String, Default Visibility);
+		"Team's total orbs HUD setup."
+		Create HUD Text(All Players(All Teams),
+			Global.team1OrbsArray[0] + Global.team1OrbsArray[1] + Global.team1OrbsArray[2] + Global.team1OrbsArray[3] + Global.team1OrbsArray[4] + Global.team1OrbsArray[5],
+			Global.stringTeam1Possesive, Global.stringTotalOrbs, Left, -1 * (
+			Global.team1OrbsArray[0] + Global.team1OrbsArray[1] + Global.team1OrbsArray[2] + Global.team1OrbsArray[3] + Global.team1OrbsArray[4] + Global.team1OrbsArray[5]),
+			Team 1, White, White, Visible To Sort Order and String, Default Visibility);
+		Create HUD Text(All Players(All Teams),
+			Global.team2OrbsArray[0] + Global.team2OrbsArray[1] + Global.team2OrbsArray[2] + Global.team2OrbsArray[3] + Global.team2OrbsArray[4] + Global.team2OrbsArray[5],
+			Global.stringTeam2Possesive, Global.stringTotalOrbs, Left, -1 * (
+			Global.team2OrbsArray[0] + Global.team2OrbsArray[1] + Global.team2OrbsArray[2] + Global.team2OrbsArray[3] + Global.team2OrbsArray[4] + Global.team2OrbsArray[5]),
+			Team 2, White, White, Visible To Sort Order and String, Default Visibility);
+		"Sets up the Rounds lefts and goal score HUD on the top."
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("{0}            {1}", Custom String("{0}: {1}",
+			Global.stringRoundsLeft, Global.roundsLeft), Custom String("{0}: {1}", Global.stringGoalScore, Global.goalScore)), Top, -1,
+			White, White, White, Visible To and String, Default Visibility);
+		"Rest of the actions here set up each player's orbs collected HUD text."
+		Create HUD Text(Players In Slot(0, Team 1), Global.team1OrbsArray[0], Custom String("{0}'s", Players In Slot(0, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(1, Team 1), Global.team1OrbsArray[1], Custom String("{0}'s", Players In Slot(1, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(2, Team 1), Global.team1OrbsArray[2], Custom String("{0}'s", Players In Slot(2, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(3, Team 1), Global.team1OrbsArray[3], Custom String("{0}'s", Players In Slot(3, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(4, Team 1), Global.team1OrbsArray[4], Custom String("{0}'s", Players In Slot(4, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(5, Team 1), Global.team1OrbsArray[5], Custom String("{0}'s", Players In Slot(5, Team 1)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 2), Global.team2OrbsArray[0], Custom String("{0}'s", Players In Slot(0, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(1, Team 2), Global.team2OrbsArray[1], Custom String("{0}'s", Players In Slot(1, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(2, Team 2), Global.team2OrbsArray[2], Custom String("{0}'s", Players In Slot(2, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(3, Team 2), Global.team2OrbsArray[3], Custom String("{0}'s", Players In Slot(3, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(4, Team 2), Global.team2OrbsArray[4], Custom String("{0}'s", Players In Slot(4, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(5, Team 2), Global.team2OrbsArray[5], Custom String("{0}'s", Players In Slot(5, Team 2)),
+			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
+		"This HUD tells which team the player is currently on (useful for players that cannot make out the team colors)."
+		Create HUD Text(All Players(Team 1), Null, Null, Custom String("{0}: {1}", Global.stringCurrentTeam, Team 1), Left, -1001, White,
+			White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(Team 2), Null, Null, Custom String("{0}: {1}", Global.stringCurrentTeam, Team 2), Left, -1001, White,
+			White, White, Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Goal Score Setup")
+{
+	event
+	{
+		Subroutine;
+		goalScoreSetup;
+	}
+
+	actions
+	{
+		"This subroutine waits until there is 1 second left in the assemble heroes phase."
+		Wait(Global.initialAssemblyTime - 1, Ignore Condition);
+		"After that this if else test will determine how many players exist in the match after the wait. It will then set the goal score depending on the number of players."
+		If(Count Of(All Players(All Teams)) < 4);
+			Global.goalScore = 8;
+		Else If(Count Of(All Players(All Teams)) < 6);
+			Global.goalScore = 16;
+		Else If(Count Of(All Players(All Teams)) < 8);
+			Global.goalScore = 24;
+		Else If(Count Of(All Players(All Teams)) < 10);
+			Global.goalScore = 32;
+		Else If(Count Of(All Players(All Teams)) < 12);
+			Global.goalScore = 40;
+		Else;
+			Global.goalScore = 48;
+		End;
+		"DEBUG PURPOSES ONLY. Disable for normal play."
+		disabled Global.goalScore = 1;
+	}
+}
+
+rule("Block#12425 - Orb Setup")
+{
+	event
+	{
+		Subroutine;
+		orbSetup;
+	}
+
+	actions
+	{
+		"These actions create 6 orb effects for team 1 and 6 orb effects for team 2."
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[0], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[1], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[2], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[3], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[4], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 1, Global.team1OrbPositions[5], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[0], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[1], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[2], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[3], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[4], 0.300, Visible To Position and Radius);
+		Create Effect(All Players(All Teams), Orb, Team 2, Global.team2OrbPositions[5], 0.300, Visible To Position and Radius);
+		"These next actions set the default orb positions for both team 1 and team 2."
+		Global.team1OrbPositions[0] = Global.hiddenLocation;
+		Global.team1OrbPositions[1] = Global.hiddenLocation;
+		Global.team1OrbPositions[2] = Global.hiddenLocation;
+		Global.team1OrbPositions[3] = Global.hiddenLocation;
+		Global.team1OrbPositions[4] = Global.hiddenLocation;
+		Global.team1OrbPositions[5] = Global.hiddenLocation;
+		Global.team2OrbPositions[0] = Global.hiddenLocation;
+		Global.team2OrbPositions[1] = Global.hiddenLocation;
+		Global.team2OrbPositions[2] = Global.hiddenLocation;
+		Global.team2OrbPositions[3] = Global.hiddenLocation;
+		Global.team2OrbPositions[4] = Global.hiddenLocation;
+		Global.team2OrbPositions[5] = Global.hiddenLocation;
+	}
+}
+
+rule("Block#12425 - Final Round Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.roundsLeft == 1;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"This activates when there is one round left in the match. Some stuff is enabled such as narrator and music to remind players that the end is nigh."
+		Big Message(All Players(All Teams), Global.stringFinalRound);
+		Wait(Global.collectPhaseTime + 1, Ignore Condition);
+		Enable Built-In Game Mode Music;
+		Enable Built-In Game Mode Announcer;
+	}
+}
+
+rule("Block#12425 - Match Complete Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Match Complete == True;
+	}
+
+	actions
+	{
+		"This just restores a lot of things disabled and deletes all the stuff so it doesn't interfere with the potg."
+		Enable Built-In Game Mode Music;
+		Enable Built-In Game Mode Announcer;
+		Destroy All Effects;
+		Destroy All HUD Text;
+		Destroy All Icons;
+		Destroy All In-World Text;
+	}
+}
+
+disabled rule("------ Map Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Map Check")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"This if-else if statement checks for which map is being used, and runs the associated subroutine to set up certain variables for the map."
+		If(Current Map == Map(Oasis University));
+			Call Subroutine(mapSetupOasisUniversity);
+		Else If(Current Map == Map(Oasis Gardens));
+			Call Subroutine(mapSetupOasisGarden);
+		Else If(Current Map == Map(Oasis City Center));
+			Call Subroutine(mapSetupOasisCityCenter);
+		Else If(Current Map == Map(Nepal Sanctum));
+			Call Subroutine(mapSetupNepalSanctum);
+		Else If(Current Map == Map(Nepal Shrine));
+			Call Subroutine(mapSetupNepalShrine);
+		Else If(Current Map == Map(Nepal Village));
+			Call Subroutine(mapSetupNepalVillage);
+		Else If(Current Map == Map(Lijiang Control Center) || Current Map == Map(Lijiang Control Center Lunar New Year));
+			Call Subroutine(mapSetupLijiangControlCenter);
+		Else If(Current Map == Map(Lijiang Garden) || Current Map == Map(Lijiang Garden Lunar New Year));
+			Call Subroutine(mapSetupLijiangGarden);
+		Else If(Current Map == Map(Lijiang Night Market) || Current Map == Map(Lijiang Night Market Lunar New Year));
+			Call Subroutine(mapSetupLijiangNightMarket);
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis University) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisUniversity;
+	}
+
+	actions
+	{
+		"I will only includes comments for the maps in this rule. This sets the start position of the beam."
+		Global.beamPositionStart = Vector(-187.906, 14.900, 0);
+		"This sets the ring position (at times the start position is not the same as the ring position, as the beam should move in a line parallel to the ground, but the ground can be uneven and the rings need to match that)."
+		Global.ringPositionStart = Global.beamPositionStart;
+		"Same as above, but for the end position."
+		Global.beamPositionEnd = Vector(-212.291, 14.900, 0);
+		Global.ringPositionEnd = Vector(-212.291, 19, 0);
+		"This sets the spawn position for team 2 and team 1."
+		Global.team2Spawn = Vector(-188.017, 18, 64.071);
+		Global.team1Spawn = Vector(-188.017, 18, -64.071);
+		"This calculates the beam movement speed based on the deposit phase time and the distance the beam needs to cover. This ensures that the beam always hits the end position at 0 seconds left."
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+		"This sets the beam radius, as some maps may need smaller/bigger radius."
+		Global.beamRadius = 6;
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis Gardens) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisGarden;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(141.130, 5.200, -247.360);
+		Global.ringPositionStart = Vector(141.130, 7.380, -247.360);
+		Global.beamPositionEnd = Vector(121.250, 5.200, -227.480);
+		Global.ringPositionEnd = Global.beamPositionEnd;
+		Global.team2Spawn = Vector(103.200, 8, -285.510);
+		Global.team1Spawn = Vector(179.280, 8, -209.430);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+		Global.beamRadius = 6;
+	}
+}
+
+rule("Block#12425 - Map Setup (Oasis City Center) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupOasisCityCenter;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(158.920, 0, 262.920);
+		Global.ringPositionStart = Vector(158.920, 4, 262.920);
+		Global.beamPositionEnd = Vector(128.610, 0, 232.610);
+		Global.ringPositionEnd = Vector(128.610, 4, 232.610);
+		Global.team2Spawn = Vector(191.540, 0.850, 192.570);
+		Global.team1Spawn = Vector(93.570, 0.850, 295.540);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+		Global.beamRadius = 6;
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Control Center) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangControlCenter;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(0, 267, 279.930);
+		Global.ringPositionStart = Global.beamPositionStart;
+		Global.beamPositionEnd = Vector(0, 267, 317.993);
+		Global.ringPositionEnd = Vector(0, 270, 317.993);
+		Global.team2Spawn = Vector(-55.267, 267.786, 342.303);
+		Global.team1Spawn = Vector(55.267, 267.786, 342.303);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Garden) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangGarden;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(0, 93.800, 130);
+		Global.ringPositionStart = Vector(0, 94.500, 130);
+		Global.beamPositionEnd = Vector(0, 93.800, 184.740);
+		Global.ringPositionEnd = Global.beamPositionEnd;
+		Global.team2Spawn = Vector(75.646, 97.351, 147.940);
+		Global.team1Spawn = Vector(-75.646, 97.351, 147.940);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+	}
+}
+
+rule("Block#12425 - Map Setup (Lijiang Night Market) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupLijiangNightMarket;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(0.980, -1.200, -62);
+		Global.ringPositionStart = Vector(0.980, -1, -62);
+		Global.beamPositionEnd = Vector(0.980, -1.200, -28.050);
+		Global.ringPositionEnd = Global.beamPositionEnd;
+		Global.team1Spawn = Vector(72.446, 4.926, -23.412);
+		Global.team2Spawn = Vector(-70.486, 4.926, -23.412);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Sanctum) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalSanctum;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(83.236, 128, 0);
+		Global.ringPositionStart = Global.beamPositionStart;
+		Global.beamPositionEnd = Vector(51.166, 128, 0);
+		Global.ringPositionEnd = Vector(51.166, 130, 0);
+		Global.team2Spawn = Vector(80.935, 132, 84);
+		Global.team1Spawn = Vector(80.935, 132, -84);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Shrine) Subrountine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalShrine;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(-63.660, 11, 0);
+		Global.ringPositionStart = Vector(-63.660, 13, 0);
+		Global.beamPositionEnd = Vector(-21.598, 11, 0);
+		Global.ringPositionEnd = Vector(-21.598, 13, 0);
+		Global.team2Spawn = Vector(-43.199, 17.725, 88.243);
+		Global.team1Spawn = Vector(-43.199, 17.725, -88.243);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+		Global.beamRadius = 5.500;
+	}
+}
+
+rule("Block#12425 - Map Setup (Nepal Village) Subroutine")
+{
+	event
+	{
+		Subroutine;
+		mapSetupNepalVillage;
+	}
+
+	actions
+	{
+		Global.beamPositionStart = Vector(-194.945, -95, 0);
+		Global.ringPositionStart = Vector(-194.945, -93.500, 0);
+		Global.beamPositionEnd = Vector(-160.672, -95, 0);
+		Global.ringPositionEnd = Vector(-160.672, -89, 0);
+		Global.team2Spawn = Vector(-157.543, -96.220, 80.814);
+		Global.team1Spawn = Vector(-157.543, -96.220, -80.814);
+		Global.beamMovementRate = Absolute Value((Global.beamPositionStart - Global.beamPositionEnd) / Global.depositPhaseTime);
+	}
+}
+
+disabled rule("------ Language ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - English")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringSubtitle = Custom String("Created by: {0}. Version: {1}", Global.stringCreator, Global.stringVersion);
+		Global.stringDiscord = Custom String("Discord: {0} (All caps)", Global.stringDiscordLink);
+		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
+		Global.stringCode = Custom String("Code: ZKBQY");
+		Global.stringDepositOrbs = Custom String("Deposit Orbs into the beam");
+		Global.stringCollectOrbs = Custom String("Collect Orbs from enemies");
+		Global.stringYouAreTeamLeader = Custom String("You are the Team Leader");
+		Global.stringTeamLeader = Custom String("Team Leader");
+		Global.stringTeam1Possesive = Custom String("{0}'s", Team 1);
+		Global.stringTeam2Possesive = Custom String("{0}'s", Team 2);
+		Global.stringTotalOrbs = Custom String("Total Orbs");
+		Global.stringCollected = Custom String("Collected");
+		Global.stringOrbs = Custom String("Orb(s)");
+		Global.stringDepositedOrb = Custom String("Deposited Orb");
+		Global.stringYouWereHealed = Custom String("You were healed");
+		Global.stringKilledTeamLeader = Custom String("Eliminated enemy team leader");
+		Global.stringRoundsLeft = Custom String("Rounds Left");
+		Global.stringGoalScore = Custom String("Goal Score");
+		Global.stringCurrentTeam = Custom String("Your team");
+		Global.stringFinalRound = Custom String("Final Round");
+		Global.stringBeamStart = Custom String("Beam Start");
+		Global.stringBeamEnd = Custom String("Beam End");
+	}
+}
+
+disabled rule("------ Player Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Spawn Player (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Event Player.spawnProtected == True;
+	}
+
+	actions
+	{
+		"Teleports the player to the respective team spawn."
+		Teleport(Event Player, Global.team1Spawn);
+		Wait(0.120, Ignore Condition);
+		"Now the spawn subroutine is called, which is split into two parts. Part 2 is also used for the Mercy ressurection."
+		Call Subroutine(spawnSetup1);
+		"If the spawn isn't interrupted by a Mercy ressurection, then part 2 of the spawn setup is run."
+		Wait(Global.spawnProtectionTime, Abort When False);
+		Call Subroutine(spawnSetup2);
+	}
+}
+
+rule("Block#12425 - Spawn Player (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Event Player.spawnProtected == True;
+	}
+
+	actions
+	{
+		"See Team 1 Spawn."
+		Teleport(Event Player, Global.team2Spawn);
+		Wait(0.120, Ignore Condition);
+		Call Subroutine(spawnSetup1);
+		Wait(Global.spawnProtectionTime, Abort When False);
+		Call Subroutine(spawnSetup2);
+	}
+}
+
+rule("Block#12425 - Spawn Setup Part 1 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnSetup1;
+	}
+
+	actions
+	{
+		"Sets the player facing towards the start position of the beam."
+		Set Facing(Event Player, Direction Towards(Position Of(Event Player), Global.beamPositionStart), To World);
+		"Sets up spawn protection."
+		Set Status(Event Player, Null, Invincible, 9999);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Set Invisible(Event Player, Enemies);
+	}
+}
+
+rule("Block#12425 - Spawn Setup Part 2 Subroutine")
+{
+	event
+	{
+		Subroutine;
+		spawnSetup2;
+	}
+
+	actions
+	{
+		"Removes spawn protection."
+		Clear Status(Event Player, Invincible);
+		Clear Status(Event Player, Phased Out);
+		Set Invisible(Event Player, None);
+		Small Message(Event Player, Global.stringSpawnProtectionOff);
+		Event Player.spawnProtected = False;
+	}
+}
+
+rule("Block#12425 - Player Joined Setup")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"Intializes the proper player variables upon player joined."
+		Event Player.isBeingRevived = False;
+		Event Player.spawnProtected = True;
+	}
+}
+
+rule("Block#12425 - Player Died Self-Intiated Respawn Setup")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == False;
+	}
+
+	actions
+	{
+		"This rule sets up the player for respawn."
+		Event Player.spawnProtected = True;
+		"This disallow action forces the player to wait for 5 seconds before they can respawn again. This allows the game to have a high respawn time for character select while forcing a specified respawn time required for TDM."
+		Disallow Button(Event Player, Jump);
+		Wait(5, Abort When False);
+		Allow Button(Event Player, Jump);
+	}
+}
+
+rule("Block#12425 - Jump Key Check")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+	}
+
+	actions
+	{
+		"In case the jump key didn't get enabled from the other rules."
+		Allow Button(Event Player, Jump);
+	}
+}
+
+disabled rule("------ Game Cycles ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - First Round")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"This rule is for the first round. Not as many actions are ran, because it isn't needed."
+		Global.isBeamActive = False;
+		Set Match Time(Global.collectPhaseTime);
+		Disable Built-In Game Mode Music;
+	}
+}
+
+rule("Block#12425 - Collect Orb Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.phaseCheck == True;
+		Match Time <= 0;
+	}
+
+	actions
+	{
+		"Beam is disabled."
+		Global.isBeamActive = False;
+		"If that was the last round, the match time set is skipped so the game ends."
+		Skip If(Global.roundsLeft == 1, 1);
+		Set Match Time(Global.collectPhaseTime);
+		"Beam disappears with some effects."
+		Play Effect(All Players(All Teams), Debuff Impact Sound, White, Global.ringPositionEnd, 200);
+		Play Effect(All Players(All Teams), Ring Explosion, Turquoise, Global.ringPositionEnd + Vector(0, 0.200, 0),
+			Global.beamRadius * 3);
+		"Beam position is no longer chased."
+		Stop Chasing Global Variable(chasedVariable);
+		"Round is subtracted by one."
+		Global.roundsLeft -= 1;
+		"The current beam position is set to under the map so filtered arrays aren't needed."
+		Global.chasedVariable = Global.hiddenLocation;
+		Big Message(All Players(All Teams), Global.stringCollectOrbs);
+		Wait(0.250, Ignore Condition);
+		"This phaseCheck variable ensures that the deposit phase isn't ran immediately afterwards."
+		Global.phaseCheck = False;
+	}
+}
+
+rule("Block#12425 - Deposit Orb Phase")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.phaseCheck == False;
+		Match Time <= 0;
+	}
+
+	actions
+	{
+		"Beam is turned on."
+		Global.isBeamActive = True;
+		"Beam is teleported to the start position."
+		Global.chasedVariable = Global.beamPositionStart;
+		"Time is set."
+		Set Match Time(Global.depositPhaseTime);
+		"Now the beam position is chased again."
+		Chase Global Variable At Rate(chasedVariable, Global.beamPositionEnd, Global.beamMovementRate, Destination and Rate);
+		"When the beam spawns, the effects are created to indicate its presence."
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global.ringPositionStart, 200);
+		Play Effect(All Players(All Teams), Ring Explosion, Turquoise, Global.ringPositionStart + Vector(0, 0.200, 0),
+			Global.beamRadius * 3);
+		Big Message(All Players(All Teams), Global.stringDepositOrbs);
+		Wait(0.250, Ignore Condition);
+		"This ensures the collect phase isn't ran after this is executed."
+		Global.phaseCheck = True;
+	}
+}
+
+disabled rule("------ Orb Creation / Destruction ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Orb Created (Team 1)")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"This sets the death position of the player for resurrection later."
+		Event Player.deathPosition = Position Of(Event Player);
+		"The next available orb has its position set to the death position of the player."
+		Global.team1OrbPositions[Index Of Array Value(Global.team1OrbPositions, Global.hiddenLocation)] = Nearest Walkable Position(
+			Event Player.deathPosition);
+		"The next available orb also has its values adjusted to those of the player."
+		Global.team1OrbValues[Index Of Array Value(Global.team1OrbPositions, Nearest Walkable Position(Event Player.deathPosition))
+			] = Global.team1OrbsArray[Slot Of(Event Player)] + 1;
+		"Now the player's orb count is set to 0."
+		Global.team1OrbsArray[Slot Of(Event Player)] = 0;
+	}
+}
+
+rule("Block#12425 - Orb Created (Team 2)")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"See Team 1 Orb Creation."
+		Event Player.deathPosition = Position Of(Event Player);
+		Global.team2OrbPositions[Index Of Array Value(Global.team2OrbPositions, Global.hiddenLocation)] = Nearest Walkable Position(
+			Event Player.deathPosition);
+		Global.team2OrbValues[Index Of Array Value(Global.team2OrbPositions, Nearest Walkable Position(Event Player.deathPosition))
+			] = Global.team2OrbsArray[Slot Of(Event Player)] + 1;
+		Global.team2OrbsArray[Slot Of(Event Player)] = 0;
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 1) (Team 1 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global.team1OrbPositions, Distance Between(Current Array Element, Position Of(Event Player)) <= Global.orbRadius)
+			!= Empty Array;
+	}
+
+	actions
+	{
+		"The previous value of the player's orb count is being stored for a check later."
+		Event Player.previousOrbValue = Global.team1OrbsArray[Slot Of(Event Player)];
+		"The closest orb is stored in a player variable temporarily."
+		Event Player.closestOrb = Filtered Array(Global.team1OrbPositions, Distance Between(Current Array Element, Position Of(
+			Event Player)) <= Global.orbRadius);
+		"The temporal index value of the orb is also stored."
+		Event Player.tempIndexValue = Index Of Array Value(Global.team1OrbPositions, Event Player.closestOrb);
+		"Now, the orb value of the orb being collected is being added to the player's total orb count. Since this is checking for a friendly orb pickup, 1 point is subtracted so that teammates cannot farm their own orbs."
+		Global.team1OrbsArray[Slot Of(Event Player)] += Global.team1OrbValues[Event Player.tempIndexValue] - 1;
+		"This checks if the orb collected caused the players orb count to reduce instead of increasing. This bug occurs since multiple players can simutaneously pick up the same orb and only one gets the value."
+		Skip If(Event Player.previousOrbValue <= Global.team1OrbsArray[Slot Of(Event Player)], 3);
+		"If the new orb value is less than the old one during collection, then the previous orb count is restored, as it should just be 0 then."
+		Global.team1OrbsArray[Slot Of(Event Player)] = Event Player.previousOrbValue;
+		Event Player.valueOfOrb = 0;
+		Skip(8);
+		"This temporal value will collect the orbs collected from picking up this orb. It is used for a small message later."
+		Event Player.valueOfOrb = Global.team1OrbValues[Event Player.tempIndexValue] - 1;
+		"Now these next few actions set the orb picked up to an unused orb. (In other words, it resets the orb)."
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team1OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		"Some effects are played when the orb is collected."
+		Play Effect(All Players(All Teams), Good Explosion, Team 1, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 1, Event Player, 20);
+		"Now the value of the orb is printed in this message."
+		Small Message(Event Player, Custom String("{1} {0} {2}", Event Player.valueOfOrb, Global.stringCollected, Global.stringOrbs));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 1) (Team 2 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global.team2OrbPositions, Distance Between(Current Array Element, Position Of(Event Player)) <= Global.orbRadius)
+			!= Empty Array;
+	}
+
+	actions
+	{
+		"See Team 1 picking up Team 1 orb rule. This rule is more simplified since there is no need for bug checking."
+		Event Player.closestOrb = Filtered Array(Global.team2OrbPositions, Distance Between(Current Array Element, Position Of(
+			Event Player)) <= Global.orbRadius);
+		Event Player.tempIndexValue = Index Of Array Value(Global.team2OrbPositions, Event Player.closestOrb);
+		Global.team1OrbsArray[Slot Of(Event Player)] += Global.team2OrbValues[Event Player.tempIndexValue];
+		Event Player.valueOfOrb = Global.team2OrbValues[Event Player.tempIndexValue];
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team2OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 2, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 1, Event Player, 20);
+		"Now the value of the orb is printed in this message."
+		Small Message(Event Player, Custom String("{1} {0} {2}", Event Player.valueOfOrb, Global.stringCollected, Global.stringOrbs));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 2) (Team 1 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global.team1OrbPositions, Distance Between(Current Array Element, Position Of(Event Player)) <= Global.orbRadius)
+			!= Empty Array;
+	}
+
+	actions
+	{
+		"See Team 1 picking up team orb rule. This rule is more simplified since there is no need for bug checking."
+		Event Player.closestOrb = Filtered Array(Global.team1OrbPositions, Distance Between(Current Array Element, Position Of(
+			Event Player)) <= Global.orbRadius);
+		Event Player.tempIndexValue = Index Of Array Value(Global.team1OrbPositions, Event Player.closestOrb);
+		Global.team2OrbsArray[Slot Of(Event Player)] += Global.team1OrbValues[Event Player.tempIndexValue];
+		Event Player.valueOfOrb = Global.team1OrbValues[Event Player.tempIndexValue];
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team1OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 1, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 2, Event Player, 20);
+		"Now the value of the orb is printed in this message."
+		Small Message(Event Player, Custom String("{1} {0} {2}", Event Player.valueOfOrb, Global.stringCollected, Global.stringOrbs));
+	}
+}
+
+rule("Block#12425 - Orb Collected (Team 2) (Team 2 Orb) Thanks to Ikra#2825 for help scripting.")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Filtered Array(Global.team2OrbPositions, Distance Between(Current Array Element, Position Of(Event Player)) <= Global.orbRadius)
+			!= Empty Array;
+	}
+
+	actions
+	{
+		"See Team 1 picking up team orb rule."
+		Event Player.previousOrbValue = Global.team2OrbsArray[Slot Of(Event Player)];
+		Event Player.closestOrb = Filtered Array(Global.team2OrbPositions, Distance Between(Current Array Element, Position Of(
+			Event Player)) <= Global.orbRadius);
+		Event Player.tempIndexValue = Index Of Array Value(Global.team2OrbPositions, Event Player.closestOrb);
+		Global.team2OrbsArray[Slot Of(Event Player)] += Global.team2OrbValues[Event Player.tempIndexValue] - 1;
+		Skip If(Event Player.previousOrbValue <= Global.team2OrbsArray[Slot Of(Event Player)], 3);
+		Global.team2OrbsArray[Slot Of(Event Player)] = Event Player.previousOrbValue;
+		Event Player.valueOfOrb = 0;
+		Skip(8);
+		Event Player.valueOfOrb = Global.team2OrbValues[Event Player.tempIndexValue] - 1;
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, Event Player.tempIndexValue);
+		Modify Global Variable(team2OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Play Effect(All Players(All Teams), Good Explosion, Team 2, Position Of(Event Player), 5);
+		Play Effect(All Living Players(All Teams), Buff Explosion Sound, Team 2, Event Player, 20);
+		"Now the value of the orb is printed in this message."
+		Small Message(Event Player, Custom String("{1} {0} {2}", Event Player.valueOfOrb, Global.stringCollected, Global.stringOrbs));
+	}
+}
+
+rule("Block#12425 - Deposit Orb in Beam (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Global.isBeamActive == True;
+		Y Component Of(Position Of(Event Player)) >= Y Component Of(Global.chasedVariable);
+		Global.team1OrbsArray[Slot Of(Event Player)] > 0;
+		Distance Between(Vector(X Component Of(Global.chasedVariable), Y Component Of(Position Of(Event Player)), Z Component Of(
+			Global.chasedVariable)), Position Of(Event Player)) <= Global.beamRadius;
+	}
+
+	actions
+	{
+		"Now, when a player is in the beam with more than one orb, 1 orb is deposited from the players total (after 1 seconds of standing consistently in the beam.)"
+		Wait(1, Abort When False);
+		Global.team1OrbsArray[Slot Of(Event Player)] -= 1;
+		"The team score addition is handled in this subroutine."
+		Call Subroutine(depositOrb);
+		"This speeds things up and repeats if the player hasn't left the beam yet."
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Deposit Orb in Beam (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Global.isBeamActive == True;
+		Y Component Of(Position Of(Event Player)) >= Y Component Of(Global.chasedVariable);
+		Global.team2OrbsArray[Slot Of(Event Player)] > 0;
+		Distance Between(Vector(X Component Of(Global.chasedVariable), Y Component Of(Position Of(Event Player)), Z Component Of(
+			Global.chasedVariable)), Position Of(Event Player)) <= Global.beamRadius;
+	}
+
+	actions
+	{
+		"See Team 1 Deposit Orb rule."
+		Wait(1, Abort When False);
+		Global.team2OrbsArray[Slot Of(Event Player)] -= 1;
+		Call Subroutine(depositOrb);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Deposit Score Modify Subroutine")
+{
+	event
+	{
+		Subroutine;
+		depositOrb;
+	}
+
+	actions
+	{
+		"Orb is added to team total."
+		Modify Team Score(Team Of(Event Player), 1);
+		Small Message(Event Player, Global.stringDepositedOrb);
+	}
+}
+
+disabled rule("------ Team Leader ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team Leader Killer Heal")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		(Event Player == Global.team1Leader || Event Player == Global.team2Leader) == True;
+	}
+
+	actions
+	{
+		"If the team leader is eliminated, the attacker gets a heal as a reward."
+		Heal(Attacker, Null, 1000);
+		Small Message(Attacker, Global.stringKilledTeamLeader);
+		Small Message(Attacker, Global.stringYouWereHealed);
+	}
+}
+
+rule("Block#12425 - Team Leader Destruction (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		"Either the team leader's orb count is less than the highest value in the array, or the team leader's orb count is 0."
+		(Is True For Any(Global.team1OrbsArray, Global.team1OrbsArray[Slot Of(Event Player)] < Current Array Element)
+			|| 1 > Global.team1OrbsArray[Slot Of(Event Player)]) == True;
+	}
+
+	actions
+	{
+		"If the team leader no longer is one (orb count is dropped below the highest orb count), the team leader is wiped."
+		Global.team1Leader = Null;
+	}
+}
+
+rule("Block#12425 - Team Leader Destruction (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		(Is True For Any(Global.team2OrbsArray, Global.team2OrbsArray[Slot Of(Event Player)] < Current Array Element)
+			|| 1 > Global.team2OrbsArray[Slot Of(Event Player)]) == True;
+	}
+
+	actions
+	{
+		"See Team 1 Leader Destruction rule."
+		Global.team2Leader = Null;
+	}
+}
+
+rule("Block#12425 - Team Leader Disconnection (Team 1)")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Entity Exists(Global.team1Leader) == False;
+	}
+
+	actions
+	{
+		"If the team leader disconnected, the team leader is reset."
+		Global.team1Leader = Null;
+	}
+}
+
+rule("Block#12425 - Team Leader Disconnection (Team 2)")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Entity Exists(Global.team2Leader) == False;
+	}
+
+	actions
+	{
+		"See Team 1 Leader Disconnection rule."
+		Global.team2Leader = Null;
+	}
+}
+
+rule("Block#12425 - Team Leader Creation (Team 1)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.team1Leader == Null;
+		"If the team leader's orb count is greater than 0 and has the highest value in the team."
+		Global.team1OrbsArray[Slot Of(Event Player)] >= 1;
+		Is True For All(Global.team1OrbsArray, Global.team1OrbsArray[Slot Of(Event Player)] >= Current Array Element) == True;
+	}
+
+	actions
+	{
+		"The team leader is set to the event player."
+		Global.team1Leader = Event Player;
+		Small Message(Event Player, Global.stringYouAreTeamLeader);
+	}
+}
+
+rule("Block#12425 - Team Leader Creation (Team 2)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Global.team2Leader == Null;
+		Global.team2OrbsArray[Slot Of(Event Player)] >= 1;
+		Is True For All(Global.team2OrbsArray, Global.team2OrbsArray[Slot Of(Event Player)] >= Current Array Element) == True;
+	}
+
+	actions
+	{
+		"See Team 1 Leader Creation."
+		Global.team2Leader = Event Player;
+		Small Message(Event Player, Global.stringYouAreTeamLeader);
+	}
+}
+
+disabled rule("------ Orbs Checks ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Player Left Match Orb Check")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"If a player left the match, an orb value reset must occur for said player. However, the game doesn't know which player. These two for loops will check to see if the player exists in the certain slot."
+		For Global Variable(i, 0, Count Of(Global.team1OrbsArray), 1);
+			If(Entity Exists(Players In Slot(Global.i, Team 1)) == False);
+				"And if the player doesn't, that orb count is set to 0. In other words, one of these will be the player that disconnected, and their value is set to 0."
+				Global.team1OrbsArray[Global.i] = 0;
+			End;
+		End;
+		For Global Variable(i, 0, Count Of(Global.team2OrbsArray), 1);
+			If(Entity Exists(Players In Slot(Global.i, Team 2)) == False);
+				Global.team2OrbsArray[Global.i] = 0;
+			End;
+		End;
+	}
+}
+
+rule("Block#12425 - Player Joined Match Orb Check")
+{
+	event
+	{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"Just like the rule above, if a player joins the match, it also double checks if there are excess orb count stored in the arrays."
+		For Global Variable(j, 0, Count Of(Global.team1OrbsArray), 1);
+			If(Entity Exists(Players In Slot(Global.j, Team 1)) == False);
+				Global.team1OrbsArray[Global.j] = 0;
+			End;
+		End;
+		For Global Variable(j, 0, Count Of(Global.team2OrbsArray), 1);
+			If(Entity Exists(Players In Slot(Global.j, Team 2)) == False);
+				Global.team2OrbsArray[Global.j] = 0;
+			End;
+		End;
+	}
+}
+
+rule("Block#12425 - Orb Entity Overflow Check (Team 1 Orbs)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		"If the orb is not at the hidden location, that means it is being used on the map. This checks if all orbs are being used. In gameplay, the max a player can see is 5 orbs for each team, so a six orb exists to help transition the orb reset."
+		Is True For All(Global.team1OrbPositions, Current Array Element != Global.hiddenLocation) == True;
+	}
+
+	actions
+	{
+		"If a sixth orb is created, the oldest orb that is present on the map is reset."
+		Modify Global Variable(team1OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team1OrbPositions, Remove From Array By Index, 0);
+		Modify Global Variable(team1OrbValues, Append To Array, 0);
+		Modify Global Variable(team1OrbValues, Remove From Array By Index, 0);
+	}
+}
+
+rule("Block#12425 - Orb Entity Overflow Check (Team 2 Orbs)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is True For All(Global.team2OrbPositions, Current Array Element != Global.hiddenLocation) == True;
+	}
+
+	actions
+	{
+		"See Orb Overflow Team 1 rule."
+		Modify Global Variable(team2OrbPositions, Append To Array, Global.hiddenLocation);
+		Modify Global Variable(team2OrbPositions, Remove From Array By Index, 0);
+		Modify Global Variable(team2OrbValues, Append To Array, 0);
+		Modify Global Variable(team2OrbValues, Remove From Array By Index, 0);
+	}
+}
+
+disabled rule("------ Mercy Revive ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Mercy Started Reviving")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"This sets the player closest to the resurrection (to the recticle, as Mercy must be facing the player initially to do that)."
+		Event Player.playerBeingRevived = Filtered Array(All Dead Players(Team Of(Event Player)), Player Closest To Reticle(Event Player,
+			Team Of(Event Player)) == Current Array Element);
+		"Also, the player being revived as a variable set to that."
+		Event Player.playerBeingRevived.isBeingRevived = True;
+	}
+}
+
+rule("Block#12425 - Mercy Revive Failed")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Hero Of(Event Player) == Hero(Mercy);
+		Is Using Ability 2(Event Player) == False;
+		Is Game In Progress == True;
+		Event Player.playerBeingRevived.isBeingRevived == True;
+	}
+
+	actions
+	{
+		"If it failed, this wait time is long enough to ensure that it didn't falsely detect that it failed. If it succeeded, then this wait action will be cancelled."
+		Wait(0.300, Abort When False);
+		Event Player.playerBeingRevived.isBeingRevived = False;
+	}
+}
+
+rule("Block#12424 - Mercy Revive Successful")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Event Player.isBeingRevived == True;
+	}
+
+	actions
+	{
+		"If successful, the wait time is short enough to take priority over the failed attempt rule."
+		Wait(0.200, Abort When False);
+		Event Player.isBeingRevived = False;
+		"After the player is teleported back to spawn, this ensures they are set back in their death position."
+		Teleport(Event Player, Event Player.deathPosition);
+		"This quickly removes the spawn protection that the spawn rule started."
+		Call Subroutine(spawnSetup2);
+		Allow Button(Event Player, Jump);
+	}
+}
+
+disabled rule("------ Objective Description Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Objective Description Set (Collect Orb Phase)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.isBeamActive == False;
+	}
+
+	actions
+	{
+		"Sets the proper objective description each time the player respawns."
+		Wait(0.100, Ignore Condition);
+		Set Objective Description(Event Player, Global.stringCollectOrbs, Visible To and String);
+		"If the player hasn't spawned before, a big message is also displayed."
+		Skip If(Event Player.hasSpawnedOnce == True, 2);
+		Big Message(Event Player, Global.stringCollectOrbs);
+		Event Player.hasSpawnedOnce = True;
+	}
+}
+
+rule("Block#12425 - Objective Description Set (Deposit Orb Phase)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+		Global.isBeamActive == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"See Objective Description Set (Collect Orb Phase)."
+		Wait(0.100, Ignore Condition);
+		Set Objective Description(Event Player, Global.stringDepositOrbs, Visible To and String);
+		Skip If(Event Player.hasSpawnedOnce == True, 2);
+		Big Message(Event Player, Global.stringDepositOrbs);
+		Event Player.hasSpawnedOnce = True;
+	}
+}
+
+disabled rule("------ Winning Team Setup ------")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Team Reaches the Goal Score")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		(Team Score(Team 1) >= Global.goalScore || Team Score(Team 2) >= Global.goalScore) == True;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"If either team reaches the goal score, the game mode completion is enabled. Since the winning score is hardcoded as 1 in the custom game settings, this will end the game."
+		Enable Built-In Game Mode Completion;
+	}
+}
+
+rule("Block#12425 - All Rounds Completed")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.roundsLeft == 0;
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		"If all rounds are over, this is enabled so that the time can end the game."
+		Enable Built-In Game Mode Completion;
+	}
+}
