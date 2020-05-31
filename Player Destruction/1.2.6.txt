@@ -794,6 +794,7 @@ rule("Block#12425 - English")
 		Global.stringFinalRound = Custom String("Final Round");
 		Global.stringBeamStart = Custom String("Beam Start");
 		Global.stringBeamEnd = Custom String("Beam End");
+		Global.stringSpawnProtectionOff = Custom String("Spawn Protection Off");
 	}
 }
 
