@@ -85,8 +85,8 @@ variables
 		38: stringCollectOrbs
 		39: stringYouAreTeamLeader
 		40: stringTeamLeader
-		41: stringTeam1Possesive
-		42: stringTeam2Possesive
+		41: stringYourTeamPossessive
+		42: stringEnemyTeamPossessive
 		43: stringTotalOrbs
 		44: stringCollected
 		45: stringOrbs
@@ -95,7 +95,7 @@ variables
 		48: stringKilledTeamLeader
 		49: stringRoundsLeft
 		50: stringGoalScore
-		51: stringCurrentTeam
+		51: stringRespawnDisabled
 		52: stringFinalRound
 		53: stringSpawnProtectionOff
 		54: stringBeamStart
@@ -106,6 +106,7 @@ variables
 		1: closestOrb
 		2: previousOrbValue
 		3: valueOfOrb
+		4: respawnDisabled
 		8: tempIndexValue
 		12: isBeingRevived
 		13: deathPosition
@@ -362,16 +363,22 @@ rule("Block#12425 - HUD Setup")
 		Create HUD Text(Global.team2Leader, String("{0}!", String("{0} {1}", Icon String(Warning), Global.stringTeamLeader)), Null, Null,
 			Top, 5, Team 2, White, White, Visible To and String, Default Visibility);
 		"Team's total orbs HUD setup."
-		Create HUD Text(All Players(All Teams),
+		Create HUD Text(All Players(Team 1),
 			Global.team1OrbsArray[0] + Global.team1OrbsArray[1] + Global.team1OrbsArray[2] + Global.team1OrbsArray[3] + Global.team1OrbsArray[4] + Global.team1OrbsArray[5],
-			Global.stringTeam1Possesive, Global.stringTotalOrbs, Left, -1 * (
-			Global.team1OrbsArray[0] + Global.team1OrbsArray[1] + Global.team1OrbsArray[2] + Global.team1OrbsArray[3] + Global.team1OrbsArray[4] + Global.team1OrbsArray[5]),
-			Team 1, White, White, Visible To Sort Order and String, Default Visibility);
-		Create HUD Text(All Players(All Teams),
+			Global.stringYourTeamPossessive, Global.stringTotalOrbs, Left, -1, Team 1, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(Team 1),
 			Global.team2OrbsArray[0] + Global.team2OrbsArray[1] + Global.team2OrbsArray[2] + Global.team2OrbsArray[3] + Global.team2OrbsArray[4] + Global.team2OrbsArray[5],
-			Global.stringTeam2Possesive, Global.stringTotalOrbs, Left, -1 * (
-			Global.team2OrbsArray[0] + Global.team2OrbsArray[1] + Global.team2OrbsArray[2] + Global.team2OrbsArray[3] + Global.team2OrbsArray[4] + Global.team2OrbsArray[5]),
-			Team 2, White, White, Visible To Sort Order and String, Default Visibility);
+			Global.stringEnemyTeamPossessive, Global.stringTotalOrbs, Left, -0.500, Team 2, White, White, Visible To Sort Order and String,
+			Default Visibility);
+		Create HUD Text(All Players(Team 2),
+			Global.team2OrbsArray[0] + Global.team2OrbsArray[1] + Global.team2OrbsArray[2] + Global.team2OrbsArray[3] + Global.team2OrbsArray[4] + Global.team2OrbsArray[5],
+			Global.stringYourTeamPossessive, Global.stringTotalOrbs, Left, -1, Team 2, White, White, Visible To Sort Order and String,
+			Default Visibility);
+		Create HUD Text(All Players(Team 2),
+			Global.team1OrbsArray[0] + Global.team1OrbsArray[1] + Global.team1OrbsArray[2] + Global.team1OrbsArray[3] + Global.team1OrbsArray[4] + Global.team1OrbsArray[5],
+			Global.stringEnemyTeamPossessive, Global.stringTotalOrbs, Left, -0.500, Team 1, White, White, Visible To and String,
+			Default Visibility);
 		"Sets up the Rounds lefts and goal score HUD on the top."
 		Create HUD Text(All Players(All Teams), Null, Null, Custom String("{0}            {1}", Custom String("{0}: {1}",
 			Global.stringRoundsLeft, Global.roundsLeft), Custom String("{0}: {1}", Global.stringGoalScore, Global.goalScore)), Top, -1,
@@ -401,11 +408,11 @@ rule("Block#12425 - HUD Setup")
 			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
 		Create HUD Text(Players In Slot(5, Team 2), Global.team2OrbsArray[5], Custom String("{0}'s", Players In Slot(5, Team 2)),
 			Global.stringTotalOrbs, Left, -1000, White, White, White, Visible To and String, Default Visibility);
-		"This HUD tells which team the player is currently on (useful for players that cannot make out the team colors)."
-		Create HUD Text(All Players(Team 1), Null, Null, Custom String("{0}: {1}", Global.stringCurrentTeam, Team 1), Left, -1001, White,
-			White, White, Visible To and String, Default Visibility);
-		Create HUD Text(All Players(Team 2), Null, Null, Custom String("{0}: {1}", Global.stringCurrentTeam, Team 2), Left, -1001, White,
-			White, White, Visible To and String, Default Visibility);
+		"Creates space between orb total huds."
+		Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Left, -2, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Left, -0.750, White, White, White, Visible To and String,
+			Default Visibility);
 	}
 }
 
@@ -780,8 +787,8 @@ rule("Block#12425 - English")
 		Global.stringCollectOrbs = Custom String("Collect Orbs from enemies");
 		Global.stringYouAreTeamLeader = Custom String("You are the Team Leader");
 		Global.stringTeamLeader = Custom String("Team Leader");
-		Global.stringTeam1Possesive = Custom String("{0}'s", Team 1);
-		Global.stringTeam2Possesive = Custom String("{0}'s", Team 2);
+		Global.stringYourTeamPossessive = Custom String("Your Team's");
+		Global.stringEnemyTeamPossessive = Custom String("Enemy Team's");
 		Global.stringTotalOrbs = Custom String("Total Orbs");
 		Global.stringCollected = Custom String("Collected");
 		Global.stringOrbs = Custom String("Orb(s)");
@@ -790,11 +797,11 @@ rule("Block#12425 - English")
 		Global.stringKilledTeamLeader = Custom String("Eliminated enemy team leader");
 		Global.stringRoundsLeft = Custom String("Rounds Left");
 		Global.stringGoalScore = Custom String("Goal Score");
-		Global.stringCurrentTeam = Custom String("Your team");
 		Global.stringFinalRound = Custom String("Final Round");
-		Global.stringBeamStart = Custom String("Beam Start");
-		Global.stringBeamEnd = Custom String("Beam End");
+		Global.stringBeamStart = Custom String("Beam Spawn");
+		Global.stringBeamEnd = Custom String("Beam Despawn");
 		Global.stringSpawnProtectionOff = Custom String("Spawn Protection Off");
+		Global.stringRespawnDisabled = Custom String("Please wait 5 seconds for respawn");
 	}
 }
 
@@ -916,6 +923,7 @@ rule("Block#12425 - Player Joined Setup")
 		"Intializes the proper player variables upon player joined."
 		Event Player.isBeingRevived = False;
 		Event Player.spawnProtected = True;
+		Event Player.respawnDisabled = False;
 	}
 }
 
@@ -938,10 +946,12 @@ rule("Block#12425 - Player Died Self-Intiated Respawn Setup")
 	{
 		"This rule sets up the player for respawn."
 		Event Player.spawnProtected = True;
+		Event Player.respawnDisabled = True;
 		"This disallow action forces the player to wait for 5 seconds before they can respawn again. This allows the game to have a high respawn time for character select while forcing a specified respawn time required for TDM."
 		Disallow Button(Event Player, Jump);
 		Wait(5, Abort When False);
 		Allow Button(Event Player, Jump);
+		Event Player.respawnDisabled = False;
 	}
 }
 
@@ -965,6 +975,30 @@ rule("Block#12425 - Jump Key Check")
 	{
 		"In case the jump key didn't get enabled from the other rules."
 		Allow Button(Event Player, Jump);
+		Event Player.respawnDisabled = False;
+	}
+}
+
+rule("Block#12425 - Respawn Disabled Small Message")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == False;
+		Event Player.respawnDisabled == True;
+		Is Button Held(Event Player, Jump) == True;
+	}
+
+	actions
+	{
+		Small Message(Event Player, Global.stringRespawnDisabled);
 	}
 }
 
@@ -1746,6 +1780,7 @@ rule("Block#12424 - Mercy Revive Successful")
 		"This quickly removes the spawn protection that the spawn rule started."
 		Call Subroutine(spawnSetup2);
 		Allow Button(Event Player, Jump);
+		Event Player.respawnDisabled = False;
 	}
 }
 
