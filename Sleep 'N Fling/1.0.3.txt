@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "Sleep 'N Fling! By: Block#12425. Version: 1.0.2"
+		Description: "Sleep 'N Fling! By: Block#12425. Version: 1.0.3. Support for Simplified CN language."
 	}
 
 	lobby
@@ -76,6 +76,7 @@ variables
 		13: stringProjectLink
 		14: spawnAI
 		15: stringUltEscape
+		16: stringTranslation
 
 	player:
 		0: playerCarried
@@ -92,7 +93,7 @@ subroutines
 	1: targetRoam
 }
 
-disabled rule("SLEEP 'N FLING by Block#12425. Version: 1.0.2")
+disabled rule("SLEEP 'N FLING by Block#12425. Version: 1.0.3")
 {
 	event
 	{
@@ -143,6 +144,14 @@ rule("AI SWITCH (Set to FALSE if you do not want AI to spawn)")
 	}
 }
 
+rule("GO TO LANGUAGE, AND TURN ON ONE LANGUAGE RULE TO SEE THAT LANGUAGE (ONLY ONE AT A TIME)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
 rule("Block#12425 - Initial Setup")
 {
 	event
@@ -153,7 +162,7 @@ rule("Block#12425 - Initial Setup")
 	actions
 	{
 		Global.stringCreator = Custom String("Block#12425");
-		Global.stringVersion = Custom String("1.0.2");
+		Global.stringVersion = Custom String("1.0.3");
 		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
 		Global.stringProjectLink = Custom String("workshop.codes/sleepfling");
 		Global.positionArray = Array(Vector(25, 0, 0), Vector(25, 0, 12.500), Vector(25, 0, -12.500), Vector(-25, 0, 0), Vector(-25, 0,
@@ -194,6 +203,8 @@ rule("Block#12425 - HUD Creation Subroutine")
 		Create HUD Text(Filtered Array(All Players(All Teams), Has Status(Current Array Element, Asleep) && Ultimate Charge Percent(
 			Current Array Element) == 100), Global.stringUltEscape, Null, Null, Top, 1, Red, White, White, Visible To and String,
 			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringTranslation, Null, Right, -2, White, White, White,
+			Visible To and String, Default Visibility);
 	}
 }
 
@@ -269,6 +280,30 @@ rule("Block#12425 - English")
 		Global.stringCode = Custom String("Code: QKTTV");
 		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
 		Global.stringUltEscape = Custom String("Use {0} to wake up!", Button(Ultimate));
+		Global.stringTranslation = Custom String("");
+	}
+}
+
+disabled rule("Block#12425 - Simplified CN")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Global.stringSubtitle = Custom String("由{0}制作。版本：{1}", Global.stringCreator, Global.stringVersion);
+		Global.stringLeft = Custom String("左键捡起安娜", Button(Primary Fire));
+		Global.stringRight = Custom String("右键甩掉安娜", Button(Secondary Fire));
+		Global.stringObjective = Custom String("将睡着的安娜丢出小岛！");
+		Global.stringPick = Custom String("捡起");
+		Global.stringEscape = Custom String("按下{0}来挣脱！", Button(Jump));
+		Global.stringDiscord = Custom String("加入Discord: {0}（全大写）", Global.stringDiscordLink);
+		Global.stringCode = Custom String("代码： NBCD5");
+		Global.stringProject = Custom String("项目： {0}（全小写）", Global.stringProjectLink);
+		Global.stringUltEscape = Custom String("按下{0}来睡醒！", Button(Ultimate));
+		Global.stringTranslation = Custom String("感谢由Zesty提供的翻译。");
 	}
 }
 
