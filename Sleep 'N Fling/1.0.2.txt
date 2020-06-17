@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "Sleep 'N Fling! By: Block#12425. Version: 1.0.1"
+		Description: "Sleep 'N Fling! By: Block#12425. Version: 1.0.2"
 	}
 
 	lobby
@@ -92,7 +92,7 @@ subroutines
 	1: targetRoam
 }
 
-disabled rule("SLEEP 'N FLING by Block#12425. Version: 1.0.1")
+disabled rule("SLEEP 'N FLING by Block#12425. Version: 1.0.2")
 {
 	event
 	{
@@ -153,7 +153,7 @@ rule("Block#12425 - Initial Setup")
 	actions
 	{
 		Global.stringCreator = Custom String("Block#12425");
-		Global.stringVersion = Custom String("1.0.1");
+		Global.stringVersion = Custom String("1.0.2");
 		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
 		Global.stringProjectLink = Custom String("workshop.codes/sleepfling");
 		Global.positionArray = Array(Vector(25, 0, 0), Vector(25, 0, 12.500), Vector(25, 0, -12.500), Vector(-25, 0, 0), Vector(-25, 0,
@@ -331,6 +331,30 @@ rule("Block#12425 - Reset Thrower")
 	}
 }
 
+rule("Block#12425 - Sleep Setup With Player")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Status(Event Player, Asleep) == True;
+		Entity Exists(Event Player.playerCarried) == True;
+	}
+
+	actions
+	{
+		Detach Players(First Of(Sorted Array(Filtered Array(All Players(All Teams), Distance Between(Position Of(Event Player) + Vector(0,
+			2, 0), Position Of(Current Array Element)) <= 0.500), Distance Between(Position Of(Event Player) + Vector(0, 2, 0),
+			Position Of(Current Array Element)))));
+		Event Player.playerCarried = Null;
+	}
+}
+
 rule("Block#12425 - Sleep Setup")
 {
 	event
@@ -347,12 +371,7 @@ rule("Block#12425 - Sleep Setup")
 
 	actions
 	{
-		Detach Players(First Of(Sorted Array(Filtered Array(All Players(All Teams), Distance Between(Position Of(Event Player) + Vector(0,
-			2, 0), Position Of(Current Array Element)) <= 0.500), Distance Between(Position Of(Event Player) + Vector(0, 2, 0),
-			Position Of(Current Array Element)))));
-		Event Player.playerCarried = Null;
 		Set Ability Cooldown(Event Player, Button(Ability 1), 0);
-		Wait(0.250, Ignore Condition);
 	}
 }
 
@@ -907,9 +926,9 @@ rule("Block#12425 - AI - Ultimate usage")
 
 	conditions
 	{
+		Is Dummy Bot(Event Player) == True;
 		Is Alive(Event Player) == True;
 		Has Spawned(Event Player) == True;
-		Is Dummy Bot(Event Player) == True;
 		Ultimate Charge Percent(Event Player) == 100;
 	}
 
