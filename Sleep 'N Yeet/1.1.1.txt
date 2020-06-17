@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "Sleep 'N Yeet! By: Block#12425. Version: 1.1.0. Support for Simplified CN language."
+		Description: "Sleep 'N Yeet! By: Block#12425. Version: 1.1.1. Support for Simplified CN language."
 	}
 
 	lobby
@@ -94,7 +94,7 @@ subroutines
 	1: targetRoam
 }
 
-disabled rule("SLEEP 'N YEET by Block#12425. Version: 1.1.0")
+disabled rule("SLEEP 'N YEET by Block#12425. Version: 1.1.1")
 {
 	event
 	{
@@ -163,7 +163,7 @@ rule("Block#12425 - Initial Setup")
 	actions
 	{
 		Global.stringCreator = Custom String("Block#12425");
-		Global.stringVersion = Custom String("1.1.0");
+		Global.stringVersion = Custom String("1.1.1");
 		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
 		Global.stringProjectLink = Custom String("workshop.codes/sleepyeet");
 		Global.positionArray = Array(Vector(25, 0, 0), Vector(25, 0, 12.500), Vector(25, 0, -12.500), Vector(-25, 0, 0), Vector(-25, 0,
@@ -273,8 +273,8 @@ rule("Block#12425 - English")
 	{
 		Global.stringSubtitle = Custom String("Created by: {0}. Version: {1}", Global.stringCreator, Global.stringVersion);
 		Global.stringLeft = Custom String("Left Click to pick up player", Button(Primary Fire));
-		Global.stringRight = Custom String("Right Click to fling player", Button(Secondary Fire));
-		Global.stringObjective = Custom String("Throw sleeping players off the island!");
+		Global.stringRight = Custom String("Right Click to yeet carried player", Button(Secondary Fire));
+		Global.stringObjective = Custom String("Yeet sleeping players off the island!");
 		Global.stringPick = Custom String("Picked up");
 		Global.stringEscape = Custom String("{0} to escape!", Button(Jump));
 		Global.stringDiscord = Custom String("Join the discord: {0} (All caps)", Global.stringDiscordLink);
@@ -462,6 +462,7 @@ rule("Block#12425 - Escape from grasp")
 	actions
 	{
 		Detach Players(Event Player);
+		Small Message(Event Player.thrower, Custom String("{0} escaped!", Event Player));
 		Event Player.thrower.playerCarried = Null;
 		If(Is Dummy Bot(Event Player.thrower) == True);
 			Event Player.thrower.isChasing = False;
@@ -643,8 +644,8 @@ rule("Block#12425 - Spawn AI")
 	conditions
 	{
 		Global.spawnAI == True;
-		Count Of(All Players(All Teams)) <= 8;
-		Is True For Any(Array(Players In Slot(0, All Teams), Players In Slot(1, All Teams), Players In Slot(2, All Teams), Players In Slot(
+		Count Of(All Players(All Teams)) < 8;
+		disabled Is True For Any(Array(Players In Slot(0, All Teams), Players In Slot(1, All Teams), Players In Slot(2, All Teams), Players In Slot(
 			3, All Teams), Players In Slot(4, All Teams), Players In Slot(5, All Teams), Players In Slot(6, All Teams), Players In Slot(7,
 			All Teams), Players In Slot(8, All Teams), Players In Slot(9, All Teams), Players In Slot(10, All Teams), Players In Slot(11,
 			All Teams)), Entity Exists(Current Array Element) == False) == True;
@@ -675,9 +676,10 @@ rule("Block#12425 - Delete AI")
 
 	actions
 	{
+		Wait(1, Abort When False);
 		Destroy Dummy Bot(All Teams, Slot Of(Random Value In Array(Filtered Array(All Players(All Teams), Is Dummy Bot(
 			Current Array Element) == True))));
-		Wait(0.100, Ignore Condition);
+		Wait(1, Abort When False);
 		Loop If Condition Is True;
 	}
 }
