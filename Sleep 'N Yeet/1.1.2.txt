@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "Sleep 'N Yeet! By: Block#12425. Version: 1.1.1. Support for Simplified CN language."
+		Description: "Sleep 'N Yeet! By: Block#12425. Version: 1.1.2. Support for Simplified CN language."
 	}
 
 	lobby
@@ -78,6 +78,8 @@ variables
 		14: spawnAI
 		15: stringUltEscape
 		16: stringTranslation
+		17: stringGraspEscape
+		18: stringTitle
 
 	player:
 		0: playerCarried
@@ -92,9 +94,10 @@ subroutines
 {
 	0: hudCreation
 	1: targetRoam
+	2: wait15
 }
 
-disabled rule("SLEEP 'N YEET by Block#12425. Version: 1.1.1")
+disabled rule("SLEEP 'N YEET by Block#12425. Version: 1.1.2")
 {
 	event
 	{
@@ -102,7 +105,7 @@ disabled rule("SLEEP 'N YEET by Block#12425. Version: 1.1.1")
 	}
 }
 
-disabled rule("Discord: https://discord.gg/CSKSVDH | Project: https://workshop.codes/sleepfling")
+disabled rule("Discord: https://discord.gg/CSKSVDH | Project: https://workshop.codes/sleepyeet")
 {
 	event
 	{
@@ -127,7 +130,7 @@ disabled rule("DEBUG HUD")
 
 	actions
 	{
-		Create HUD Text(Host Player, Server Load Average, Custom String("Server Load Avg."), Null, Left, 0, White, White, White,
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average"), Null, Left, 0, White, White, White,
 			Visible To and String, Default Visibility);
 	}
 }
@@ -163,13 +166,14 @@ rule("Block#12425 - Initial Setup")
 	actions
 	{
 		Global.stringCreator = Custom String("Block#12425");
-		Global.stringVersion = Custom String("1.1.1");
+		Global.stringVersion = Custom String("1.1.2");
 		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
 		Global.stringProjectLink = Custom String("workshop.codes/sleepyeet");
 		Global.positionArray = Array(Vector(25, 0, 0), Vector(25, 0, 12.500), Vector(25, 0, -12.500), Vector(-25, 0, 0), Vector(-25, 0,
 			12.500), Vector(-25, 0, -12.500), Vector(0, 0, 25), Vector(12.500, 0, 25), Vector(-12.500, 0, 25), Vector(0, 0, -25), Vector(
 			12.500, 0, -25), Vector(-12.500, 0, -25));
 		Call Subroutine(hudCreation);
+		Disable Inspector Recording;
 	}
 }
 
@@ -195,8 +199,8 @@ rule("Block#12425 - HUD Creation Subroutine")
 			Default Visibility);
 		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -0.900, White, White, Aqua, Visible To and String,
 			Default Visibility);
-		Create In-World Text(All Players(All Teams), Custom String("Sleep 'n Yeet"), Vector(0, 20, 113), 4, Clip Against Surfaces,
-			Visible To, Yellow, Default Visibility);
+		Create In-World Text(All Players(All Teams), Global.stringTitle, Vector(0, 20, 113), 4, Clip Against Surfaces,
+			Visible To Position and String, Yellow, Default Visibility);
 		Create In-World Text(All Players(All Teams), Global.stringSubtitle, Vector(0, 15, 113), 2, Clip Against Surfaces,
 			Visible To and String, White, Default Visibility);
 		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -0.990, White, White, Green,
@@ -282,10 +286,12 @@ rule("Block#12425 - English")
 		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
 		Global.stringUltEscape = Custom String("Use {0} to wake up!", Button(Ultimate));
 		Global.stringTranslation = Custom String("");
+		Global.stringGraspEscape = Custom String(" escaped!");
+		Global.stringTitle = Custom String("Sleep 'n Yeet");
 	}
 }
 
-disabled rule("Block#12425 - Simplified CN")
+disabled rule("Block#12425 - Simplified CN (Thanks to Zesty for translation)")
 {
 	event
 	{
@@ -305,6 +311,8 @@ disabled rule("Block#12425 - Simplified CN")
 		Global.stringProject = Custom String("项目： {0}（全小写）", Global.stringProjectLink);
 		Global.stringUltEscape = Custom String("按下{0}来睡醒！", Button(Ultimate));
 		Global.stringTranslation = Custom String("感谢由Zesty提供的翻译。");
+		Global.stringGraspEscape = Custom String("逃脱了！");
+		Global.stringTitle = Custom String("睡了她再甩了她");
 	}
 }
 
@@ -329,8 +337,12 @@ rule("Block#12425 - Pickup player")
 	{
 		Is Button Held(Event Player, Primary Fire) == True;
 		Entity Exists(Event Player.playerCarried) == False;
-		Event Player.closeToPlayer == True;
+		disabled Event Player.closeToPlayer == True;
 		Has Status(Event Player, Asleep) == False;
+		Entity Exists(First Of(Sorted Array(Filtered Array(All Players(All Teams), Has Status(Current Array Element, Asleep)
+			== True && Current Array Element != Event Player && Distance Between(Event Player, Current Array Element)
+			<= 3 && Entity Exists(Current Array Element.thrower) == False && Is On Ground(Current Array Element) == True),
+			Distance Between(Event Player, Current Array Element)))) == True;
 	}
 
 	actions
@@ -390,9 +402,6 @@ rule("Block#12425 - Sleep Setup With Player")
 		Detach Players(Sorted Array(Filtered Array(All Players(All Teams), Distance Between(Position Of(Event Player) + Vector(0, 4, 0),
 			Position Of(Current Array Element)) <= 0.500), Distance Between(Position Of(Event Player) + Vector(0, 4, 0), Position Of(
 			Current Array Element))));
-		disabled Detach Players(First Of(Sorted Array(Filtered Array(All Players(All Teams), Distance Between(Position Of(Event Player) + Vector(0,
-			2, 0), Position Of(Current Array Element)) <= 0.500), Distance Between(Position Of(Event Player) + Vector(0, 2, 0),
-			Position Of(Current Array Element)))));
 		Event Player.playerCarried = Null;
 	}
 }
@@ -462,7 +471,7 @@ rule("Block#12425 - Escape from grasp")
 	actions
 	{
 		Detach Players(Event Player);
-		Small Message(Event Player.thrower, Custom String("{0} escaped!", Event Player));
+		Small Message(Event Player.thrower, Custom String("{0}{1}", Event Player, Global.stringGraspEscape));
 		Event Player.thrower.playerCarried = Null;
 		If(Is Dummy Bot(Event Player.thrower) == True);
 			Event Player.thrower.isChasing = False;
@@ -511,6 +520,9 @@ rule("Block#12425 - Turn on closest player")
 	actions
 	{
 		Event Player.closeToPlayer = True;
+		Wait(0.100, Ignore Condition);
+		If(Event Player.closeToPlayer == False);
+			Loop If Condition Is True;
 	}
 }
 
@@ -534,6 +546,9 @@ rule("Block#12425 - Turn off closest player")
 	actions
 	{
 		Event Player.closeToPlayer = False;
+		Wait(0.100, Ignore Condition);
+		If(Event Player.closeToPlayer == True);
+			Loop If Condition Is True;
 	}
 }
 
@@ -559,6 +574,7 @@ rule("Block#12425 - Too Far Gone kill credit")
 		Wait(0.250, Ignore Condition);
 		Event Player.playerCarried = Null;
 		Event Player.thrower = Null;
+		Event Player.closeToPlayer = False;
 	}
 }
 
@@ -621,8 +637,60 @@ rule("Block#12425 - Ult Cancels Sleep")
 	actions
 	{
 		Clear Status(Event Player, Asleep);
-		Wait(0.175, Ignore Condition);
+		Wait(0.800, Ignore Condition);
 		Press Button(Event Player, Ultimate);
+		Wait(1.200, Ignore Condition);
+		If(Ultimate Charge Percent(Event Player) > 0);
+			Set Ultimate Charge(Event Player, 0);
+	}
+}
+
+rule("Block#12425 - Slept for too long")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Has Status(Event Player, Asleep) == True;
+	}
+
+	actions
+	{
+		Call Subroutine(wait15);
+		Set Ultimate Charge(Event Player, 100);
+	}
+}
+
+rule("Block#12425 - Wait 15 Seconds Subroutine")
+{
+	event
+	{
+		Subroutine;
+		wait15;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
+		Wait(1, Abort When False);
 	}
 }
 
@@ -645,10 +713,6 @@ rule("Block#12425 - Spawn AI")
 	{
 		Global.spawnAI == True;
 		Count Of(All Players(All Teams)) < 8;
-		disabled Is True For Any(Array(Players In Slot(0, All Teams), Players In Slot(1, All Teams), Players In Slot(2, All Teams), Players In Slot(
-			3, All Teams), Players In Slot(4, All Teams), Players In Slot(5, All Teams), Players In Slot(6, All Teams), Players In Slot(7,
-			All Teams), Players In Slot(8, All Teams), Players In Slot(9, All Teams), Players In Slot(10, All Teams), Players In Slot(11,
-			All Teams)), Entity Exists(Current Array Element) == False) == True;
 	}
 
 	actions
@@ -791,12 +855,13 @@ rule("Block#12425 - AI - Shoot sleep")
 		Is Dummy Bot(Event Player) == True;
 		Event Player.isChasing == False;
 		Ability Cooldown(Event Player, Button(Ability 1)) == 0;
+		Has Status(Event Player, Asleep) == False;
 	}
 
 	actions
 	{
 		Press Button(Event Player, Ability 1);
-		Wait(2, Ignore Condition);
+		Wait(1, Ignore Condition);
 		Loop If Condition Is True;
 	}
 }
@@ -973,6 +1038,7 @@ rule("Block#12425 - AI - Escape")
 	{
 		Is Dummy Bot(Event Player) == True;
 		Entity Exists(Event Player.thrower) == True;
+		Has Status(Event Player, Asleep) == False;
 	}
 
 	actions
