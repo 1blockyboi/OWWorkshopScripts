@@ -1,0 +1,2407 @@
+settings
+{
+	main
+	{
+		Description: "Project: Reaper. Survive the nightmare Reaper until time runs out! Choose from multiple and unique survivors to help both yourself and your teammates. Version 1.0.0. Created by Block#12425. Discord server: https://discord.gg/CSKSVDH"
+	}
+
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Max Team 1 Players: 1
+		Max Team 2 Players: 9
+		Return To Lobby: Never
+		Team Balancing: After A Game
+	}
+
+	modes
+	{
+		Team Deathmatch
+		{
+			enabled maps
+			{
+				Ecopoint: Antarctica
+				Eichenwalde Halloween
+				Necropolis
+			}
+		}
+
+		General
+		{
+			Hero Limit: 2 Per Team
+			Skins: Off
+			Spawn Health Packs: Disabled
+		}
+	}
+
+	heroes
+	{
+		Team 1
+		{
+			Brigitte
+			{
+				Healing Dealt: 10%
+				Primary Fire: Off
+				Quick Melee: Off
+				Repair Pack: Off
+				Ultimate Ability Rally: Off
+			}
+
+			Hanzo
+			{
+				Sonic Arrow Cooldown Time: 80%
+			}
+
+			Junkrat
+			{
+				Damage Dealt: 10%
+				Health: 20%
+			}
+
+			Mei
+			{
+				Cryo-Freeze: Off
+				Ice Wall: Off
+				Primary Fire: Off
+				Secondary Fire: Off
+				Ultimate Ability Blizzard: Off
+			}
+
+			Reaper
+			{
+				Damage Dealt: 500%
+				Damage Received: 10%
+				Primary Fire: Off
+				Shadow Step: Off
+				Ultimate Ability Death Blossom: Off
+			}
+
+			Symmetra
+			{
+				Teleporter Cooldown Time: 300%
+			}
+
+			Tracer
+			{
+				Blink Cooldown Time: 400%
+				Primary Fire: Off
+				Recall: Off
+				Ultimate Ability Pulse Bomb: Off
+			}
+
+			Wrecking Ball
+			{
+				Minefield Knockback Scalar: 200%
+				Piledriver: Off
+				Primary Fire: Off
+				Projectile Speed: 150%
+				Quick Melee: Off
+				Roll: Off
+				Spawn With Ultimate Ready: On
+				Ultimate Generation Minefield: 150%
+			}
+
+			enabled heroes
+			{
+				Reaper
+			}
+		}
+
+		Team 2
+		{
+			Movement Speed: 105%
+			Quick Melee: Off
+
+			Baptiste
+			{
+				Immortality Field Cooldown Time: 50%
+				Primary Fire: Off
+				Regenerative Burst: Off
+				Secondary Fire: Off
+				Ultimate Ability Amplification Matrix: Off
+			}
+
+			Brigitte
+			{
+				Barrier Shield Cooldown Time: 20%
+				Barrier Shield Recharge Rate: 150%
+				Healing Dealt: 10%
+				Primary Fire: Off
+				Quick Melee: Off
+				Repair Pack: Off
+				Ultimate Ability Rally: Off
+				Whip Shot Knockback Scalar: 150%
+			}
+
+			Doomfist
+			{
+				Primary Fire: Off
+				Rising Uppercut: Off
+				Rising Uppercut Knockback Scalar: 150%
+				Rocket Punch Knockback Scalar: 0%
+				Seismic Slam: Off
+				Ultimate Ability Meteor Strike: Off
+			}
+
+			Hanzo
+			{
+				Lunge: Off
+				Primary Fire: Off
+				Sonic Arrow Cooldown Time: 80%
+				Storm Arrows: Off
+				Ultimate Ability Dragonstrike: Off
+			}
+
+			Junkrat
+			{
+				Concussion Mine Cooldown Time: 200%
+				Damage Dealt: 10%
+				Primary Fire: Off
+				Steel Trap Cooldown Time: 50%
+				Ultimate Ability RIP-Tire: Off
+			}
+
+			Mei
+			{
+				Cryo-Freeze Cooldown Time: 120%
+				Primary Fire: Off
+				Secondary Fire: Off
+				Ultimate Ability Blizzard: Off
+			}
+
+			Moira
+			{
+				Biotic Orb: Off
+				Fade Cooldown Time: 150%
+				Primary Fire: Off
+				Secondary Fire: Off
+				Ultimate Ability Coalescence: Off
+			}
+
+			Reaper
+			{
+				Damage Dealt: 350%
+				Damage Received: 10%
+			}
+
+			Sigma
+			{
+				Accretion Cooldown Time: 50%
+				Experimental Barrier: Off
+				Primary Fire: Off
+				Projectile Gravity: 0%
+				Projectile Speed: 0%
+				Ultimate Ability Gravitic Flux: Off
+			}
+
+			Symmetra
+			{
+				Primary Fire: Off
+				Secondary Fire: Off
+				Sentry Turret Cooldown Time: 150%
+				Teleporter Cooldown Time: 375%
+				Ultimate Ability Photon Barrier: Off
+			}
+
+			Tracer
+			{
+				Blink Cooldown Time: 400%
+				Primary Fire: Off
+				Recall Cooldown Time: 200%
+				Ultimate Ability Pulse Bomb: Off
+			}
+
+			Winston
+			{
+				Barrier Projector: Off
+				Jump Pack Cooldown Time: 130%
+				Primary Fire: Off
+				Quick Melee: Off
+				Ultimate Ability Primal Rage: Off
+			}
+
+			Wrecking Ball
+			{
+				Adaptive Shield Cooldown Time: 120%
+				Grappling Claw: Off
+				Infinite Ultimate Duration: On
+				Minefield Knockback Scalar: 200%
+				Piledriver: Off
+				Primary Fire: Off
+				Projectile Gravity: 150%
+				Projectile Speed: 150%
+				Quick Melee: Off
+				Roll: Off
+				Spawn With Ultimate Ready: On
+				Ultimate Generation - Combat Minefield: 0%
+				Ultimate Generation - Passive Minefield: 500%
+				Ultimate Generation Minefield: 150%
+			}
+
+			Zarya
+			{
+				Particle Barrier Cooldown Time: 120%
+				Primary Fire: Off
+				Projected Barrier Cooldown Time: 120%
+				Secondary Fire: Off
+				Ultimate Ability Graviton Surge: Off
+			}
+
+			enabled heroes
+			{
+				Brigitte
+				Hanzo
+				Moira
+				Symmetra
+				Tracer
+				Winston
+				Wrecking Ball
+			}
+		}
+
+		General
+		{
+			Ana
+			{
+				Biotic Grenade: Off
+				No Scope: On
+				Primary Fire: Off
+				Ultimate Ability Nano Boost: Off
+			}
+
+			McCree
+			{
+				Primary Fire: Off
+				Quick Melee: Off
+				Secondary Fire: Off
+				Ultimate Ability Deadeye: Off
+			}
+
+			Soldier: 76
+			{
+				Biotic Field: Off
+				Helix Rockets: Off
+				Primary Fire: Off
+				Quick Melee: Off
+				Ultimate Ability Tactical Visor: Off
+			}
+		}
+	}
+}
+
+variables
+{
+	global:
+		0: gracePeriod
+		1: matchTimeMin
+		2: matchTimeSec
+		3: debugMode
+		4: stringVersion
+		5: stringCreator
+		6: stringDiscord
+		7: stringDiscordLink
+		8: stringProject
+		9: stringProjectLink
+		10: stringCreatorVersion
+		11: stringCodeLink
+		12: stringCode
+		14: stringSec
+		15: stringHP
+		16: stringMoiraTitle
+		17: stringMoiraAbility1
+		18: stringMoiraAbility2
+		19: stringHideInfo
+		20: stringShowInfo
+		21: stringHanzoTitle
+		22: stringHanzoAbility1
+		23: stringHanzoAbility2
+		24: stringHanzoPassive
+		25: stringBrigTitle
+		26: stringBrigAbility1
+		27: stringBrigAbility2
+		28: stringWBTitle
+		29: stringWBAbility1
+		30: stringWBAbility2
+		31: stringCharges
+		32: stringSymTitle
+		33: stringSymAbility1
+		34: stringSymAbility2
+		35: stringTracerTitle
+		36: stringTracerAbility1
+		37: stringTracerAbility2
+		38: stringReaperTitle
+		39: stringReaperAbility1
+		40: stringReaperAbility2
+		41: stringReaperAbility3
+		42: stringReaperAbility4
+		43: stringReaperAbility5
+		44: stringTracerPassive
+		45: stringWinstonTitle
+		46: stringWinstonAbility1
+		47: stringWinstonAbility2
+		48: stringTracerTeleportMessage
+		49: stringMoiraHeal
+		50: stringMoiraSacrifice
+		51: stringTeamKill
+		52: stringWinstonGrab
+		53: stringTimeRemaining
+		54: stringObjectiveSurvivors
+		55: stringObjectiveReaper
+		56: stringReaperTeleport
+		57: stringReaperTeleportGhost
+		58: stringLateJoin
+		59: stringChase
+		60: stringTip
+		61: tipsEnabled
+		62: stringReaperTeleportSpawn
+		63: stringArrayFog
+		64: stringGhost
+		65: stringWinstonRide
+
+	player:
+		0: isTeleporting
+		1: underTheGround
+		2: theGround
+		3: isRising
+		4: winstonGrab
+		5: lateJoin
+		6: survivorSpecificVariable
+		7: throwingPlayer
+		8: survivorSpecificVariable2
+		9: wasOnWall
+		10: decoyCD
+		11: hasSpawned
+		12: decoySwapCD
+		13: positionDecoy
+		14: directionDecoy
+		15: directionReaper
+		16: currentTeleportPosition
+		17: hideInfo
+		18: teleportDestination
+}
+
+subroutines
+{
+	0: debugMode
+	1: riseFromTheGround
+	2: teleportCleanUp
+	3: teleportCleanUp2
+	4: commonSub
+	5: nameTagCreate
+}
+
+disabled rule("Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Initial Setup (Global Setup)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Disable Built-In Game Mode Music;
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Completion;
+		Disable Built-In Game Mode Scoring;
+		Global.stringCodeLink = Custom String("8MM16");
+		Global.stringProjectLink = Custom String("workshop.codes/projectreaper");
+		Global.stringDiscordLink = Custom String("discord.gg/CSKSVDH");
+		Global.stringVersion = Custom String("1.0.0");
+		Global.stringCreator = Custom String("Block#12425");
+		Call Subroutine(nameTagCreate);
+		Global.gracePeriod = 30;
+		Global.tipsEnabled = Workshop Setting Toggle(Custom String("General"), Custom String("Info Displayed by Default"), True);
+		Global.matchTimeMin = Workshop Setting Integer(Custom String("Time"), Custom String("Minutes"), 4, 1, 20);
+		Global.matchTimeSec = Workshop Setting Integer(Custom String("Time"), Custom String("Seconds"), 30, 0, 59);
+		Global.debugMode = Workshop Setting Toggle(Custom String("Debug Mode"), Custom String("Enabled"), False);
+		"If debug mode is disabled, recording is also disabled to save server resources."
+		If(Global.debugMode == False);
+			Disable Inspector Recording;
+	}
+}
+
+rule("Block#12425 - Initial Setup (Per Player Setup)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		(Is Waiting For Players || Is Game In Progress) == True;
+	}
+
+	actions
+	{
+		Disable Hero HUD(Event Player);
+		Disable Game Mode HUD(Event Player);
+		If(Team Of(Event Player) == Team 1);
+			Start Forcing Player Outlines(Event Player, All Players(All Teams), False, White);
+			Disable Nameplates(Event Player, All Players(All Teams));
+			Set Respawn Max Time(Event Player, 0.500);
+		Else;
+			Disable Scoreboard(Event Player);
+			Disable Kill Feed(Event Player);
+			Event Player.hasSpawned = False;
+		End;
+		If(Global.tipsEnabled == False);
+			Event Player.hideInfo = True;
+	}
+}
+
+rule("Block#12425 - Reaper Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	actions
+	{
+		Start Modifying Hero Voice Lines(Event Player, -20, True);
+		Set Ability 2 Enabled(Event Player, False);
+		Set Primary Fire Enabled(Event Player, False);
+		Start Damage Modification(Event Player, All Players(Team 2), 1, Receivers Damagers and Damage Percent);
+		Disable Hero HUD(Event Player);
+		Set Respawn Max Time(Event Player, 0.500);
+		Start Heal Over Time(Event Player, Event Player, 9999, 1000);
+	}
+}
+
+rule("Block#12425 - Pre-Match HUD & In-world Effect Creation")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"Global HUD setup"
+		Create HUD Text(Filtered Array(All Players(All Teams), Is Game In Progress == True), Custom String("{1}: {0}", Round To Integer(
+			Match Time, Up), Global.stringTimeRemaining), Null, Null, Top, 0, Orange, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Is Game In Progress == True), Null, Null, Global.stringObjectiveSurvivors, Top,
+			-1, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 1), Is Game In Progress == True), Null, Null, Global.stringObjectiveReaper, Top,
+			-1, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Custom String("Project: Reaper"), Null, Null, Right, -5, Purple, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Global.stringCreatorVersion, Custom String(" "), Right, -4, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringDiscord, Right, -3, White, White, Orange, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringProject, Right, -2, White, White, Orange, Visible To and String,
+			Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Global.stringCode, Right, -1, White, White, Aqua, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Current Array Element.winstonGrab == True), Custom String("{0}: {1}",
+			Input Binding String(Button(Jump)), Global.stringWinstonRide), Null, Null, Left, -1, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(Team 2), Null, Null, Global.stringTip, Left, 3, White, White, White, Visible To and String,
+			Default Visibility);
+		"Late Join HUD Setup"
+		Create HUD Text(Filtered Array(All Players(Team 2), Current Array Element.lateJoin == True), Global.stringLateJoin, Null, Null,
+			Top, 2, Yellow, White, White, Visible To and String, Default Visibility);
+		"Show/hide info setup"
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.hideInfo == True), Null, Null, Custom String(
+			" \r\n{0} + {2}: {1}", Input Binding String(Button(Interact)), Global.stringShowInfo, Input Binding String(Button(Crouch))),
+			Left, 2, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Current Array Element.hideInfo == False), Null, Null, Custom String(
+			" \r\n{0} + {2}: {1}", Input Binding String(Button(Interact)), Global.stringHideInfo, Input Binding String(Button(Crouch))),
+			Left, 2, White, White, White, Visible To and String, Default Visibility);
+		"Reaper HUD setup"
+		Create In-World Text(Filtered Array(All Players(Team 1), Entity Exists(Players In Slot(2, Team 1)) == True), Global.stringGhost,
+			Players In Slot(2, Team 1), 1, Do Not Clip, Visible To Position and String, Purple, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Custom String("{0}: {1} {2}", Ability Icon String(Hero(Reaper), Button(Ability 1)),
+			Round To Integer(Ability Cooldown(Players In Slot(0, Team 1), Button(Ability 1)), Up), Global.stringSec), Null, Null, Left, 1,
+			Purple, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Custom String("{0}: {1} {2}", Ability Icon String(Hero(Reaper), Button(Ability 2)),
+			Round To Integer(Ability Cooldown(Players In Slot(0, Team 1), Button(Ability 2)), Up), Global.stringSec), Null, Null, Left,
+			1.100, Purple, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 1), Players In Slot(0, Team 1).isTeleporting == True && Players In Slot(0, Team 1)
+			.isRising == False), Custom String("{0}: {1}", Input Binding String(Button(Primary Fire)), Global.stringReaperTeleport), Null,
+			Null, Top, 1, Purple, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Custom String("{0}: ∞", Ability Icon String(Hero(Reaper), Button(Melee))), Null, Null,
+			Left, 1.600, Purple, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Custom String("{0}: {1} {2}", Ability Icon String(Hero(Echo), Button(Ultimate)),
+			Round To Integer(Players In Slot(0, Team 1).decoyCD, Up), Global.stringSec), Null, Null, Left, 1.300, Purple, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Players In Slot(0, Team 1), Custom String("{0}: {1} {2}", Icon String(Recycle), Round To Integer(Players In Slot(0,
+			Team 1).decoySwapCD, Up), Global.stringSec), Null, Null, Left, 1.400, Purple, White, White, Visible To and String,
+			Default Visibility);
+		Create Effect(Filtered Array(Players In Slot(0, Team 1), Players In Slot(0, Team 1).isTeleporting == True && Players In Slot(0,
+			Team 1).isRising == False), Orb, Purple, Ray Cast Hit Position(Eye Position(Players In Slot(0, Team 1)), Facing Direction Of(
+			Players In Slot(0, Team 1)) * 1000 + Eye Position(Players In Slot(0, Team 1)), Null, All Players(All Teams), False), 2,
+			Visible To Position and Radius);
+		Create HUD Text(Filtered Array(All Players(Team 1), Players In Slot(0, Team 1).isTeleporting == True && Players In Slot(0, Team 1)
+			.isRising == False), Custom String("{0}: {1}", Input Binding String(Button(Secondary Fire)), Global.stringReaperTeleportGhost),
+			Null, Null, Top, 2, Purple, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Players In Slot(0, Team 1), Players In Slot(0, Team 1).hideInfo == False), Null, Null,
+			Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringReaperTitle, Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}",
+			Ability Icon String(Hero(Reaper), Button(Ability 1)), Input Binding String(Button(Ability 1)), Global.stringReaperAbility1),
+			Custom String("{0} {1}: {2}", Ability Icon String(Hero(Reaper), Button(Ability 2)), Input Binding String(Button(Ability 2)),
+			Global.stringReaperAbility2))), Left, 1.800, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(Players In Slot(0, Team 1), Players In Slot(0, Team 1).hideInfo == False), Null, Null,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Echo), Button(Ultimate)),
+			Input Binding String(Button(Secondary Fire)), Global.stringReaperAbility3), Custom String("{0} {1}: {2}", Icon String(Recycle),
+			Input Binding String(Button(Ultimate)), Global.stringReaperAbility4)), Left, 1.810, White, White, White, Visible To and String,
+			Default Visibility);
+		Create HUD Text(Filtered Array(Players In Slot(0, Team 1), Players In Slot(0, Team 1).hideInfo == False), Null, Null,
+			Custom String("{0} {1}: {2}", Ability Icon String(Hero(Reaper), Button(Melee)), Input Binding String(Button(Melee)),
+			Global.stringReaperAbility5), Left, 1.820, White, White, White, Visible To and String, Default Visibility);
+		"Survivor Info HUD Setup"
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Moira)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringMoiraTitle,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Moira), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringMoiraAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Zenyatta), Button(Ability 1)), Input Binding String(Button(Ability 2)), Global.stringMoiraAbility2))), Left, 1, White, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Hanzo)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringHanzoTitle,
+			Custom String("{0}\r\n{1}\r\n{2}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Hanzo), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringHanzoAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Hanzo), Button(Jump)), Input Binding String(Button(Jump)), Global.stringHanzoAbility2), Global.stringHanzoPassive)), Left, 1,
+			White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Brigitte)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringBrigTitle,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Brigitte), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringBrigAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Brigitte), Button(Secondary Fire)), Input Binding String(Button(Secondary Fire)), Global.stringBrigAbility2))), Left, 1, White,
+			White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Wrecking Ball)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringWBTitle,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Wrecking Ball), Button(Ability 2)),
+			Input Binding String(Button(Ability 2)), Global.stringWBAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Wrecking Ball), Button(Ultimate)), Input Binding String(Button(Ultimate)), Global.stringWBAbility2))), Left, 1, White, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Symmetra)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringSymTitle,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Symmetra), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringSymAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Symmetra), Button(Ability 2)), Input Binding String(Button(Ability 2)), Global.stringSymAbility2))), Left, 1, White, White,
+			White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Tracer)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringTracerTitle,
+			Custom String("{0}\r\n{1}\r\n{2}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Tracer), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringTracerAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Tracer), Button(Ability 2)), Input Binding String(Button(Ability 2)), Global.stringTracerAbility2),
+			Global.stringTracerPassive)), Left, 1, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(Team 2), Hero Of(Current Array Element) == Hero(Winston)
+			&& Current Array Element.hideInfo == False), Null, Null, Custom String(" \r\n{0}\r\n\r\n{1}", Global.stringWinstonTitle,
+			Custom String("{0}\r\n{1}", Custom String("{0} {1}: {2}", Ability Icon String(Hero(Winston), Button(Ability 1)),
+			Input Binding String(Button(Ability 1)), Global.stringWinstonAbility1), Custom String("{0} {1}: {2}", Ability Icon String(Hero(
+			Mercy), Button(Ability 2)), Input Binding String(Button(Secondary Fire)), Global.stringWinstonAbility2))), Left, 1, White,
+			White, White, Visible To and String, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Nametag In World Text Setup Subroutine")
+{
+	event
+	{
+		Subroutine;
+		nameTagCreate;
+	}
+
+	actions
+	{
+		"Nametags are disabled for Team 2 by default, so I created an alternate name tag system. Basically, when one player of team 2 is close to another team 2 player, they get to see each other's nametags."
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(0, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(0, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(0, Team 2)) == True && Current Array Element != Players In Slot(0, Team 2)),
+			Players In Slot(0, Team 2), Players In Slot(0, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(1, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(1, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(1, Team 2)) == True && Current Array Element != Players In Slot(1, Team 2)),
+			Players In Slot(1, Team 2), Players In Slot(1, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(2, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(2, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(2, Team 2)) == True && Current Array Element != Players In Slot(2, Team 2)),
+			Players In Slot(2, Team 2), Players In Slot(2, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(3, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(3, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(3, Team 2)) == True && Current Array Element != Players In Slot(3, Team 2)),
+			Players In Slot(3, Team 2), Players In Slot(3, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(4, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(4, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(4, Team 2)) == True && Current Array Element != Players In Slot(4, Team 2)),
+			Players In Slot(4, Team 2), Players In Slot(4, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(5, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(5, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(5, Team 2)) == True && Current Array Element != Players In Slot(5, Team 2)),
+			Players In Slot(5, Team 2), Players In Slot(5, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(6, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(6, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(6, Team 2)) == True && Current Array Element != Players In Slot(6, Team 2)),
+			Players In Slot(6, Team 2), Players In Slot(6, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(7, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(7, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(7, Team 2)) == True && Current Array Element != Players In Slot(7, Team 2)),
+			Players In Slot(7, Team 2), Players In Slot(7, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(8, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(8, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(8, Team 2)) == True && Current Array Element != Players In Slot(8, Team 2)),
+			Players In Slot(8, Team 2), Players In Slot(8, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(9, Team 2), Current Array Element)
+			<= 8 && Is In Line of Sight(Players In Slot(9, Team 2), Current Array Element, Barriers Do Not Block LOS)
+			== True && Entity Exists(Players In Slot(9, Team 2)) == True && Current Array Element != Players In Slot(9, Team 2)),
+			Players In Slot(9, Team 2), Players In Slot(9, Team 2), 1, Clip Against Surfaces, Visible To Position and String, Sky Blue,
+			Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(10, Team 2),
+			Current Array Element) <= 8 && Is In Line of Sight(Players In Slot(10, Team 2), Current Array Element,
+			Barriers Do Not Block LOS) == True && Entity Exists(Players In Slot(10, Team 2))
+			== True && Current Array Element != Players In Slot(10, Team 2)), Players In Slot(10, Team 2), Players In Slot(10, Team 2), 1,
+			Clip Against Surfaces, Visible To Position and String, Sky Blue, Default Visibility);
+		Create In-World Text(Filtered Array(All Living Players(Team 2), Distance Between(Players In Slot(11, Team 2),
+			Current Array Element) <= 8 && Is In Line of Sight(Players In Slot(11, Team 2), Current Array Element,
+			Barriers Do Not Block LOS) == True && Entity Exists(Players In Slot(11, Team 2))
+			== True && Current Array Element != Players In Slot(11, Team 2)), Players In Slot(11, Team 2), Players In Slot(11, Team 2), 1,
+			Clip Against Surfaces, Visible To Position and String, Sky Blue, Default Visibility);
+	}
+}
+
+rule("Block#12425 - Debug Mode")
+{
+	event
+	{
+		Subroutine;
+		debugMode;
+	}
+
+	actions
+	{
+		"A dummy bot for Reaper and Ana is created so that you can test certain stuff. They both occupy slot 0 of each team, so if you don't want them to spawn in, make sure a player is in each of those slots."
+		Create Dummy Bot(Hero(Reaper), Team 1, 0, Nearest Walkable Position(Vector(0, 0, 0)), Vector(0, 0, 0));
+		Create HUD Text(Host Player, Server Load Average, String("Server Load Average"), Null, Right, 10, White, White, White,
+			Visible To and String, Default Visibility);
+		Create Dummy Bot(Hero(Ana), Team 2, 0, Nearest Walkable Position(Vector(1000, 0, 0)), Vector(0, 0, 0));
+		Wait(2, Ignore Condition);
+		Damage(Last Created Entity, Null, 150);
+	}
+}
+
+rule("Block#12425 - Gamemode Setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Set Match Time(Global.matchTimeMin * 60 + Global.matchTimeSec);
+		Big Message(All Players(Team 2), Global.stringObjectiveSurvivors);
+		Big Message(All Players(Team 1), Global.stringObjectiveReaper);
+		If(Global.debugMode == True);
+			Call Subroutine(debugMode);
+	}
+}
+
+rule("Block#12425 - Team 2 Game Start Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		Wait(0.500, Abort When False);
+		Disable Built-In Game Mode Respawning(Event Player);
+		"Unique fog messages for each map."
+		If(Current Map == Map(Ecopoint: Antarctica));
+			Small Message(Event Player, Global.stringArrayFog[1]);
+		Else If(Current Map == Map(Necropolis));
+			Small Message(Event Player, Global.stringArrayFog[2]);
+		Else;
+			Small Message(Event Player, Global.stringArrayFog[0]);
+		End;
+		Big Message(Event Player, Global.stringObjectiveSurvivors);
+		"Team 2 players cannot see where they are."
+		Start Forcing Player Outlines(Event Player, All Players(Team 2), False, White);
+		Disable Nameplates(Event Player, All Players(Team 2));
+	}
+}
+
+rule("Block#12425 - Winning Setup (Time Runs Out)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Match Time == 0;
+	}
+
+	actions
+	{
+		Wait(0.100, Abort When False);
+		"If some living players are still alive for team 2 (that also have spawned in) when time runs out, they win, else Reaper wins. (This else statement solely exists for backup. Practically this will never be executed)."
+		If(Count Of(Filtered Array(All Living Players(Team 2), Has Spawned(Current Array Element) == True)) > 0);
+			Declare Team Victory(Team 2);
+		Else;
+			Declare Team Victory(Team 1);
+		End;
+		Destroy All Dummy Bots;
+	}
+}
+
+rule("Block#12425 - Winning Setup (Reaper Kills Everyone that spawned on time)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Count Of(Filtered Array(All Living Players(Team 2), Has Spawned(Current Array Element) == True)) == 0;
+		Match Time < Global.matchTimeMin * 60 + Global.matchTimeSec - Global.gracePeriod;
+		Has Spawned(Players In Slot(0, Team 1)) == True;
+	}
+
+	actions
+	{
+		"If everyone is dead, Reaper wins."
+		Wait(0.100, Abort When False);
+		Declare Team Victory(Team 1);
+		Destroy All Dummy Bots;
+	}
+}
+
+rule("Block#12425 - Winning Setup (Survivors win if Reaper does not exist)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Entity Exists(Players In Slot(0, Team 1)) == False;
+		Match Time < Global.matchTimeMin * 60 + Global.matchTimeSec - Global.gracePeriod;
+	}
+
+	actions
+	{
+		"Backup win condition if Reaper did not spawn in or he disconnected."
+		Wait(0.100, Ignore Condition);
+		Declare Team Victory(Team 2);
+		Destroy All Dummy Bots;
+	}
+}
+
+rule("Block#12425 - Reaper Cleanup Before Game Start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		"This cleans up the dummy bots Reaper was using before the match and teleportation variables."
+		Destroy Dummy Bot(Team 1, 1);
+		Destroy Dummy Bot(Team 1, 2);
+		Call Subroutine(teleportCleanUp2);
+	}
+}
+
+rule("Block#12425 - Late Join Setup")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Has Spawned(Event Player) == False;
+		Is Game In Progress == True;
+		"If a player joins or did not select a character before the grace period (default match time - grace period), then he is considered a late joining player. The game does not consider him to be alive, and when he spawns he is killed immediately."
+		Match Time < Global.matchTimeMin * 60 + Global.matchTimeSec - Global.gracePeriod;
+	}
+
+	actions
+	{
+		Wait(0.100, Abort When False);
+		Event Player.lateJoin = True;
+		Disable Built-In Game Mode Respawning(Event Player);
+	}
+}
+
+rule("Block#12425 - Late Join Kill")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Event Player) == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == True;
+	}
+
+	actions
+	{
+		Kill(Event Player, Null);
+	}
+}
+
+disabled rule("Language")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - English")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"All strings (that will be translated if they are) for the game."
+		Global.stringProject = Custom String("Project: {0} (All lowercase)", Global.stringProjectLink);
+		Global.stringDiscord = Custom String("Discord: {0} (All caps)", Global.stringDiscordLink);
+		Global.stringCreatorVersion = Custom String("Created by: {0}. Version: {1}", Global.stringCreator, Global.stringVersion);
+		Global.stringCode = Custom String("Code: {0}", Global.stringCodeLink);
+		Global.stringSec = Custom String("CD");
+		Global.stringHP = Custom String("HP");
+		Global.stringMoiraTitle = Custom String("Moira, the phasing support.", Hero Icon String(Hero(Moira)));
+		Global.stringMoiraAbility1 = Custom String("Fade out and go through walls to escape.");
+		Global.stringMoiraAbility2 = Custom String("Sacrifice health to give to a teammate in front of you. Can suicide.");
+		Global.stringHideInfo = Custom String("Hide Info.");
+		Global.stringShowInfo = Custom String("Show info");
+		Global.stringHanzoTitle = Custom String("Hanzo, the recon expert.", Hero Icon String(Hero(Hanzo)));
+		Global.stringHanzoAbility1 = Custom String("Equip a sonic dart that can reveal the Reapers in the area.");
+		Global.stringHanzoAbility2 = Custom String("Climb up walls.");
+		Global.stringHanzoPassive = Custom String("Passive: Can see the Reapers' outlines through the fog.");
+		Global.stringBrigTitle = Custom String("Brigitte, the frontline resistance.", Hero Icon String(Hero(Brigitte)));
+		Global.stringBrigAbility1 = Custom String("Use flail to throw the Reaper back.");
+		Global.stringBrigAbility2 = Custom String(
+			"Bash and stun with the shield! Requires primary fire to use. \r\nDoes not block damage.");
+		Global.stringWBTitle = Custom String("Wrecking Ball, the area denier");
+		Global.stringWBAbility1 = Custom String("Create a pusling field that repels Reaper,\r\neven in when he is in Wraith form.");
+		Global.stringWBAbility2 = Custom String(
+			"Place a mine field that lasts infinitely (until replaced).\r\nReaper will be stunned and knocked back if he hits one.");
+		Global.stringCharges = Custom String("Charges");
+		Global.stringTracerTitle = Custom String("Tracer, the quick-save speedster.");
+		Global.stringTracerAbility1 = Custom String("Cover a chunk of distance in your current velocity instantly.");
+		Global.stringTracerAbility2 = Custom String(
+			"Rewind to your position 3 seconds ago. Any teammates within \r\nthe ring when used will also be warped to your position.");
+		Global.stringReaperTitle = Custom String("Reaper, the monstrous experiment.");
+		Global.stringReaperAbility1 = Custom String("Go into wraith form to go faster and go through walls.");
+		Global.stringReaperAbility2 = Custom String("Enter teleport mode, able to fly and spawn back (you or your ghost) anywhere.");
+		Global.stringReaperAbility3 = Custom String("Spawn a ghost, that appears just like you and roams the map.");
+		Global.stringReaperAbility4 = Custom String("Swap positions with your ghost, perfectly in the same direction as each other.");
+		Global.stringReaperAbility5 = Custom String(
+			"Punch survivors close enough to deal damage. Targets are usually \r\ntwo hits, unless buffed by Moira.");
+		Global.stringSymTitle = Custom String("Symmetra, the team anchor.", Hero Icon String(Hero(Hanzo)));
+		Global.stringSymAbility1 = Custom String("Place a turret that slows down the Reaper. Can be destroyed. Max 3.");
+		Global.stringSymAbility2 = Custom String("Create a teleporter for teammates to use. Use same button to destroy.");
+		Global.stringTracerPassive = Custom String("Passive: Small and fast, but also fragile. (1 hit only)");
+		Global.stringWinstonTitle = Custom String("Winston, the relocating ape.", Hero Icon String(Hero(Hanzo)));
+		Global.stringWinstonAbility1 = Custom String("Leap a far distance, along with anyone else you are carrying.");
+		Global.stringWinstonAbility2 = Custom String(
+			"When holding no one, pick up a teammate within range (the ring).\r\nWhen holding someone, throw them in your current facing direct");
+		Global.stringTracerTeleportMessage = Custom String("Teleported you back to safety my love!");
+		Global.stringMoiraHeal = Custom String("I have healed you.");
+		Global.stringMoiraSacrifice = Custom String("I have sacrificed my life for you all! Do not fail me.");
+		Global.stringTeamKill = Custom String("Nice job, you killed a teammate. Now you're dead instead.");
+		Global.stringWinstonGrab = Custom String("I have picked you up! I can throw you far distances for your safety!");
+		Global.stringTimeRemaining = Custom String("Time Remaining");
+		Global.stringObjectiveSurvivors = Custom String("Survive the night until time runs out!");
+		Global.stringObjectiveReaper = Custom String("Kill all the mortals before time runs out!");
+		Global.stringReaperTeleport = Custom String("Finish Teleporting");
+		Global.stringReaperTeleportGhost = Custom String("Spawn a ghost");
+		Global.stringLateJoin = Custom String("Joined mid-match. Please wait until next match!");
+		Global.stringTip = Custom String("Tip: Only one REAL Reaper exists.");
+		Global.stringReaperTeleportSpawn = Custom String("You think you can hide...");
+		Global.stringArrayFog = Array(Custom String("A ghostly fog settles in..."), Custom String("A snow storm forms..."), Custom String(
+			"A dust storm rolls in..."));
+		Global.stringWinstonRide = Custom String("Get off of Winston");
+		Global.stringGhost = Custom String("Ghost");
+		Global.stringChase = Custom String("Chasing survivor...");
+	}
+}
+
+disabled rule("Reaper Abilities")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Teleport (Start Teleport)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Ability 2) == True;
+		Event Player.isTeleporting == False;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+		Has Status(Event Player, Hacked) == False;
+		Has Status(Event Player, Frozen) == False;
+		Has Status(Event Player, Stunned) == False;
+		Has Status(Event Player, Knocked Down) == False;
+		Has Status(Event Player, Asleep) == False;
+		Event Player.isRising == False;
+		Is Button Held(Event Player, Primary Fire) == False;
+	}
+
+	actions
+	{
+		"The beginning of Reaper's unique teleport."
+		Set Ability Cooldown(Event Player, Button(Ability 2), 2);
+		Wait(0.100, Ignore Condition);
+		Play Effect(All Players(All Teams), Good Explosion, Purple, Position Of(Event Player), 3);
+		Set Ability 1 Enabled(Event Player, False);
+		Set Melee Enabled(Event Player, False);
+		Event Player.isTeleporting = True;
+		Set Invisible(Event Player, All);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Disable Movement Collision With Environment(Event Player, True);
+		Start Forcing Player Position(Event Player, Event Player.currentTeleportPosition, True);
+		Event Player.currentTeleportPosition = Position Of(Event Player);
+		Event Player.teleportDestination = Position Of(Event Player);
+		Chase Player Variable At Rate(Event Player, currentTeleportPosition, Event Player.teleportDestination, 20, Destination and Rate);
+	}
+}
+
+rule("Block#12425 - Teleport (Rise from Ground)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Primary Fire) == True;
+		Event Player.isTeleporting == True;
+		Event Player.isRising == False;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+	}
+
+	actions
+	{
+		"Now the teleport actually begins. It teleports him to the spot and prepares Reaper for the rising phase."
+		Event Player.theGround = Ray Cast Hit Position(Eye Position(Event Player), Facing Direction Of(Event Player) * 1000 + Eye Position(
+			Event Player), Null, Event Player, False);
+		"This check is applied due to an exploit on Eichenwalde."
+		If(Y Component Of(Event Player.theGround) > 50);
+			Event Player.theGround = Nearest Walkable Position(Ray Cast Hit Position(Eye Position(Event Player), Facing Direction Of(
+				Event Player) * 1000 + Eye Position(Event Player), Null, Event Player, False));
+		End;
+		Disable Movement Collision With Environment(Event Player, True);
+		Event Player.underTheGround = Event Player.theGround + Vector(0, -4, 0);
+		Event Player.currentTeleportPosition = Event Player.underTheGround;
+		Chase Player Variable At Rate(Event Player, currentTeleportPosition, Event Player.theGround, 2, Destination and Rate);
+		Event Player.isRising = True;
+		Wait(0.250, Ignore Condition);
+		Set Invisible(Event Player, None);
+		"This message serves as a warning for survivors that he is teleporting nearby."
+		Small Message(Filtered Array(All Players(All Teams), Distance Between(Event Player, Current Array Element) <= 15), Custom String(
+			"{0}: {1}", Hero Icon String(Hero(Reaper)), Global.stringReaperTeleportSpawn));
+	}
+}
+
+rule("Block#12425 - Teleport (Clean up Teleport)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.currentTeleportPosition == Event Player.theGround;
+		Event Player.isRising == True;
+	}
+
+	actions
+	{
+		"Once he has finished rising, this subroutine will clean up the variables and other adjustments made."
+		Call Subroutine(teleportCleanUp);
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Left)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		X Component Of(Throttle Of(Event Player)) == 1;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		"These actions move Reaper during teleport phase, since he flies. These are all checked and can be executed together to produce smooth movement."
+		Event Player.teleportDestination += Direction From Angles(Horizontal Facing Angle Of(Event Player) + 90, 0) * 1;
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Right)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		X Component Of(Throttle Of(Event Player)) == -1;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Event Player.teleportDestination += Direction From Angles(Horizontal Facing Angle Of(Event Player) + -90, 0) * 1;
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Forward)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		Z Component Of(Throttle Of(Event Player)) == 1;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Event Player.teleportDestination += Direction From Angles(Horizontal Facing Angle Of(Event Player) + 0, 0) * 1;
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Backward)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		Z Component Of(Throttle Of(Event Player)) == -1;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Event Player.teleportDestination += Direction From Angles(Horizontal Facing Angle Of(Event Player) + 180, 0) * 1;
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Upward)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		Is Button Held(Event Player, Jump) == True;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Event Player.teleportDestination += Vector(0, 1, 0);
+		Event Player.teleportDestination = Event Player.teleportDestination + Vector(0, 1, 0);
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Camera (Move Character Downward)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.isTeleporting == True;
+		Is Button Held(Event Player, Crouch) == True;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Event Player.teleportDestination += Vector(0, -1, 0);
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Teleport Clean Up Subroutine")
+{
+	event
+	{
+		Subroutine;
+		teleportCleanUp;
+	}
+
+	actions
+	{
+		Event Player.isTeleporting = False;
+		Event Player.isRising = False;
+		Enable Movement Collision With Environment(Event Player);
+		Clear Status(Event Player, Phased Out);
+		Stop Chasing Player Variable(Event Player, currentTeleportPosition);
+		Stop Forcing Player Position(Event Player);
+		Set Ability 1 Enabled(Event Player, True);
+		Set Melee Enabled(Event Player, True);
+		Set Ability Cooldown(Event Player, Button(Ability 2), 7);
+	}
+}
+
+rule("Block#12425 - Teleport Clean Up Subroutine Pre Match")
+{
+	event
+	{
+		Subroutine;
+		teleportCleanUp2;
+	}
+
+	actions
+	{
+		"This teleport clean up is specifically for the pre-match."
+		Players In Slot(0, Team 1).isTeleporting = False;
+		Players In Slot(0, Team 1).isRising = False;
+		Enable Movement Collision With Environment(Players In Slot(0, Team 1));
+		Clear Status(Players In Slot(0, Team 1), Phased Out);
+		Stop Chasing Player Variable(Players In Slot(0, Team 1), currentTeleportPosition);
+		Stop Forcing Player Position(Players In Slot(0, Team 1));
+		Set Ability 1 Enabled(Players In Slot(0, Team 1), True);
+		Set Melee Enabled(Players In Slot(0, Team 1), True);
+		Set Ability Cooldown(Players In Slot(0, Team 1), Button(Ability 2), 7);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy During Teleport (Create Dummy Bot)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Secondary Fire) == True;
+		Event Player.isTeleporting == True;
+		Is Using Ability 1(Event Player) == False;
+		Event Player.decoyCD == 0;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		Create Dummy Bot(Hero(Reaper), Team 1, 2, Ray Cast Hit Position(Eye Position(Event Player), Facing Direction Of(Event Player)
+			* 1000 + Eye Position(Event Player), Null, Event Player, False), Direction From Angles(Horizontal Facing Angle Of(
+			Event Player), 0));
+		Event Player.decoyCD = 10;
+		Chase Player Variable At Rate(Event Player, decoyCD, 0, 1, Destination and Rate);
+		Small Message(Filtered Array(All Players(All Teams), Distance Between(Ray Cast Hit Position(Eye Position(Event Player),
+			Facing Direction Of(Event Player) * 1000 + Eye Position(Event Player), Null, Event Player, False), Current Array Element)
+			<= 15), Custom String("{0}: {1}", Hero Icon String(Hero(Reaper)), Global.stringReaperTeleportSpawn));
+	}
+}
+
+rule("Block#12425 - Wraith (Setup No Clip)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == True;
+	}
+
+	actions
+	{
+		"With wraith form Reaper can no clip through walls."
+		Disable Movement Collision With Environment(Event Player, False);
+		Set Invisible(Event Player, None);
+		Event Player.directionReaper = Facing Direction Of(Event Player);
+	}
+}
+
+rule("Block#12425 - Wraith (Disable Clipping)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == False;
+	}
+
+	actions
+	{
+		Enable Movement Collision With Environment(Event Player);
+		Stop Facing(Event Player);
+		Allow Button(Event Player, Primary Fire);
+		Wait(0.100, Ignore Condition);
+		Set Ability Cooldown(Event Player, Button(Ability 1), 10);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy (Create Dummy Bot)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Secondary Fire) == True;
+		Event Player.isTeleporting == False;
+		Is Using Ability 1(Event Player) == False;
+		Event Player.decoyCD == 0;
+	}
+
+	actions
+	{
+		Create Dummy Bot(Hero(Reaper), Team 1, 2, Position Of(Event Player), Facing Direction Of(Event Player));
+		Event Player.decoyCD = 10;
+		Chase Player Variable At Rate(Event Player, decoyCD, 0, 1, Destination and Rate);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy (Dummy Bot Setup)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == True;
+	}
+
+	actions
+	{
+		"This dummy bot is a setup and forget thing. Once it spawns it will automatically run forwards, sometimes changing direction and wraithing if a survivor is within view."
+		Event Player.isTeleporting = True;
+		Start Forcing Throttle(Event Player, 1, 1, 0, 1, 0, 1);
+		Call Subroutine(riseFromTheGround);
+		Wait(1, Ignore Condition);
+		Set Status(Event Player, Null, Phased Out, 9999);
+		Disable Movement Collision With Environment(Event Player, False);
+		Start Forcing Player Outlines(Event Player, All Players(Team 1), True, Purple);
+		Set Ability Cooldown(Event Player, Button(Ability 1), 0);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy (Destroy Bot if dead)")
+{
+	event
+	{
+		Player Died;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == True;
+	}
+
+	actions
+	{
+		"If the dummy bot somehow dies, it is deleted so it doesn't just respawn randomly."
+		Destroy Dummy Bot(Team 1, 2);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy (Decoy Cooldown reset)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.decoyCD == 0;
+	}
+
+	actions
+	{
+		Stop Chasing Player Variable(Event Player, decoyCD);
+	}
+}
+
+rule("Block#12425 - Decoy Roam (Reset from Fall)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is In Air(Event Player) == True;
+		Is Dummy Bot(Event Player) == True;
+		Event Player.isTeleporting == False;
+		Event Player.isRising == False;
+	}
+
+	actions
+	{
+		"The dummy bot tries to prevent suicide. If it starts falling it is assumed that it will die (whether that is true or not), so it teleports to the closest area and continues it's path."
+		Wait(0.500, Abort When False);
+		Teleport(Event Player, Nearest Walkable Position(Position Of(Event Player)));
+		Set Facing(Event Player, Vector(Random Real(-1, -0.100), 0, Random Real(-1, -0.100)), To Player);
+	}
+}
+
+rule("Block#12425 - Decoy Roam (Decoy Fake-Out Chase)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == True;
+		Event Player.isTeleporting == False;
+		Event Player.isRising == False;
+		Is True For Any(Players in View Angle(Event Player, Team 2, 30), Is In Line of Sight(Eye Position(Event Player), Eye Position(
+			Current Array Element), Barriers Do Not Block LOS) == True) == True;
+	}
+
+	actions
+	{
+		"This is here to scare the player into reacting."
+		Press Button(Event Player, Ability 1);
+		Set Facing(Event Player, Direction Towards(Event Player, Player Closest To Reticle(Event Player, Team 2)), To World);
+		"This is here to provide info for decoy swap. If the decoy sees a player and starts chasing, the Reaper may want to swap position and confuse the survivor, or take advantage of them not reacting."
+		Small Message(Players In Slot(0, Team 1), Custom String("{0} {1}: {2}", Hero Icon String(Hero(Reaper)), Global.stringGhost,
+			Global.stringChase));
+	}
+}
+
+rule("Block#12425 - Decoy Roam (No Clip after Rising)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Dummy Bot(Event Player) == True;
+		Event Player.isTeleporting == False;
+		Event Player.isRising == False;
+		Is Using Ability 1(Event Player) == False;
+	}
+
+	actions
+	{
+		"The decoy is always no clipped. It is both easier for it to roam and also a sign for survivors to note."
+		Disable Movement Collision With Environment(Event Player, False);
+		Set Status(Event Player, Null, Phased Out, 9999);
+	}
+}
+
+rule("Block#12425 - Spawn Decoy (Rise from Ground Subroutine)")
+{
+	event
+	{
+		Subroutine;
+		riseFromTheGround;
+	}
+
+	actions
+	{
+		"The decoy has it's own rising from the ground setup because it needs certain value set in order to use exising rules that help Reaper with teleporting."
+		Disable Movement Collision With Environment(Event Player, True);
+		Event Player.currentTeleportPosition = Position Of(Event Player) + Vector(0, -3, 0);
+		Event Player.theGround = Position Of(Event Player);
+		Start Forcing Player Position(Event Player, Event Player.currentTeleportPosition, True);
+		Wait(1, Ignore Condition);
+		Chase Player Variable At Rate(Event Player, currentTeleportPosition, Event Player.theGround, 2, Destination and Rate);
+		Event Player.isRising = True;
+	}
+}
+
+rule("Block#12425 - Decoy Swap (Swap positions)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Ultimate) == True;
+		Event Player.isTeleporting == False;
+		Entity Exists(Players In Slot(2, Team 1)) == True;
+		Event Player.decoySwapCD == 0;
+		Is Using Ability 1(Event Player) == False;
+		Has Status(Event Player, Hacked) == False;
+		Has Status(Event Player, Frozen) == False;
+		Has Status(Event Player, Stunned) == False;
+		Has Status(Event Player, Knocked Down) == False;
+		Has Status(Event Player, Asleep) == False;
+	}
+
+	actions
+	{
+		"Decoy swap ensures that, if done right, it is unnoticeable to the survivor. This means that the change has to be instant (so position variables have to be stored) and they are facing the same direction (another variable stored)"
+		Event Player.positionDecoy = Position Of(Players In Slot(2, Team 1));
+		Event Player.directionDecoy = Facing Direction Of(Players In Slot(2, Team 1));
+		Teleport(Players In Slot(2, Team 1), Event Player);
+		Set Facing(Players In Slot(2, Team 1), Facing Direction Of(Event Player), To World);
+		Wait(0.100, Ignore Condition);
+		"In case the swap was in mid air, the decoy will retreat to NWP."
+		Teleport(Event Player, Nearest Walkable Position(Event Player.positionDecoy));
+		Set Facing(Event Player, Event Player.directionDecoy, To World);
+		Event Player.decoySwapCD = 20;
+		Chase Player Variable At Rate(Event Player, decoySwapCD, 0, 1, Destination and Rate);
+	}
+}
+
+rule("Block#12425 - Decoy Swap (Cooldown Reset)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Event Player.decoySwapCD == 0;
+	}
+
+	actions
+	{
+		Stop Chasing Player Variable(Event Player, decoySwapCD);
+	}
+}
+
+rule("Block#12425 - Reaper Melee on Primary Fire")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Primary Fire) == True;
+		Event Player.isTeleporting == False;
+	}
+
+	actions
+	{
+		"As a community request, the melee can also be done on primary fire (though the game will still refer for the melee button in the info)."
+		Press Button(Event Player, Melee);
+	}
+}
+
+disabled rule("Game Start Hero Spawn (Comment)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		"These are for each survivor. They get setup with a unique hud for the player (instead of 14 being created), and their health is adjusted. Fog is also created for each process. The general setup is in a subrountine."
+		Abort;
+	}
+}
+
+rule("Block#12425 - Brigitte Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Brigitte;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0} : {2}", Ability Icon String(Hero(Brigitte), Button(
+			Ability 1)), Input Binding String(Button(Ability 1)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player,
+			Button(Ability 1)), Up), Global.stringSec)), Custom String("{0}: {2}", Ability Icon String(Hero(Brigitte), Button(
+			Secondary Fire)), Input Binding String(Button(Primary Fire)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(
+			Event Player, Button(Secondary Fire)), Up), Global.stringSec))), Null, Null, Left, 0, Yellow, White, White,
+			Visible To and String, Default Visibility);
+		Set Max Health(Event Player, 20 / Max Health(Event Player) * 100);
+		Add Health Pool To Player(Event Player, Health, 180, True, True);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Hanzo Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Hanzo;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Start Forcing Player Outlines(Players In Slot(0, Team 1), Event Player, True, Red);
+		Start Forcing Player Outlines(Players In Slot(2, Team 1), Event Player, True, Red);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0}: {2}", Ability Icon String(Hero(Hanzo), Button(
+			Ability 1)), Input Binding String(Button(Ability 1)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player,
+			Button(Ability 1)), Up), Global.stringSec)), Custom String("{0}: {2}", Ability Icon String(Hero(Hanzo), Button(Jump)),
+			Input Binding String(Button(Jump)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player, Button(
+			Ability 2)), Up), Global.stringSec))), Null, Null, Left, 0, Blue, White, White, Visible To and String, Default Visibility);
+		Set Max Health(Event Player, 200 / Max Health(Event Player) * 100);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Moira Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Moira;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0}: {2}", Ability Icon String(Hero(Moira), Button(
+			Ability 1)), Input Binding String(Button(Ability 1)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player,
+			Button(Ability 1)), Up), Global.stringSec)), Custom String("{0}: {2}", Ability Icon String(Hero(Zenyatta), Button(Ability 1)),
+			Input Binding String(Button(Interact)), Custom String("{0} {1}", Round To Integer(Health(Event Player), Up),
+			Global.stringHP))), Null, Null, Left, 0, Purple, White, White, Visible To and String, Default Visibility);
+		Set Max Health(Event Player, 200 / Max Health(Event Player) * 100);
+		Call Subroutine(commonSub);
+		Create Icon(Filtered Array(Event Player, Is In Line of Sight(Event Player, Player Closest To Reticle(Event Player, Team 2),
+			Barriers Do Not Block LOS) == True && Is In View Angle(Event Player, Player Closest To Reticle(Event Player, Team 2), 20)
+			== True && Health(Player Closest To Reticle(Event Player, Team 2)) < Max Health(Player Closest To Reticle(Event Player,
+			Team 2)) && Is Alive(Player Closest To Reticle(Event Player, Team 2)) == True), Player Closest To Reticle(Event Player,
+			Team 2), Heart, Visible To and Position, Green, False);
+		Event Player.survivorSpecificVariable2 = Last Created Entity;
+	}
+}
+
+rule("Block#12425 - Reaper Spawn")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Alive(Players In Slot(0, Team 1)) == True;
+		Has Spawned(Players In Slot(0, Team 1)) == True;
+		Players In Slot(0, Team 1).hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(0.500, Ignore Condition);
+		Set Ability Cooldown(Players On Hero(Hero(Reaper), All Teams), Button(Ability 1), 0);
+		Players In Slot(0, Team 1).hasSpawned = True;
+	}
+}
+
+rule("Block#12425 - WB Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Wrecking Ball;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0}: {2}", Ability Icon String(Hero(Wrecking Ball),
+			Button(Ability 2)), Null, Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player, Button(Ability 2)), Up),
+			Global.stringSec)), Custom String("{0}: {2}", Ability Icon String(Hero(Wrecking Ball), Button(Ultimate)), Null, Custom String(
+			"{0}%", Round To Integer(Ultimate Charge Percent(Event Player), Up), Global.stringSec))), Null, Null, Left, 0, Turquoise,
+			White, White, Visible To and String, Default Visibility);
+		Set Max Health(Event Player, 50 / Max Health(Event Player) * 100);
+		Add Health Pool To Player(Event Player, Health, 150, True, True);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Symmetra Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Symmetra;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0}: {2}", Ability Icon String(Hero(Symmetra), Button(
+			Ability 1)), Null, Custom String("{0} {1}", Round To Integer(Ability Charge(Event Player, Button(Ability 1)), Up),
+			Global.stringCharges)), Custom String("{0}: {2}", Ability Icon String(Hero(Symmetra), Button(Ability 2)), Null, Custom String(
+			"{0} {1}", Round To Integer(Ability Cooldown(Event Player, Button(Ability 2)), Up), Global.stringSec))), Null, Null, Left, 0,
+			Sky Blue, White, White, Visible To and String, Default Visibility);
+		Set Max Health(Event Player, 20 / Max Health(Event Player) * 100);
+		Add Health Pool To Player(Event Player, Health, 180, True, True);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Tracer Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Tracer;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0}: {2}", Ability Icon String(Hero(Tracer), Button(
+			Ability 1)), Null, Custom String("{0} {1}", Round To Integer(Ability Charge(Event Player, Button(Ability 1)), Up),
+			Global.stringCharges)), Custom String("{0}: {2}", Ability Icon String(Hero(Tracer), Button(Ability 2)), Null, Custom String(
+			"{0} {1}", Round To Integer(Ability Cooldown(Event Player, Button(Ability 2)), Up), Global.stringSec))), Null, Null, Left, 0,
+			Orange, White, White, Visible To and String, Default Visibility);
+		Create Effect(Event Player, Ring, Orange, Position Of(Event Player), 6, Visible To Position and Radius);
+		Set Max Health(Event Player, 100 / Max Health(Event Player) * 100);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Winston Spawn")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Winston;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Is Game In Progress == True;
+		Has Spawned(Event Player) == True;
+		Event Player.lateJoin == False;
+		Event Player.hasSpawned == False;
+	}
+
+	actions
+	{
+		Wait(1, Abort When False);
+		Create HUD Text(Event Player, Custom String("{0}\r\n{1}", Custom String("{0} : {2}", Ability Icon String(Hero(Winston), Button(
+			Ability 1)), Input Binding String(Button(Ability 1)), Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player,
+			Button(Ability 1)), Up), Global.stringSec)), Custom String("{0}: {2}", Ability Icon String(Hero(Mercy), Button(Ability 2)),
+			Null, Custom String("{0} {1}", Round To Integer(Ability Cooldown(Event Player, Button(Ability 2)), Up), Global.stringSec))),
+			Null, Null, Left, 0, White, White, White, Visible To and String, Default Visibility);
+		Create Effect(Event Player, Ring, White, Position Of(Event Player), 6, Visible To Position and Radius);
+		Set Max Health(Event Player, 20 / Max Health(Event Player) * 100);
+		Add Health Pool To Player(Event Player, Health, 180, True, True);
+		Call Subroutine(commonSub);
+	}
+}
+
+rule("Block#12425 - Common Subroutine")
+{
+	event
+	{
+		Subroutine;
+		commonSub;
+	}
+
+	actions
+	{
+		"This fog is unique to the player, that way they always see 20 meters ahead of them. However, if a dead player is spectating, all the players' fog is visible to prevent exploits (since their unique fog is in a static position)."
+		Create Effect(Filtered Array(All Players(Team 2), Is Alive(Current Array Element)
+			== False || Current Array Element == Event Player), Bad Aura, White, Eye Position(Event Player) + Facing Direction Of(
+			Event Player) * 20, 100, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), Is Alive(Current Array Element)
+			== False || Current Array Element == Event Player), Bad Aura, White, Eye Position(Event Player) + Facing Direction Of(
+			Event Player) * 22, 100, Visible To Position and Radius);
+		Create Effect(Filtered Array(All Players(Team 2), Is Alive(Current Array Element)
+			== False || Current Array Element == Event Player), Bad Aura, White, Eye Position(Event Player) + Facing Direction Of(
+			Event Player) * -20, 100, Visible To Position and Radius);
+		Wait(1, Ignore Condition);
+		Heal(Event Player, Null, 1000);
+		Wait(1, Ignore Condition);
+		Set Healing Dealt(Event Player, 0);
+		Create HUD Text(Event Player, Custom String("{0}: {1}", Icon String(Heart), Round To Integer(Health(Event Player), Up)), Null,
+			Null, Left, -0.500, Green, White, White, Visible To and String, Default Visibility);
+		Event Player.hasSpawned = True;
+	}
+}
+
+disabled rule("Other Hero Abilities")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Block#12425 - Hide Info HUD")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Button Held(Event Player, Interact) == True;
+		Is Button Held(Event Player, Crouch) == True;
+	}
+
+	actions
+	{
+		If(Event Player.hideInfo == False);
+			Event Player.hideInfo = True;
+		Else;
+			Event Player.hideInfo = False;
+	}
+}
+
+rule("Block#12425 - Reaper Melee Stun")
+{
+	event
+	{
+		Player Dealt Damage;
+		Team 1;
+		Reaper;
+	}
+
+	conditions
+	{
+		Is Meleeing(Event Player) == True;
+	}
+
+	actions
+	{
+		"If Reaper lands a hit, he is stunned to give the victim time to reposition."
+		Set Status(Event Player, Null, Stunned, 3);
+		Small Message(Event Player, Custom String("Successful hit! Recharging..."));
+	}
+}
+
+rule("Block#12425 - Hanzo Wall Climb Cooldown Management I")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Hanzo;
+	}
+
+	conditions
+	{
+		Is On Wall(Event Player) == False;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+		Event Player.wasOnWall == True;
+	}
+
+	actions
+	{
+		"Hanzo's wall climb is put on a cooldown. These rules check and correct any wall climbing during cooldown."
+		Set Ability Cooldown(Event Player, Button(Ability 2), 10);
+		Event Player.wasOnWall = False;
+	}
+}
+
+rule("Block#12425 - Hanzo Wall Climb Cooldown Management II")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Hanzo;
+	}
+
+	conditions
+	{
+		Is On Wall(Event Player) == True;
+		Ability Cooldown(Event Player, Button(Ability 2)) > 0;
+	}
+
+	actions
+	{
+		Set Status(Event Player, Null, Hacked, 0.200);
+	}
+}
+
+rule("Block#12425 - Hanzo Wall Climb Cooldown Management IV")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Hanzo;
+	}
+
+	conditions
+	{
+		Is On Wall(Event Player) == True;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+		Event Player.wasOnWall == False;
+	}
+
+	actions
+	{
+		Event Player.wasOnWall = True;
+	}
+}
+
+rule("Block#12425 - Moira Clipping I")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Moira;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == True;
+	}
+
+	actions
+	{
+		"Like Reaper, Moira can no clip too, but to prevent exploits she is also teleported to NWP when she is done, to prevent hiding outside the map or in the environment."
+		Disable Movement Collision With Environment(Event Player, False);
+	}
+}
+
+rule("Block#12425 - Moira Clipping II")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Moira;
+	}
+
+	conditions
+	{
+		Is Using Ability 1(Event Player) == False;
+	}
+
+	actions
+	{
+		Enable Movement Collision With Environment(Event Player);
+		Teleport(Event Player, Nearest Walkable Position(Position Of(Event Player)));
+	}
+}
+
+rule("Block#12425 - Wrecdking Ball Push Back")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Wrecking Ball;
+	}
+
+	conditions
+	{
+		Is Using Ability 2(Event Player) == True;
+		Players In Slot(0, Team 1).isTeleporting == False;
+		Is In Line of Sight(Event Player, Players In Slot(0, Team 1), Barriers Do Not Block LOS) == True;
+		Distance Between(Event Player, Players In Slot(0, Team 1)) <= 9;
+	}
+
+	actions
+	{
+		"Wrecking Ball can push back Reaper even in wraith form."
+		Apply Impulse(Players In Slot(0, Team 1), Direction Towards(Position Of(Event Player), Eye Position(Players In Slot(0, Team 1))),
+			20, To World, Cancel Contrary Motion);
+		Wait(0.050, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+rule("Block#12425 - Wrecking Ball Mine Stun")
+{
+	event
+	{
+		Player Dealt Damage;
+		Team 2;
+		Wrecking Ball;
+	}
+
+	actions
+	{
+		"If Reaper hits a mine, he is stunned."
+		Set Status(Victim, Null, Knocked Down, 3);
+	}
+}
+
+rule("Block#12425 - Moira Healing")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Moira;
+	}
+
+	conditions
+	{
+		Is In Line of Sight(Event Player, Player Closest To Reticle(Event Player, Team 2), Barriers Do Not Block LOS) == True;
+		Is In View Angle(Event Player, Player Closest To Reticle(Event Player, Team 2), 20) == True;
+		Is Button Held(Event Player, Ability 2) == True;
+		Health(Player Closest To Reticle(Event Player, Team 2)) < Max Health(Player Closest To Reticle(Event Player, Team 2));
+		Is Alive(Player Closest To Reticle(Event Player, Team 2)) == True;
+		Is Alive(Event Player) == True;
+	}
+
+	actions
+	{
+		"Moira's healing is unique. She takes a chunk of her health pool to heal someone else. However, she can die during this process."
+		Event Player.survivorSpecificVariable = Player Closest To Reticle(Event Player, Team 2);
+		Heal(Event Player.survivorSpecificVariable, Null, 150);
+		Small Message(Event Player.survivorSpecificVariable, Custom String("{0} {1}: {2}", Hero Icon String(Hero(Moira)), Event Player,
+			Global.stringMoiraHeal));
+		If(Event Player.survivorSpecificVariable != Null);
+			Damage(Event Player, Null, Max Health(Event Player) / 1.334);
+			Play Effect(All Players(All Teams), Good Explosion, Green, Event Player.survivorSpecificVariable, 2);
+			Wait(0.100, Ignore Condition);
+			If(Is Alive(Event Player) == False);
+				"If she dies, everyone knows of her sacrifice. Reaper is also reminded to know that people did get healed."
+				Small Message(All Players(All Teams), Custom String("{0} {1}: {2}", Hero Icon String(Hero(Moira)), Event Player,
+					Global.stringMoiraSacrifice));
+	}
+}
+
+rule("Block#12425 - Tracer Team Warp")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Tracer;
+	}
+
+	conditions
+	{
+		Is Using Ability 2(Event Player) == True;
+	}
+
+	actions
+	{
+		"Tracer can teleport people with her when she jukes Reaper out. She doesn't teleport people held by Winston since they will be teleported when he is."
+		Event Player.survivorSpecificVariable = Filtered Array(All Players(Team 2), Distance Between(Event Player, Current Array Element)
+			<= 6 && Is In Line of Sight(Event Player, Current Array Element, Barriers Do Not Block LOS)
+			== True && Current Array Element != Event Player && Current Array Element.winstonGrab == False);
+		Wait(0.100, Ignore Condition);
+		For Player Variable(Event Player, survivorSpecificVariable2, 0, Count Of(Event Player.survivorSpecificVariable), 1);
+			Set Status(Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2], Null, Burning, 4);
+	}
+}
+
+rule("Block#12425 - Tracer Team Warp II")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Tracer;
+	}
+
+	conditions
+	{
+		Is Using Ability 2(Event Player) == False;
+	}
+
+	actions
+	{
+		For Player Variable(Event Player, survivorSpecificVariable2, 0, Count Of(Event Player.survivorSpecificVariable), 1);
+			Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2].throwingPlayer = Event Player;
+			Play Effect(All Players(All Teams), Good Explosion, Orange,
+				Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2], 2);
+			Wait(0.100, Ignore Condition);
+			Teleport(Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2], Event Player);
+			Clear Status(Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2], Burning);
+			Small Message(Event Player.survivorSpecificVariable[Event Player.survivorSpecificVariable2], Custom String("{0} {1}: {2}",
+				Hero Icon String(Hero(Tracer)), Event Player, Global.stringTracerTeleportMessage));
+		End;
+	}
+}
+
+rule("Block#12425 - Winston Grab")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Winston;
+	}
+
+	conditions
+	{
+		Is Alive(Event Player) == True;
+		Event Player.survivorSpecificVariable == Null;
+		Is Button Held(Event Player, Secondary Fire) == True;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+		Is Alive(Player Closest To Reticle(Event Player, Team 2)) == True;
+		Hero Of(Player Closest To Reticle(Event Player, Team 2)) != Hero(Winston);
+		Player Closest To Reticle(Event Player, Team 2).winstonGrab == False;
+		Is In Line of Sight(Event Player, Player Closest To Reticle(Event Player, Team 2), Barriers Do Not Block LOS) == True;
+		Is In View Angle(Event Player, Player Closest To Reticle(Event Player, Team 2), 20) == True;
+		Distance Between(Event Player, Player Closest To Reticle(Event Player, Team 2)) <= 6;
+	}
+
+	actions
+	{
+		"Winston's grab is very picky, but once done will make sure the player is on top of him, and hacked to prevent weird ability glitches (or exploits)."
+		Set Ability Cooldown(Event Player, Button(Ability 2), 3);
+		Event Player.survivorSpecificVariable = Player Closest To Reticle(Event Player, Team 2);
+		Wait(0.100, Ignore Condition);
+		Attach Players(Event Player.survivorSpecificVariable, Event Player, Vector(0, 2, 0));
+		Event Player.survivorSpecificVariable.winstonGrab = True;
+		Set Status(Event Player.survivorSpecificVariable, Null, Hacked, 9999);
+		Small Message(Event Player.survivorSpecificVariable, Custom String("{0} {1}: {2}", Hero Icon String(Hero(Winston)), Event Player,
+			Global.stringWinstonGrab));
+	}
+}
+
+rule("Block#12425 - Winston Throw")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Winston;
+	}
+
+	conditions
+	{
+		Event Player.survivorSpecificVariable != Null;
+		Is Button Held(Event Player, Secondary Fire) == True;
+		Ability Cooldown(Event Player, Button(Ability 2)) == 0;
+		Event Player.survivorSpecificVariable.winstonGrab == True;
+	}
+
+	actions
+	{
+		Set Ability Cooldown(Event Player, Button(Ability 2), 5);
+		Wait(0.100, Ignore Condition);
+		Event Player.survivorSpecificVariable.throwingPlayer = Event Player;
+		Detach Players(Event Player.survivorSpecificVariable);
+		Event Player.survivorSpecificVariable.winstonGrab = False;
+		Clear Status(Event Player.survivorSpecificVariable, Hacked);
+		Apply Impulse(Event Player.survivorSpecificVariable, Facing Direction Of(Event Player), 40, To World, Cancel Contrary Motion);
+		Event Player.survivorSpecificVariable = Null;
+	}
+}
+
+rule("Block#12425 - Winston Grab Clear Up")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Winston;
+	}
+
+	conditions
+	{
+		Event Player.survivorSpecificVariable != Null;
+		(Entity Exists(Event Player.survivorSpecificVariable) == False || Is Alive(Event Player.survivorSpecificVariable) == False)
+			== True;
+	}
+
+	actions
+	{
+		"In case something weird happens, this rule exists to clear up the variables so the ability doesn't get soft locked."
+		Detach Players(Event Player.survivorSpecificVariable);
+		Event Player.survivorSpecificVariable.winstonGrab = False;
+		Clear Status(Event Player.survivorSpecificVariable, Hacked);
+		Event Player.survivorSpecificVariable = Null;
+	}
+}
+
+rule("Block#12425 - Winston Player Escape")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		Winston;
+	}
+
+	conditions
+	{
+		Event Player.survivorSpecificVariable != Null;
+		Entity Exists(Event Player.survivorSpecificVariable) == True;
+		Is Alive(Event Player.survivorSpecificVariable) == True;
+		Is Button Held(Event Player.survivorSpecificVariable, Jump) == True;
+	}
+
+	actions
+	{
+		"Not everyone wants to be captive to Winston, or trolled. This exists to allow them to escape. Since there is a cooldown for the grab, this should be enough for them to get away from a troll."
+		Detach Players(Event Player.survivorSpecificVariable);
+		Event Player.survivorSpecificVariable.winstonGrab = False;
+		Clear Status(Event Player.survivorSpecificVariable, Hacked);
+		Event Player.survivorSpecificVariable = Null;
+	}
+}
+
+rule("Block#12425 - Player Dies due to teammate")
+{
+	event
+	{
+		Player Died;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Event Player.throwingPlayer != Null;
+		Attacker != Players In Slot(0, Team 1);
+	}
+
+	actions
+	{
+		"If a troll was successful, this makes sure that the player trolled is not punished, but instead the troll. This only works with Winston and Tracer."
+		Kill(Event Player.throwingPlayer, Event Player);
+		Small Message(Event Player.throwingPlayer, Global.stringTeamKill);
+		Event Player.throwingPlayer = Null;
+		Wait(0.200, Ignore Condition);
+		Respawn(Event Player);
+	}
+}
+
+rule("Block#12425 - Reset Player Throw Status")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Is On Ground(Event Player) == True;
+		Event Player.throwingPlayer != Null;
+	}
+
+	actions
+	{
+		Wait(0.500, Abort When False);
+		Event Player.throwingPlayer = Null;
+	}
+}
